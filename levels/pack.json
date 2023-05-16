@@ -60,6 +60,5 @@
       "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
       "luaFile": "longest-subsequence.lua"
     }
-  ],
-  "winMessage": "You solved all of the puzzles! Good job!"
+  ]
 }

@@ -9,14 +9,11 @@ use uuid::Uuid;
 
 use crate::puzzle::{Puzzle, TestCaseSet};
 
-static DEFAULT_WIN_MESSAGE: &str = "Congratulations! You solved all puzzles. Good job!";
-
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Levels {
   levels: Vec<Level>,
-  win_message: Option<String>,
 }
 
 /// Single entry in the levels.json file
@@ -62,14 +59,6 @@ impl Levels {
     }
 
     Ok(me)
-  }
-
-  pub fn win_message(&self) -> &str {
-    self
-      .win_message
-      .as_ref()
-      .map(String::as_str)
-      .unwrap_or(DEFAULT_WIN_MESSAGE)
   }
 }
 

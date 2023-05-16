@@ -60,10 +60,6 @@ impl GlobalState {
     Ok(())
   }
 
-  pub fn message(&self) -> &str {
-    self.levels.win_message()
-  }
-
   pub fn level(&self, index: usize) -> &Level {
     self.levels.level(index)
   }

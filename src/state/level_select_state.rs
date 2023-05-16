@@ -10,6 +10,7 @@ use crate::global_state::GlobalState;
 
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;
+const LEVELS_PER_PAGE: usize = 10;
 
 static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___ ___       ___  ___ 
  |___ |  | |\ | | __ |___    |  |      |  |  | | __ |___  |  |__| |___ |__/ 
@@ -21,14 +22,32 @@ pub struct LevelSelectState {
   selected_level_index: isize,
   last_error: Option<String>,
   saved: bool,
+  page_offset: usize,
 }
 
 impl LevelSelectState {
   pub fn new(selected_level_index: usize) -> Self {
-    Self {
+    let mut state = Self {
       selected_level_index: selected_level_index as isize,
       last_error: None,
       saved: false,
+      page_offset: 0,
+    };
+    state.fix_page_offset();
+    state
+  }
+
+  fn fix_page_offset(&mut self) {
+    loop {
+      match self.selected_level_index - self.page_offset as isize {
+        x if x >= (LEVELS_PER_PAGE as isize) => {
+          self.page_offset += 1;
+        },
+        x if x < 0 => {
+          self.page_offset -= 1;
+        },
+        _ => break,
+      }
     }
   }
 }
@@ -52,7 +71,12 @@ impl State for LevelSelectState {
     }
 
     write!(stdout, "Level Select:")?;
-    stdout.queue(cursor::MoveToNextLine(2))?;
+    stdout.queue(cursor::MoveToNextLine(1))?;
+
+    if self.page_offset > 0 {
+      write!(stdout, "↑")?;
+    }
+    stdout.queue(cursor::MoveToNextLine(1))?;
 
     let completed_levels = global_state.completed_levels();
     let all_levels_completed = completed_levels.len() == global_state.levels().len();
@@ -64,13 +88,19 @@ impl State for LevelSelectState {
       completed_levels.into_iter().chain(iter::once(next_level)).collect()
     };
 
-    for (level, level_number) in unlocked_levels.iter().zip(1..) {
-      if (self.selected_level_index + 1) == level_number {
+    for (level, level_number) in unlocked_levels
+      .iter()
+      .skip(self.page_offset)
+      .take(LEVELS_PER_PAGE)
+      .zip((self.page_offset + 1)..)
+    {
+      if (self.selected_level_index + 1) == (level_number as isize) {
         write!(stdout, "{}", "►".green())?;
       } else {
         write!(stdout, " ")?;
       }
 
+      // Color text depending on if it is completed or not
       let text = format!(" Level {:2<} - {}", level_number, level.name());
       if level_number as usize == unlocked_levels.len() && !all_levels_completed {
         write!(stdout, "{:40}", text)?;
@@ -92,16 +122,8 @@ impl State for LevelSelectState {
       stdout.queue(style::ResetColor)?.queue(cursor::MoveToNextLine(1))?;
     }
 
-    // Special case: end message
-    if all_levels_completed {
-      stdout.queue(cursor::MoveToNextLine(1))?;
-      if self.selected_level_index as usize == unlocked_levels.len() {
-        write!(stdout, "{}", "►".green())?;
-      } else {
-        write!(stdout, " ")?;
-      }
-
-      write!(stdout, "{}", " Win Message".cyan())?;
+    if (self.page_offset as isize) < (unlocked_levels.len() as isize - LEVELS_PER_PAGE as isize) {
+      write!(stdout, "↓")?;
     }
 
     if let Some(ref err) = self.last_error {
@@ -119,8 +141,13 @@ impl State for LevelSelectState {
 
   fn execute(mut self: Box<Self>, global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
     let completed_levels = global_state.completed_levels();
-    let num_options = completed_levels.len() + 1;
     let all_levels_completed = completed_levels.len() == global_state.levels().len();
+
+    let num_options = if all_levels_completed {
+      completed_levels.len() // No next level to unlock
+    } else {
+      completed_levels.len() + 1 // There is a next level to unlock
+    };
 
     loop {
       // `read()` blocks until an `Event` is available
@@ -146,16 +173,16 @@ impl State for LevelSelectState {
           KeyCode::Up => {
             self.last_error = None;
             self.selected_level_index = (self.selected_level_index - 1).rem_euclid(num_options as isize);
+            self.fix_page_offset();
+
             return Ok(Some(self));
           },
           KeyCode::Down => {
             self.last_error = None;
             self.selected_level_index = (self.selected_level_index + 1).rem_euclid(num_options as isize);
-            return Ok(Some(self));
-          },
+            self.fix_page_offset();
 
-          KeyCode::Enter if all_levels_completed && self.selected_level_index as usize == completed_levels.len() => {
-            return Ok(Some(Box::new(ShowTextState::new(global_state.message(), self))))
+            return Ok(Some(self));
           },
 
           KeyCode::Enter => {
