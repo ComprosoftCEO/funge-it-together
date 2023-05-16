@@ -2,6 +2,7 @@ use std::io::{self, Write};
 use std::time::{Duration, Instant};
 
 use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::style::Stylize;
 use crossterm::{cursor, event, QueueableCommand};
 
 use super::{LevelSelectState, State};
@@ -19,10 +20,10 @@ static TITLE: &str = r#"
    ██║   ██║   ██║██║  ███╗█████╗     ██║   ███████║█████╗  ██████╔╝
    ██║   ██║   ██║██║   ██║██╔══╝     ██║   ██╔══██║██╔══╝  ██╔══██╗
    ██║   ╚██████╔╝╚██████╔╝███████╗   ██║   ██║  ██║███████╗██║  ██║
-   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝"#;
 
-                    Created by Bryan McClain
-                       © Comprosoft 2023"#;
+static CREATOR: &str = "Created by Bryan McClain";
+static COPYRIGHT: &str = "© Comprosoft 2023";
 
 pub struct TitleState {
   now: Instant,
@@ -43,6 +44,11 @@ impl State for TitleState {
       write!(stdout, "{}", line)?;
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
+
+    stdout.queue(cursor::MoveToNextLine(1))?;
+    write!(stdout, "                    {}", CREATOR.dark_yellow())?;
+    stdout.queue(cursor::MoveToNextLine(1))?;
+    write!(stdout, "                       {}", COPYRIGHT.dark_green())?;
 
     stdout.flush()?;
 

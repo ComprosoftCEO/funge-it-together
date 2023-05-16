@@ -10,7 +10,7 @@ use crate::global_state::GlobalState;
 
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;
-const LEVELS_PER_PAGE: usize = 10;
+const LEVELS_PER_PAGE: usize = 12;
 
 static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___ ___       ___  ___ 
  |___ |  | |\ | | __ |___    |  |      |  |  | | __ |___  |  |__| |___ |__/ 
@@ -110,13 +110,13 @@ impl State for LevelSelectState {
       }
 
       if let Some(statistics) = global_state.get_statistics(level.id()) {
-        stdout.queue(style::SetForegroundColor(Color::DarkYellow))?;
         write!(
           stdout,
-          "{: <20}   {}",
-          format!("Cycles: {:.2}", statistics.average_cycles()),
-          format!("Symbols: {}", statistics.symbols_used())
+          "{} {: <10.2}",
+          "Cycles:".dark_yellow(),
+          statistics.average_cycles()
         )?;
+        write!(stdout, "   {} {}", "Symbols:".dark_cyan(), statistics.symbols_used())?;
       }
 
       stdout.queue(style::ResetColor)?.queue(cursor::MoveToNextLine(1))?;
@@ -128,7 +128,7 @@ impl State for LevelSelectState {
 
     if let Some(ref err) = self.last_error {
       stdout
-        .queue(cursor::MoveToNextLine(2))?
+        .queue(cursor::MoveToNextLine(1))?
         .queue(style::SetForegroundColor(Color::Red))?;
       print_string(err)?;
       stdout.queue(style::ResetColor)?;

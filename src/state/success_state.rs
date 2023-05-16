@@ -32,9 +32,19 @@ impl State for SuccessState {
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
     stdout.queue(cursor::MoveToNextLine(2))?;
 
-    write!(stdout, "Average Cycles: {:.2}", self.statistics.average_cycles())?;
+    write!(
+      stdout,
+      "{} {:.2}",
+      "Average Cycles:".dark_yellow(),
+      self.statistics.average_cycles()
+    )?;
     stdout.queue(cursor::MoveToNextLine(1))?;
-    write!(stdout, "Symbols Used: {}", self.statistics.symbols_used())?;
+    write!(
+      stdout,
+      "{}   {}",
+      "Symbols Used:".dark_cyan(),
+      self.statistics.symbols_used()
+    )?;
     stdout.queue(cursor::MoveToNextLine(3))?;
     write!(stdout, "{} Continue", "►".green())?;
 
