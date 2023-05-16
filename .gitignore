@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+
+# Vim Swap Files
+*.sw*
+
+.vscode/
+save.json
