@@ -91,10 +91,11 @@ These instructions allow you to change the direction that the AI is moving throu
 The AI moves in the same direction until an instruction updates it's direction.
 If the AI reaches the edge of the grid, it wraps around back to the other side and continues executing instructions in the same direction.
 
-| Instruction |       Symbol       | Description                                                  |
-| :---------- | :----------------: | :----------------------------------------------------------- |
-| Arrows      | `↑`, `↓`, `←`, `→` | Set the movement direction to up/down/left/right.            |
-| Mirrors     |      `/`, `\`      | Change the direction as though it was bounding off a mirror. |
+| Instruction |       Symbol       | Description                                                              |
+| :---------- | :----------------: | :----------------------------------------------------------------------- |
+| Arrows      | `↑`, `↓`, `←`, `→` | Set the movement direction to up/down/left/right.                        |
+| Mirrors     |      `/`, `\`      | Change the direction as though it was bounding off a mirror.             |
+| Skip        |        `»`         | Skip the next instruction and continue execution two instructions ahead. |
 
 ### Stack Manipulation
 

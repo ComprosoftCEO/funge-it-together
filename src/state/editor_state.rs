@@ -21,13 +21,13 @@ static INSTRUCTIONS: &str = r#"
 │
 │Tab    = Step
 │Space  = Start/Stop
-│h      = Level Help
 │[  ]   = Test Case
 │
 │Arrow  = Move Cursor
 │Delete = Clear
 │asdw   = ←↓→↑ (Move)
 │/ \    = / \ (Bounce)
+│k      = » (Skip)
 │0-9    = 0-9
 │x      = ☼ (Pop)
 │c      = © (Copy)
@@ -251,6 +251,10 @@ impl State for EditorState {
           },
           KeyCode::Char('\\') => {
             self.set_cell(Command::BackSlash);
+            break;
+          },
+          KeyCode::Char('k') => {
+            self.set_cell(Command::Skip);
             break;
           },
 

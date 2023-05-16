@@ -83,6 +83,7 @@ pub enum Command {
   IfLess,
   IfEqual,
   IfGreater,
+  Skip,
   In,
   HasInput,
   Out,
@@ -118,6 +119,7 @@ impl Command {
       Self::IfLess => '<',
       Self::IfEqual => '=',
       Self::IfGreater => '>',
+      Self::Skip => '»',
       Self::In => 'Ї',
       Self::HasInput => '?',
       Self::Out => 'Θ',
@@ -291,6 +293,9 @@ impl VirtualMachine {
         Command::IfGreater => {
           let val = self.peek()?;
           self.skip_next_instruction = !(val > 0);
+        },
+        Command::Skip => {
+          self.skip_next_instruction = true;
         },
         Command::In => {
           let val = self.inputs.read().ok_or(VMError::NoInputs)?;
