@@ -80,8 +80,8 @@ impl Level {
     &self.lua_file
   }
 
-  pub fn get_full_text(&self, level_index: usize) -> String {
-    format!("Level {} - {}\n\n{}", level_index + 1, self.name(), self.description())
+  pub fn get_title(&self, level_index: usize) -> String {
+    format!("Level {} - {}", level_index + 1, self.name())
   }
 
   ///

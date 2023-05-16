@@ -5,7 +5,7 @@ use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
-use super::{print_string, EditorState, ShowTextState, State};
+use super::{print_string, EditorState, ShowHelpState, State};
 use crate::global_state::GlobalState;
 
 const SEED: u32 = 0xdeadbeef;
@@ -66,7 +66,7 @@ impl State for LevelSelectState {
     stdout.queue(cursor::Hide)?.queue(cursor::MoveTo(0, 0))?;
 
     for line in TITLE.lines() {
-      write!(stdout, "{}", line)?;
+      write!(stdout, "{}", line.dark_cyan())?;
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
 
@@ -103,6 +103,7 @@ impl State for LevelSelectState {
       // Color text depending on if it is completed or not
       let text = format!(" Level {:2<} - {}", level_number, level.name());
       if level_number as usize == unlocked_levels.len() && !all_levels_completed {
+        stdout.queue(style::SetForegroundColor(Color::Yellow))?;
         write!(stdout, "{:40}", text)?;
       } else {
         stdout.queue(style::SetForegroundColor(Color::DarkGreen))?;
@@ -203,8 +204,9 @@ impl State for LevelSelectState {
               0,
             ));
 
-            return Ok(Some(Box::new(ShowTextState::new(
-              level.get_full_text(self.selected_level_index as usize),
+            return Ok(Some(Box::new(ShowHelpState::new(
+              level.get_title(self.selected_level_index as usize),
+              level.description(),
               editor,
               Some(self),
             ))));

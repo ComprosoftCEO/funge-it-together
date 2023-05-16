@@ -1,11 +1,12 @@
 use crossterm::{
   cursor,
   event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
+  style::Stylize,
   ExecutableCommand, QueueableCommand,
 };
 use std::io::{self, Write};
 
-use super::{execute_state::Speed, print_string, ExecuteState, LevelSelectState, ShowTextState};
+use super::{execute_state::Speed, print_string, ExecuteState, LevelSelectState, ShowHelpState};
 use crate::{
   global_state::{GlobalState, Solution},
   printable::Printable,
@@ -89,7 +90,11 @@ impl State for EditorState {
     let mut stdout = io::stdout();
 
     let level = &global_state.levels()[self.level_index];
-    write!(stdout, "     Level {} - {}", self.level_index + 1, level.name())?;
+    write!(
+      stdout,
+      "     {}",
+      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+    )?;
 
     self.solution.print_at(2, 0)?;
 
@@ -97,7 +102,11 @@ impl State for EditorState {
       .queue(cursor::MoveTo(self.solution.cols() as u16 + 2 + 8, 2))?
       .queue(cursor::SavePosition)?;
 
-    write!(stdout, "Test Case {}", self.test_case_index + 1)?;
+    write!(
+      stdout,
+      "{}",
+      format!("Test Case {}", self.test_case_index + 1).dark_yellow()
+    )?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveDown(2))?;
 
     self.test_cases[self.test_case_index as usize].print()?;
@@ -137,8 +146,9 @@ impl State for EditorState {
           KeyCode::Esc => return Ok(Some(Box::new(LevelSelectState::new(self.level_index)))),
           KeyCode::Char('h') => {
             let level = global_state.level(self.level_index);
-            return Ok(Some(Box::new(ShowTextState::new(
-              level.get_full_text(self.level_index),
+            return Ok(Some(Box::new(ShowHelpState::new(
+              level.get_title(self.level_index as usize),
+              level.description(),
               self,
               None,
             ))));

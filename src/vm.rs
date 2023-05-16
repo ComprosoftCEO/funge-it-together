@@ -355,6 +355,23 @@ impl VirtualMachine {
       self.push(number)
     }
   }
+
+  pub fn print_error_symbol_at(&self, row: u16, col: u16) -> io::Result<()> {
+    let mut stdout = io::stdout();
+    stdout.queue(cursor::MoveTo(col + self.col as u16 + 1, row + self.row as u16 + 1))?;
+    write!(
+      stdout,
+      "{}",
+      self
+        .grid
+        .get_value(self.row as usize, self.col as usize)
+        .get_char()
+        .red()
+        .reverse()
+    )?;
+
+    Ok(())
+  }
 }
 
 impl Printable for VirtualMachine {
@@ -366,7 +383,7 @@ impl Printable for VirtualMachine {
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(self.grid.rows() as u16 + 2 + 1))?;
-    write!(stdout, "Cycle: {}", self.cycle)?;
+    write!(stdout, "{} {}", "Cycle:".dark_cyan(), self.cycle)?;
 
     stdout
       .queue(cursor::RestorePosition)?
@@ -383,7 +400,7 @@ impl Printable for VirtualMachine {
       .queue(cursor::MoveRight(self.grid.cols() as u16 + 2 + 8))?
       .queue(cursor::SavePosition)?;
 
-    write!(stdout, "Test Case {}", self.test_case)?;
+    write!(stdout, "{}", format!("Test Case {}", self.test_case).dark_yellow())?;
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(2))?

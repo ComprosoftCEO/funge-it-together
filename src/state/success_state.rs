@@ -27,7 +27,11 @@ impl State for SuccessState {
     stdout.queue(cursor::Hide)?;
 
     let level = &global_state.levels()[self.level_index];
-    write!(stdout, "Level {} - {}", self.level_index + 1, level.name())?;
+    write!(
+      stdout,
+      "{}",
+      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+    )?;
     stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
     stdout.queue(cursor::MoveToNextLine(2))?;

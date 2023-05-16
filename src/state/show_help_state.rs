@@ -10,15 +10,22 @@ use crossterm::{
 use super::State;
 use crate::global_state::GlobalState;
 
-pub struct ShowTextState {
+pub struct ShowHelpState {
+  title: String,
   text: String,
   next_state: Box<dyn State>,
   back_state: Option<Box<dyn State>>,
 }
 
-impl ShowTextState {
-  pub fn new(text: impl Into<String>, next_state: Box<dyn State>, back_state: Option<Box<dyn State>>) -> Self {
+impl ShowHelpState {
+  pub fn new(
+    title: impl Into<String>,
+    text: impl Into<String>,
+    next_state: Box<dyn State>,
+    back_state: Option<Box<dyn State>>,
+  ) -> Self {
     Self {
+      title: title.into(),
       text: text.into(),
       next_state,
       back_state,
@@ -26,10 +33,13 @@ impl ShowTextState {
   }
 }
 
-impl State for ShowTextState {
+impl State for ShowHelpState {
   fn render(&mut self, _: &mut GlobalState) -> io::Result<()> {
     let mut stdout = io::stdout();
     stdout.queue(cursor::Hide)?;
+
+    write!(stdout, "{}", self.title.as_str().yellow())?;
+    stdout.queue(cursor::MoveToNextLine(2))?;
 
     for line in self.text.lines() {
       write!(stdout, "{}", line)?;

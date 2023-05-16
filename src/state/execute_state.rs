@@ -1,6 +1,7 @@
 use crossterm::{
   cursor,
   event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
+  style::Stylize,
   QueueableCommand,
 };
 use rand::Rng;
@@ -119,11 +120,16 @@ impl State for ExecuteState {
 
     let level = &global_state.levels()[self.level_index];
     stdout.queue(cursor::Hide)?;
-    write!(stdout, "     Level {} - {}", self.level_index + 1, level.name())?;
+    write!(
+      stdout,
+      "     {}",
+      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+    )?;
 
     self.vms[self.test_case].print_at(2, 0)?;
 
     if let Some(ref last_error) = self.last_error {
+      self.vms[self.test_case].print_error_symbol_at(2, 0)?;
       last_error.print_at(self.vms[0].rows() as u16 + 2 + 2 + 4, 0)?;
     }
 

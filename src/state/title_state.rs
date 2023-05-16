@@ -41,7 +41,7 @@ impl State for TitleState {
     stdout.queue(cursor::Hide)?.queue(cursor::MoveTo(0, 0))?;
 
     for line in TITLE.lines() {
-      write!(stdout, "{}", line)?;
+      write!(stdout, "{}", line.dark_cyan())?;
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
 
