@@ -140,6 +140,7 @@ impl State for EditorState {
             return Ok(Some(Box::new(ShowTextState::new(
               level.get_full_text(self.level_index),
               self,
+              None,
             ))));
           },
 

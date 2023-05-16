@@ -12,14 +12,16 @@ use crate::global_state::GlobalState;
 
 pub struct ShowTextState {
   text: String,
-  prev_state: Box<dyn State>,
+  next_state: Box<dyn State>,
+  back_state: Option<Box<dyn State>>,
 }
 
 impl ShowTextState {
-  pub fn new(text: impl Into<String>, prev_state: Box<dyn State>) -> Self {
+  pub fn new(text: impl Into<String>, next_state: Box<dyn State>, back_state: Option<Box<dyn State>>) -> Self {
     Self {
       text: text.into(),
-      prev_state,
+      next_state,
+      back_state,
     }
   }
 }
@@ -59,8 +61,12 @@ impl State for ShowTextState {
             return Ok(None);
           },
 
-          KeyCode::Enter | KeyCode::Esc => {
-            return Ok(Some(self.prev_state));
+          KeyCode::Enter => {
+            return Ok(Some(self.next_state));
+          },
+
+          KeyCode::Esc => {
+            return Ok(Some(self.back_state.unwrap_or(self.next_state)));
           },
 
           _ => {},

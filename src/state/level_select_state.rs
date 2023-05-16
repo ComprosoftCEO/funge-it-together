@@ -206,6 +206,7 @@ impl State for LevelSelectState {
             return Ok(Some(Box::new(ShowTextState::new(
               level.get_full_text(self.selected_level_index as usize),
               editor,
+              Some(self),
             ))));
           },
 
