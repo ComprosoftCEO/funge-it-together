@@ -1,6 +1,6 @@
 use crossterm::{
   cursor,
-  event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
+  event::{self, Event, KeyCode, KeyEventKind, KeyModifiers, MouseButton, MouseEventKind},
   style::Stylize,
   ExecutableCommand, QueueableCommand,
 };
@@ -136,6 +136,38 @@ impl State for EditorState {
       match event {
         Event::Resize(_, _) => {
           return Ok(Some(self));
+        },
+
+        Event::Mouse(mouse) => {
+          // Mouse only causes events inside the grid
+          let mouse_row = (mouse.row as isize) - 1 - 2;
+          let mouse_col = (mouse.column as isize) - 1;
+          if mouse_row < 0
+            || mouse_row >= self.solution.rows() as isize
+            || mouse_col < 0
+            || mouse_col >= self.solution.cols() as isize
+          {
+            continue;
+          }
+
+          match mouse.kind {
+            // Left button just selects the space
+            MouseEventKind::Down(MouseButton::Left) | MouseEventKind::Drag(MouseButton::Left) => {
+              self.cursor_row = mouse_row;
+              self.cursor_col = mouse_col;
+              return Ok(Some(self));
+            },
+
+            // Right button clears
+            MouseEventKind::Down(MouseButton::Right) | MouseEventKind::Drag(MouseButton::Right) => {
+              self.cursor_row = mouse_row;
+              self.cursor_col = mouse_col;
+              self.set_cell(Command::Empty);
+              return Ok(Some(self));
+            },
+
+            _ => {},
+          }
         },
 
         Event::Key(key) if key.kind == KeyEventKind::Press => match key.code {

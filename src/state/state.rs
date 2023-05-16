@@ -22,7 +22,9 @@ pub trait State {
 // Run the main game loop
 pub fn run(mut state: Box<dyn State>, global_state: &mut GlobalState) -> io::Result<()> {
   let mut stdout = io::stdout();
-  stdout.execute(terminal::EnterAlternateScreen)?;
+  stdout
+    .queue(terminal::EnterAlternateScreen)?
+    .execute(event::EnableMouseCapture)?;
   terminal::enable_raw_mode()?;
 
   loop {
@@ -56,6 +58,7 @@ pub fn run(mut state: Box<dyn State>, global_state: &mut GlobalState) -> io::Res
   stdout
     .queue(cursor::Show)?
     .queue(cursor::EnableBlinking)?
+    .queue(event::DisableMouseCapture)?
     .execute(terminal::LeaveAlternateScreen)?;
   Ok(())
 }
