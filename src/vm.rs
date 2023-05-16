@@ -398,7 +398,7 @@ impl Printable for VirtualMachine {
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(9))?;
     self.inputs.print()?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(16))?;
-    self.outputs.print()?;
+    self.outputs.print_with_expected_outputs(&self.expected_outputs)?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(23))?;
     self.expected_outputs.print()?;
 

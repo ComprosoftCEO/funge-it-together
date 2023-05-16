@@ -1,3 +1,4 @@
+use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 use rand::Rng;
 use std::collections::VecDeque;
@@ -120,10 +121,8 @@ impl PuzzleIO {
       false
     }
   }
-}
 
-impl Printable for PuzzleIO {
-  fn print(&self) -> io::Result<()> {
+  pub(crate) fn print_with_expected_outputs(&self, expected_outputs: &PuzzleIO) -> io::Result<()> {
     let mut stdout = io::stdout();
     // ┌─┐
     // │ │
@@ -134,8 +133,13 @@ impl Printable for PuzzleIO {
       .queue(cursor::MoveLeft(VAL_CHAR_WIDTH as u16 + 2))?
       .queue(cursor::MoveDown(1))?;
 
-    for value in self.0.iter() {
-      write!(stdout, "│{:-4}│", value)?;
+    for (i, value) in self.0.iter().enumerate() {
+      let text = format!("{:-4}", value);
+      match expected_outputs.0.get(i) {
+        Some(x) if x == value => write!(stdout, "│{}│", text),
+        Some(_) | None => write!(stdout, "│{}│", text.red()),
+      }?;
+
       stdout
         .queue(cursor::MoveLeft(VAL_CHAR_WIDTH as u16 + 2))?
         .queue(cursor::MoveDown(1))?;
@@ -151,5 +155,11 @@ impl Printable for PuzzleIO {
     write!(stdout, "└{}┘", top_bottom_lines)?;
 
     Ok(())
+  }
+}
+
+impl Printable for PuzzleIO {
+  fn print(&self) -> io::Result<()> {
+    self.print_with_expected_outputs(self)
   }
 }
