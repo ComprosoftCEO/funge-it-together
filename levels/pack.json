@@ -51,7 +51,7 @@
     {
       "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
       "name": "Interpreter",
-      "description": "An important job of any AI is the ability to execute other programs.\nSo, you will need to write an interpreter for a subset of the stack instructions.\nYou can assume the none of the input programs will overflow the stack or cause an arithmetic error.\n\nInstructions\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n∙ Output: 99\n\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
+      "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n∙ Output: 99\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
       "luaFile": "interpreter.lua"
     },
     {

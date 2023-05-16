@@ -11,6 +11,12 @@ use crate::global_state::GlobalState;
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;
 
+static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___ ___       ___  ___ 
+ |___ |  | |\ | | __ |___    |  |      |  |  | | __ |___  |  |__| |___ |__/ 
+ |    |__| | \| |__] |___    |  |      |  |__| |__] |___  |  |  | |___ |  \
+
+"#;
+
 pub struct LevelSelectState {
   selected_level_index: isize,
   last_error: Option<String>,
@@ -39,6 +45,11 @@ impl State for LevelSelectState {
 
     let mut stdout = io::stdout();
     stdout.queue(cursor::Hide)?.queue(cursor::MoveTo(0, 0))?;
+
+    for line in TITLE.lines() {
+      write!(stdout, "{}", line)?;
+      stdout.queue(cursor::MoveToNextLine(1))?;
+    }
 
     write!(stdout, "Level Select:")?;
     stdout.queue(cursor::MoveToNextLine(2))?;
