@@ -1,8 +1,9 @@
 use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
+use std::hash::Hash;
 use std::io::{self, BufReader, BufWriter, Write};
 use std::path::Path;
 use uuid::Uuid;
@@ -17,6 +18,7 @@ static SAVE_FILE: &str = "save.json";
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GlobalState {
+  #[serde(deserialize_with = "deserialize_one_or_many_map")]
   solutions: HashMap<Uuid, Vec<Solution>>,
   unlocked: HashMap<Uuid, Statistics>,
 
@@ -27,10 +29,15 @@ pub struct GlobalState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Solution {
+  #[serde(default = "default_name")]
   name: String,
   grid: Grid,
   start_row: usize,
   start_col: usize,
+}
+
+fn default_name() -> String {
+  "Solution 1".into()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -233,4 +240,35 @@ impl Statistics {
       self.symbols_used = other.symbols_used;
     }
   }
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum OneOrManyMap<K, V>
+where
+  K: Eq + Hash,
+{
+  One(HashMap<K, V>),
+  Vec(HashMap<K, Vec<V>>),
+}
+
+impl<K, V> From<OneOrManyMap<K, V>> for HashMap<K, Vec<V>>
+where
+  K: Eq + Hash,
+{
+  fn from(from: OneOrManyMap<K, V>) -> Self {
+    match from {
+      OneOrManyMap::One(val) => val.into_iter().map(|(k, v)| (k, vec![v])).collect(),
+      OneOrManyMap::Vec(vec) => vec,
+    }
+  }
+}
+
+fn deserialize_one_or_many_map<'de, D, K, V>(deserializer: D) -> Result<HashMap<K, Vec<V>>, D::Error>
+where
+  D: Deserializer<'de>,
+  K: Eq + Hash + Deserialize<'de>,
+  V: Deserialize<'de>,
+{
+  Ok(OneOrManyMap::<K, V>::deserialize(deserializer)?.into())
 }

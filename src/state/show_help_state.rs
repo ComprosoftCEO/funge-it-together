@@ -66,7 +66,7 @@ impl State for ShowHelpState {
 
     let level = global_state.level(self.level_index);
 
-    write!(stdout, "{}", level.get_title(self.level_index + 1).as_str().yellow())?;
+    write!(stdout, "{}", level.get_title(self.level_index).as_str().yellow())?;
     stdout.queue(cursor::MoveToNextLine(2))?;
 
     for line in level.description().lines() {

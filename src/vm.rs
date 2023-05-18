@@ -54,38 +54,68 @@ impl Direction {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum Command {
+  #[serde(rename = " ", alias = "empty")]
   Empty,
+  #[serde(rename = "↑", alias = "up")]
   Up,
+  #[serde(rename = "↓", alias = "down")]
   Down,
+  #[serde(rename = "←", alias = "left")]
   Left,
+  #[serde(rename = "→", alias = "right")]
   Right,
+  #[serde(rename = "/", alias = "forwardSlash")]
   ForwardSlash,
+  #[serde(rename = "\\", alias = "backSlash")]
   BackSlash,
+  #[serde(rename = "0", alias = "zero")]
   Zero,
+  #[serde(rename = "1", alias = "one")]
   One,
+  #[serde(rename = "2", alias = "two")]
   Two,
+  #[serde(rename = "3", alias = "three")]
   Three,
+  #[serde(rename = "4", alias = "four")]
   Four,
+  #[serde(rename = "5", alias = "five")]
   Five,
+  #[serde(rename = "6", alias = "six")]
   Six,
+  #[serde(rename = "7", alias = "seven")]
   Seven,
+  #[serde(rename = "8", alias = "eight")]
   Eight,
+  #[serde(rename = "9", alias = "nine")]
   Nine,
+  #[serde(rename = "☼", alias = "pop")]
   Pop,
+  #[serde(rename = "©", alias = "copy")]
   Copy,
+  #[serde(rename = "∫", alias = "swapTop2")]
   SwapTop2,
+  #[serde(rename = "u", alias = "rotateDown")]
   RotateDown,
+  #[serde(rename = "∩", alias = "rotateUp")]
   RotateUp,
+  #[serde(rename = "+", alias = "add")]
   Add,
+  #[serde(rename = "-", alias = "subtract")]
   Subtract,
+  #[serde(rename = "<", alias = "ifLess")]
   IfLess,
+  #[serde(rename = "=", alias = "ifEqual")]
   IfEqual,
+  #[serde(rename = ">", alias = "ifGreater")]
   IfGreater,
+  #[serde(rename = "»", alias = "skip")]
   Skip,
+  #[serde(rename = "Ї", alias = "in")]
   In,
+  #[serde(rename = "?", alias = "hasInput")]
   HasInput,
+  #[serde(rename = "Θ", alias = "out")]
   Out,
 }
 
