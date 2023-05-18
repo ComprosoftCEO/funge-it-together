@@ -156,7 +156,7 @@ All levels live inside the [levels](levels/) folder. To write a new level:
 2. Export a global function named `generateTestCase()` that randomly generates a new test case
 3. Add an entry to the [pack.json](levels/pack.json) file. The file format should be self-explanatory, but here are a few guidelines to keep in mind:
    - The name should be short enough that it doesn't overflow the level select interface.
-   - The description should fit into an 80 column x 24 row terminal window.
+   - The description should fit into an 80 column x 24 row terminal window and not overflow the list of solutions.
    - Be sure to generate a new unique UUID. [See Here](http://www.wasteaguid.info/).
 
 All Lua levels must export a global `generateTestCase()` function. The function will get called 25 times consecutively to generate the test cases.

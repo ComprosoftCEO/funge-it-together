@@ -1,12 +1,12 @@
 use crossterm::{
   cursor,
   event::{self, Event, KeyCode, KeyEventKind, KeyModifiers, MouseButton, MouseEventKind},
-  style::Stylize,
+  style::{self, Color, Stylize},
   ExecutableCommand, QueueableCommand,
 };
 use std::io::{self, Write};
 
-use super::{execute_state::Speed, print_string, ExecuteState, LevelSelectState, ShowHelpState};
+use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
 use crate::{
   global_state::{GlobalState, Solution},
   printable::Printable,
@@ -42,6 +42,7 @@ static INSTRUCTIONS: &str = r#"
 
 pub struct EditorState {
   level_index: usize,
+  solution_index: usize,
 
   solution: Solution,
 
@@ -53,9 +54,16 @@ pub struct EditorState {
 }
 
 impl EditorState {
-  pub fn new(level_index: usize, solution: Solution, test_cases: TestCaseSet, test_case_index: usize) -> Self {
+  pub fn new(
+    level_index: usize,
+    solution_index: usize,
+    solution: Solution,
+    test_cases: TestCaseSet,
+    test_case_index: usize,
+  ) -> Self {
     Self {
       level_index,
+      solution_index,
       solution,
       cursor_row: 0,
       cursor_col: 0,
@@ -111,13 +119,18 @@ impl State for EditorState {
 
     self.test_cases[self.test_case_index as usize].print()?;
 
-    stdout.queue(cursor::MoveTo(55, 0))?;
+    stdout
+      .queue(cursor::MoveTo(55, 0))?
+      .queue(style::SetForegroundColor(Color::DarkCyan))?;
     print_string(INSTRUCTIONS)?;
 
-    stdout.queue(cursor::EnableBlinking)?.execute(cursor::MoveTo(
-      self.cursor_col as u16 + 1,
-      self.cursor_row as u16 + 1 + 2,
-    ))?;
+    stdout
+      .queue(style::ResetColor)?
+      .queue(cursor::EnableBlinking)?
+      .execute(cursor::MoveTo(
+        self.cursor_col as u16 + 1,
+        self.cursor_row as u16 + 1 + 2,
+      ))?;
 
     Ok(())
   }
@@ -175,15 +188,12 @@ impl State for EditorState {
             return Ok(None);
           },
 
-          KeyCode::Esc => return Ok(Some(Box::new(LevelSelectState::new(self.level_index)))),
-          KeyCode::Char('h') => {
-            let level = global_state.level(self.level_index);
+          KeyCode::Esc => {
             return Ok(Some(Box::new(ShowHelpState::new(
-              level.get_title(self.level_index as usize),
-              level.description(),
-              self,
-              None,
-            ))));
+              self.level_index,
+              self.solution_index,
+              self.test_cases,
+            ))))
           },
 
           // Start execution
@@ -375,7 +385,7 @@ impl State for EditorState {
     }
 
     let level_id = global_state.level(self.level_index).id();
-    global_state.save_solution(level_id, &self.solution);
+    global_state.save_solution(level_id, self.solution_index, &self.solution);
 
     return Ok(Some(self));
   }

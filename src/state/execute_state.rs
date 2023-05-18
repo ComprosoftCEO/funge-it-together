@@ -1,7 +1,7 @@
 use crossterm::{
   cursor,
   event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
-  style::Stylize,
+  style::{self, Color, Stylize},
   QueueableCommand,
 };
 use rand::Rng;
@@ -133,8 +133,11 @@ impl State for ExecuteState {
       last_error.print_at(self.vms[0].rows() as u16 + 2 + 2 + 4, 0)?;
     }
 
-    stdout.queue(cursor::MoveTo(55, 0))?;
+    stdout
+      .queue(cursor::MoveTo(55, 0))?
+      .queue(style::SetForegroundColor(Color::DarkCyan))?;
     print_string(INSTRUCTIONS)?;
+    stdout.queue(style::ResetColor)?;
 
     stdout.flush()?;
     Ok(())

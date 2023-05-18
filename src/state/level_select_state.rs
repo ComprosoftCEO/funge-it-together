@@ -5,7 +5,7 @@ use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
-use super::{print_string, EditorState, ShowHelpState, State};
+use super::{print_string, ShowHelpState, State};
 use crate::global_state::GlobalState;
 
 const SEED: u32 = 0xdeadbeef;
@@ -186,9 +186,9 @@ impl State for LevelSelectState {
             return Ok(Some(self));
           },
 
+          // Select Level
           KeyCode::Enter => {
             let level = global_state.level(self.selected_level_index as usize);
-            let solution = global_state.get_solution(level.id());
             let test_cases = match level.generate_test_cases(SEED, NUM_TEST_CASES) {
               Ok(t) => t,
               Err(e) => {
@@ -197,18 +197,10 @@ impl State for LevelSelectState {
               },
             };
 
-            let editor = Box::new(EditorState::new(
-              self.selected_level_index as usize,
-              solution,
-              test_cases,
-              0,
-            ));
-
             return Ok(Some(Box::new(ShowHelpState::new(
-              level.get_title(self.selected_level_index as usize),
-              level.description(),
-              editor,
-              Some(self),
+              self.selected_level_index as usize,
+              0,
+              test_cases,
             ))));
           },
 

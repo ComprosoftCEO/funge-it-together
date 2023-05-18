@@ -17,16 +17,18 @@ static SAVE_FILE: &str = "save.json";
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GlobalState {
-  solutions: HashMap<Uuid, Solution>,
+  solutions: HashMap<Uuid, Vec<Solution>>,
   unlocked: HashMap<Uuid, Statistics>,
 
   #[serde(skip)]
   levels: Levels,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Solution {
+  #[serde(default)]
+  name: String,
   grid: Grid,
   start_row: usize,
   start_col: usize,
@@ -77,13 +79,19 @@ impl GlobalState {
       .collect()
   }
 
-  pub fn save_solution(&mut self, level_id: Uuid, solution: &Solution) {
-    self.solutions.insert(level_id, solution.clone());
+  // Create a new solution and return it's index
+  pub fn new_solution(&mut self, level_id: Uuid) -> usize {
+    let vec = self.solutions.entry(level_id).or_default();
+    vec.push(Solution::new(format!("Solution {}", vec.len() + 1)));
+    vec.len()
   }
 
-  // Returns an empty grid if no solution exists
-  pub fn get_solution(&self, level_id: Uuid) -> Solution {
-    self.solutions.get(&level_id).cloned().unwrap_or_default()
+  pub fn save_solution(&mut self, level_id: Uuid, solution_index: usize, solution: &Solution) {
+    self.solutions.get_mut(&level_id).unwrap()[solution_index] = solution.clone();
+  }
+
+  pub fn get_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<Solution> {
+    self.solutions.entry(level_id).or_default()
   }
 
   pub fn is_level_complete(&self, level_id: Uuid) -> bool {
@@ -101,12 +109,19 @@ impl GlobalState {
 
 #[allow(unused)]
 impl Solution {
-  pub fn new(grid: Grid, start_row: usize, start_col: usize) -> Self {
+  pub fn new(name: impl Into<String>) -> Self {
     Self {
-      grid,
-      start_row,
-      start_col,
+      name: name.into(),
+      ..Default::default()
     }
+  }
+
+  pub fn name(&self) -> &String {
+    &self.name
+  }
+
+  pub fn rename(&mut self, new_name: impl Into<String>) {
+    self.name = new_name.into();
   }
 
   pub fn into_grid(self) -> Grid {
@@ -139,6 +154,21 @@ impl Solution {
 
     self.start_row = start_row;
     self.start_col = start_col;
+  }
+
+  pub fn symbols_used(&self) -> usize {
+    self.grid.count_symbols()
+  }
+}
+
+impl Default for Solution {
+  fn default() -> Self {
+    Self {
+      name: "New Solution".into(),
+      grid: Grid::default(),
+      start_row: 0,
+      start_col: 0,
+    }
   }
 }
 
