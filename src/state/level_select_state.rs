@@ -171,14 +171,14 @@ impl State for LevelSelectState {
           KeyCode::Esc => return Ok(None),
 
           // Movement
-          KeyCode::Up => {
+          KeyCode::Up | KeyCode::Char('k') => {
             self.last_error = None;
             self.selected_level_index = (self.selected_level_index - 1).rem_euclid(num_options as isize);
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
-          KeyCode::Down => {
+          KeyCode::Down | KeyCode::Char('j') => {
             self.last_error = None;
             self.selected_level_index = (self.selected_level_index + 1).rem_euclid(num_options as isize);
             self.fix_page_offset();

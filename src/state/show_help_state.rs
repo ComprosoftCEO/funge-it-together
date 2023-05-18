@@ -214,14 +214,14 @@ impl State for ShowHelpState {
           },
 
           // Movement
-          KeyCode::Up => {
+          KeyCode::Up | KeyCode::Char('k') => {
             self.selected_solution_index = (self.selected_solution_index - 1).rem_euclid(num_options as isize);
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
 
-          KeyCode::Down => {
+          KeyCode::Down | KeyCode::Char('j') => {
             self.selected_solution_index = (self.selected_solution_index + 1).rem_euclid(num_options as isize);
             self.fix_page_offset();
 

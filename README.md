@@ -30,11 +30,12 @@ cargo run
 
 The command-line interface allows you to select levels, write programs, and run the test cases.
 In general, use the `Arrow Keys` and `Enter` to select options, and `Escape` to go back to the previous screen.
+You can also use Vim arrow keys `hjkl` to navigate menus and the editor.
 Press `Control-C` at any time to exit the program.
 
 When using the program editor, a list of additional commands is shown on the right side of the terminal.
-Navigate the grid with the arrow keys, and press the corresponding key to enter the command into the grid.
-Use `b` to set the start location for the AI in the grid. Press `Delete` or `Backspace` to clear the highlighted grid cell.
+Navigate the grid with the arrow keys (or Vim keys), and press the corresponding key to enter the command into the grid.
+Use `b` to set the start location for the AI in the grid. Press `Delete`, `Backspace`, or `x` to clear the highlighted grid cell.
 The editor also has limited mouse support. You can `Left Click` to select a cell or `Right Click` to select and delete the contents of a cell.
 
 Pressing `Tab` allows you to run your program step-by-step, or you can press `Space` to start automatic execution.

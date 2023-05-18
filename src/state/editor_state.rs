@@ -27,9 +27,9 @@ static INSTRUCTIONS: &str = r#"
 │Delete = Clear
 │asdw   = ←↓→↑ (Move)
 │/ \    = / \ (Bounce)
-│k      = » (Skip)
+│*      = » (Skip)
 │0-9    = 0-9
-│x      = ☼ (Pop)
+│p      = ☼ (Pop)
 │c      = © (Copy)
 │~      = ∫ (Swap)
 │^ v    = ∩ u (Rotate)
@@ -201,19 +201,19 @@ impl State for EditorState {
           KeyCode::Char(' ') => return Ok(Some(Box::new(ExecuteState::new(*self, Speed::Slow)))),
 
           // Movement
-          KeyCode::Up => {
+          KeyCode::Up | KeyCode::Char('k') => {
             self.cursor_row = (self.cursor_row - 1).rem_euclid(self.solution.rows() as isize);
             return Ok(Some(self));
           },
-          KeyCode::Down => {
+          KeyCode::Down | KeyCode::Char('j') => {
             self.cursor_row = (self.cursor_row + 1).rem_euclid(self.solution.rows() as isize);
             return Ok(Some(self));
           },
-          KeyCode::Left => {
+          KeyCode::Left | KeyCode::Char('h') => {
             self.cursor_col = (self.cursor_col - 1).rem_euclid(self.solution.cols() as isize);
             return Ok(Some(self));
           },
-          KeyCode::Right => {
+          KeyCode::Right | KeyCode::Char('l') => {
             self.cursor_col = (self.cursor_col + 1).rem_euclid(self.solution.cols() as isize);
             return Ok(Some(self));
           },
@@ -229,11 +229,7 @@ impl State for EditorState {
           },
 
           // Deletion
-          KeyCode::Backspace => {
-            self.set_cell(Command::Empty);
-            break;
-          },
-          KeyCode::Delete => {
+          KeyCode::Backspace | KeyCode::Delete | KeyCode::Char('x') => {
             self.set_cell(Command::Empty);
             break;
           },
@@ -263,7 +259,7 @@ impl State for EditorState {
             self.set_cell(Command::BackSlash);
             break;
           },
-          KeyCode::Char('k') => {
+          KeyCode::Char('*') => {
             self.set_cell(Command::Skip);
             break;
           },
@@ -311,7 +307,7 @@ impl State for EditorState {
           },
 
           // Stack operations
-          KeyCode::Char('x') => {
+          KeyCode::Char('p') => {
             self.set_cell(Command::Pop);
             break;
           },
