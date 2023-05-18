@@ -39,7 +39,7 @@
     {
       "id": "e2d916ee-c8c9-4556-a442-0f940c722aa7",
       "name": "Caesar Cipher",
-      "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 25 (Y)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
+      "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 24 (X)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
       "luaFile": "caesar-cipher.lua"
     },
     {
@@ -51,7 +51,7 @@
     {
       "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
       "name": "Interpreter",
-      "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n∙ Output: 99\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
+      "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6       Output: 99\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
       "luaFile": "interpreter.lua"
     },
     {
