@@ -101,8 +101,13 @@ impl ExecuteState {
           let level_id = global_state.level(self.level_index).id();
           let statistics = Statistics::new(self.total_cycles / num_vms, num_symbols);
 
-          global_state.complete_level(level_id, statistics.clone());
-          return StepResult::OtherState(Box::new(SuccessState::new(self.level_index, statistics)));
+          let best = global_state.complete_level(level_id, statistics.clone());
+          return StepResult::OtherState(Box::new(SuccessState::new(
+            self.level_index,
+            statistics,
+            best,
+            self.editor,
+          )));
         }
         StepResult::Continue(*self)
       },

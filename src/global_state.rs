@@ -27,7 +27,6 @@ pub struct GlobalState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Solution {
-  #[serde(default)]
   name: String,
   grid: Grid,
   start_row: usize,
@@ -102,8 +101,20 @@ impl GlobalState {
     self.unlocked.get(&level_id).cloned()
   }
 
-  pub fn complete_level(&mut self, level_id: Uuid, statistics: Statistics) {
-    self.unlocked.insert(level_id, statistics);
+  // Returns the best statistics overall
+  pub fn complete_level(&mut self, level_id: Uuid, statistics: Statistics) -> Statistics {
+    let best = self
+      .unlocked
+      .entry(level_id)
+      .and_modify(|s| s.set_to_best(&statistics))
+      .or_insert(statistics)
+      .clone();
+
+    // A level complete is very important, so ALWAYS try to save right away!
+    // Silently ignore any errors (hopefully won't happen in practice)
+    self.save().ok();
+
+    best
   }
 }
 
@@ -212,5 +223,14 @@ impl Statistics {
 
   pub fn symbols_used(&self) -> usize {
     self.symbols_used
+  }
+
+  pub fn set_to_best(&mut self, other: &Statistics) {
+    if other.average_cycles < self.average_cycles {
+      self.average_cycles = other.average_cycles;
+    }
+    if other.symbols_used < self.symbols_used {
+      self.symbols_used = other.symbols_used;
+    }
   }
 }

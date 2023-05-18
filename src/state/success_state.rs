@@ -1,22 +1,26 @@
-use std::io::{self, Write};
+use std::io::{self, Stdout, Write};
 
 use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 
-use super::{LevelSelectState, State};
+use super::{EditorState, LevelSelectState, State};
 use crate::global_state::{GlobalState, Statistics};
 
 pub struct SuccessState {
   level_index: usize,
   statistics: Statistics,
+  best: Statistics,
+  editor: EditorState,
 }
 
 impl SuccessState {
-  pub fn new(level_index: usize, statistics: Statistics) -> Self {
+  pub fn new(level_index: usize, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
     Self {
       level_index,
       statistics,
+      best,
+      editor,
     }
   }
 }
@@ -34,22 +38,17 @@ impl State for SuccessState {
     )?;
     stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
-    stdout.queue(cursor::MoveToNextLine(2))?;
-
-    write!(
-      stdout,
-      "{} {:.2}",
-      "Average Cycles:".dark_yellow(),
-      self.statistics.average_cycles()
-    )?;
-    stdout.queue(cursor::MoveToNextLine(1))?;
-    write!(
-      stdout,
-      "{}   {}",
-      "Symbols Used:".dark_cyan(),
-      self.statistics.symbols_used()
-    )?;
     stdout.queue(cursor::MoveToNextLine(3))?;
+
+    write!(stdout, "Current Solution:")?;
+    stdout.queue(cursor::MoveToNextLine(1))?;
+    write_statistics(&mut stdout, &self.statistics)?;
+
+    write!(stdout, "Personal Best:")?;
+    stdout.queue(cursor::MoveToNextLine(1))?;
+    write_statistics(&mut stdout, &self.best)?;
+
+    stdout.queue(cursor::MoveToNextLine(1))?;
     write!(stdout, "{} Continue", "►".green())?;
 
     stdout.flush()?;
@@ -75,6 +74,7 @@ impl State for SuccessState {
           },
 
           KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index)))),
+          KeyCode::Esc => return Ok(Some(Box::new(self.editor))),
 
           _ => {},
         },
@@ -83,4 +83,24 @@ impl State for SuccessState {
       }
     }
   }
+}
+
+fn write_statistics(stdout: &mut Stdout, statistics: &Statistics) -> io::Result<()> {
+  write!(
+    stdout,
+    "∙ {} {:.2}",
+    "Average Cycles:".dark_yellow(),
+    statistics.average_cycles()
+  )?;
+  stdout.queue(cursor::MoveToNextLine(1))?;
+
+  write!(
+    stdout,
+    "∙ {}   {}",
+    "Symbols Used:".dark_cyan(),
+    statistics.symbols_used()
+  )?;
+  stdout.queue(cursor::MoveToNextLine(2))?;
+
+  Ok(())
 }
