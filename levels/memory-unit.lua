@@ -53,14 +53,13 @@ function execute(inputs)
   -- Simulate the read-write commands
   local outputs = {}
   local i = 2
-  while i < #inputs do
+  while i <= #inputs do
     if inputs[i] == READ then
       i = i + 1
-      outputs[#outputs + 1] = values[inputs[i]]
+      outputs[#outputs + 1] = values[inputs[i] + 1]
     elseif inputs[i] == WRITE then
       i = i + 1
-      values[inputs[i]] = inputs[i + 1]
-      i = i + 1
+      values[inputs[i] + 1] = inputs[i + 1]
     end
     i = i + 1
   end
