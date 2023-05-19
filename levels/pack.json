@@ -43,16 +43,52 @@
       "luaFile": "caesar-cipher.lua"
     },
     {
+      "id": "e22d4ee3-0932-4686-be8b-086656accadc",
+      "name": "Total Ordering",
+      "description": "Read x and y from the input, then compute min{x,y} followed by max{x,y}.\nBe careful to avoid arithmetic overflow when comparing x and y.\n\n\nConstraints:\n∙ -999 ≤ x,y ≤ 999",
+      "luaFile": "total-ordering.lua"
+    },
+    {
       "id": "67ac551c-3c7a-4f5f-b893-9d265aa89a43",
       "name": "Average",
       "description": "Compute the average of the input values, rounded down.\n\nExample:\n∙ average{3, 45, 19, 80} = 36\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ 2 ≤ Number of Input Values ≤ 10",
       "luaFile": "average.lua"
     },
     {
+      "id": "d3b36c5d-cefd-4eeb-91fa-ab59d041019c",
+      "name": "Multiplication",
+      "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
+      "luaFile": "multiplication.lua"
+    },
+    {
       "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
       "name": "Interpreter",
       "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6       Output: 99\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
       "luaFile": "interpreter.lua"
+    },
+    {
+      "id": "bcae893b-dcc2-4a50-83c1-20836ee190ed",
+      "name": "Collatz Conjecture",
+      "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
+      "luaFile": "collatz.lua"
+    },
+    {
+      "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
+      "name": "Memory Unit",
+      "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
+      "luaFile": "memory-unit.lua"
+    },
+    {
+      "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
+      "name": "Sorting",
+      "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 8 ≤ Number of Values ≤ 12",
+      "luaFile": "sort.lua"
+    },
+    {
+      "id": "8ab5300e-3378-4a0d-b890-b03160c882d3",
+      "name": "Exponentiation",
+      "description": "Read x and y from the input, then compute x^y.\nRecall that x^0 = 1 for any x (except 0^0, which is undefined).\n\n\nConstraints:\n∙ 0 ≤ x,y ≤ 9\n∙ x^y will not overflow\n∙ Will not ask for 0^0",
+      "luaFile": "exponent.lua"
     },
     {
       "id": "56b6be1a-1063-4ae5-90dc-fe3e5d12f6e5",
