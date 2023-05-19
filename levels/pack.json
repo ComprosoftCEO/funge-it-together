@@ -13,6 +13,12 @@
       "luaFile": "absolute-value.lua"
     },
     {
+      "id": "feb57646-7d5a-4564-930f-3040186b5897",
+      "name": "Reverse",
+      "description": "Reverse the order of the input items\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+      "luaFile": "reverse.lua"
+    },
+    {
       "id": "08a396a9-fc41-4146-9e3a-7d19d968b720",
       "name": "Divide By 5",
       "description": "Divide the input by 5, rounded down.\nFor example, 23 / 5 = 4.\n\n\nConstraints:\n∙ 5 ≤ Input ≤ 100",
@@ -59,6 +65,12 @@
       "name": "Multiplication",
       "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
       "luaFile": "multiplication.lua"
+    },
+    {
+      "id": "b45d96eb-5488-49bd-825e-b6a53bcbc8b3",
+      "name": "Nth Tribonacci",
+      "description": "Compute the nth Tribonacci number.\nRecall that the Tribonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 0\n  f(2) = 1\n  f(n) = f(n-1) + f(n-2) + f(n-3)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 12",
+      "luaFile": "nth-tribonacci.lua"
     },
     {
       "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
