@@ -93,7 +93,7 @@
     {
       "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
       "name": "Sorting",
-      "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 8 ≤ Number of Values ≤ 12",
+      "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
       "luaFile": "sort.lua"
     },
     {
