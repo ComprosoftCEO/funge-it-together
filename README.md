@@ -39,7 +39,7 @@ Use `b` to set the start location for the AI in the grid. Press `Delete`, `Backs
 The editor also has limited mouse support. You can `Left Click` to select a cell or `Right Click` to select and delete the contents of a cell.
 
 Pressing `Tab` allows you to run your program step-by-step, or you can press `Space` to start automatic execution.
-You can use the number keys `1` to `5` to set the execution speed.
+You can use the number keys `1` to `6` to set the execution speed.
 Execution will continue indefinitely until you complete the level or an error occurs.
 Pass all test cases to unlock the next level in sequence.
 

@@ -24,7 +24,7 @@ static INSTRUCTIONS: &str = r#"
 │
 │Tab    = Step
 │Space  = Start/Stop
-│1-5    = Set Speed
+│1-6    = Set Speed
 │
 │
 │
@@ -64,6 +64,7 @@ pub enum Speed {
   Fast,
   ExtremelyFast,
   Turbo,
+  SuperTurbo,
 }
 
 enum StepResult {
@@ -237,6 +238,9 @@ impl State for ExecuteState {
           KeyCode::Char('5') => {
             self.speed = Speed::Turbo;
           },
+          KeyCode::Char('6') => {
+            self.speed = Speed::SuperTurbo;
+          },
 
           // Go back
           KeyCode::Esc => {
@@ -271,6 +275,7 @@ impl Speed {
       Self::Fast => rng.gen_range(20..=30),
       Self::ExtremelyFast => rng.gen_range(90..=110),
       Self::Turbo => rng.gen_range(900..=1100),
+      Self::SuperTurbo => rng.gen_range(9000..=11000),
     }
   }
 }
