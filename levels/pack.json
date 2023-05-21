@@ -119,6 +119,12 @@
       "name": "FPGA",
       "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
       "luaFile": "fpga.lua"
+    },
+    {
+      "id": "0fcc54db-8e05-4808-95da-0b2acc7a6480",
+      "name": "Generic Fibonacci",
+      "description": "Read k and n from input, then compute the nth k-Fibonacci number.\nRecall that the generic k-Fibonacci function is defined by:\n\n  f_k(0) ... f_k(k-2) = 0\n  f_k(k-1) = 1\n  f_k(n)   = f_k(n-1) + f_k(n-2) + ... + f_k(n-k)\n\n\nConstraints:\n∙ 2 ≤ k ≤ 9\n∙ 0 ≤ f_k(n) ≤ 999",
+      "luaFile": "generic-fibonacci.lua"
     }
   ]
 }
