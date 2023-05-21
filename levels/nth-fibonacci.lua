@@ -2,7 +2,7 @@ function generateTestCase()
   local inputs, outputs = {}, {}
 
   for i = 1, 15 do
-    inputs[i] = math.random(0, 15)
+    inputs[i] = math.random(0, 16)
     outputs[i] = nthFibonacci(inputs[i])
   end
 

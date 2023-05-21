@@ -45,7 +45,7 @@
     {
       "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
       "name": "Nth Fibonacci",
-      "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 15",
+      "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 16",
       "luaFile": "nth-fibonacci.lua"
     },
     {
