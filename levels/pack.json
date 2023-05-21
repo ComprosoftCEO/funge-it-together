@@ -25,6 +25,12 @@
       "luaFile": "divide-by-5.lua"
     },
     {
+      "id": "32467c02-63e4-42cc-8bd0-e214fc6dd7b5",
+      "name": "Trim 0's",
+      "description": "Remove all 0's from the start and end of the input.\nLeave any 0's in the middle of the input (sandwiched between non-zero numbers).\n\nConstraints:\n∙ -9 ≤ Input ≤ 9",
+      "luaFile": "trim.lua"
+    },
+    {
       "id": "d6c44eee-46f6-416b-8756-a2970d72659e",
       "name": "Only Evens",
       "description": "Output only the even numbers\n\n\nConstraints:\n∙ -10 ≤ Input ≤ 10",
@@ -107,6 +113,12 @@
       "name": "Longest Subsequence",
       "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
       "luaFile": "longest-subsequence.lua"
+    },
+    {
+      "id": "11f50659-b719-409a-990b-4704d6edc3a1",
+      "name": "FPGA",
+      "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
+      "luaFile": "fpga.lua"
     }
   ]
 }
