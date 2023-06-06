@@ -5,4 +5,4 @@
 *.sw*
 
 .vscode/
-save.json
+save*.json

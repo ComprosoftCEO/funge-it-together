@@ -177,6 +177,10 @@ impl Solution {
   pub fn symbols_used(&self) -> usize {
     self.grid.count_symbols()
   }
+
+  pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
+    self.grid.toggle_breakpoint(row, col);
+  }
 }
 
 impl Default for Solution {

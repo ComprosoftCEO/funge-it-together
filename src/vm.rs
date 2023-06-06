@@ -1,4 +1,4 @@
-use crossterm::style::Stylize;
+use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
 use std::cmp;
@@ -407,6 +407,22 @@ impl VirtualMachine {
 
     Ok(())
   }
+
+  pub fn row(&self) -> usize {
+    self.row as usize
+  }
+
+  pub fn col(&self) -> usize {
+    self.col as usize
+  }
+
+  pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
+    self.grid.toggle_breakpoint(row, col)
+  }
+
+  pub fn is_at_breakpoint(&self) -> bool {
+    self.grid.has_breakpoint(self.row as usize, self.col as usize)
+  }
 }
 
 impl Printable for VirtualMachine {
@@ -426,6 +442,10 @@ impl Printable for VirtualMachine {
       .queue(cursor::MoveRight(self.col as u16 + 1))?;
     if self.skip_next_instruction {
       write!(stdout, "{}", self.direction.get_arrow().red())?;
+    } else if self.is_at_breakpoint() {
+      stdout.queue(style::SetBackgroundColor(Color::DarkCyan))?;
+      write!(stdout, "{}", self.direction.get_arrow().black())?;
+      stdout.queue(style::ResetColor)?;
     } else {
       write!(stdout, "{}", self.direction.get_arrow().green())?;
     }

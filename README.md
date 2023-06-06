@@ -43,6 +43,10 @@ You can use the number keys `1` to `6` to set the execution speed.
 Execution will continue indefinitely until you complete the level or an error occurs.
 Pass all test cases to unlock the next level in sequence.
 
+Breakpoints can be set from the editor or during execution using a comma `,` and are useful for debugging complex programs.
+Encountering a breakpoint halts the AI executor until you resume it with either `Tab`, `Space`, or `1` to `6`.
+Breakpoints are saved with the program and can be toggled on-and-off for any space in the grid.
+
 Your current solutions and level progress will be periodically saved during program execution.
 So you can close the program using `Control-C` and know your progress will be saved.
 However, closing the terminal with the close (X) button **may not** save your progress! You have been warned!

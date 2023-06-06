@@ -22,7 +22,7 @@ static INSTRUCTIONS: &str = r#"
 │Tab    = Step
 │Space  = Start/Stop
 │[  ]   = Test Case
-│
+│,      = Breakpoint
 │Arrow  = Move Cursor
 │Delete = Clear
 │asdw   = ←↓→↑ (Move)
@@ -38,7 +38,7 @@ static INSTRUCTIONS: &str = r#"
 │i      = Ї (Input)
 │o      = Θ (Output)
 │?      = (Has input?)
-│b      = (Set start)"#;
+│b      = Set start"#;
 
 pub struct EditorState {
   level_index: usize,
@@ -90,6 +90,10 @@ impl EditorState {
         VirtualMachine::new(self.solution.clone(), index + 1, &self.test_cases[index])
       })
       .collect()
+  }
+
+  pub(crate) fn toggle_breakpoint(&mut self, row: usize, col: usize) {
+    self.solution.toggle_breakpoint(row, col);
   }
 }
 
@@ -226,6 +230,14 @@ impl State for EditorState {
           KeyCode::Char('[') => {
             self.test_case_index = (self.test_case_index - 1).rem_euclid(self.test_cases.len() as isize);
             return Ok(Some(self));
+          },
+
+          // Breakpoint
+          KeyCode::Char(',') => {
+            self
+              .solution
+              .toggle_breakpoint(self.cursor_row as usize, self.cursor_col as usize);
+            break;
           },
 
           // Deletion

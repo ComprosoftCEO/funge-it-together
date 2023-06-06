@@ -25,7 +25,7 @@ static INSTRUCTIONS: &str = r#"
 │Tab    = Step
 │Space  = Start/Stop
 │1-6    = Set Speed
-│
+│,      = Breakpoint
 │
 │
 │
@@ -90,7 +90,12 @@ impl ExecuteState {
 
   fn step_vm(mut self: Box<Self>, global_state: &mut GlobalState) -> StepResult {
     let current_vm = &mut self.vms[self.test_case];
-    match current_vm.step() {
+    let step = current_vm.step();
+    if current_vm.is_at_breakpoint() {
+      self.speed = Speed::None;
+    }
+
+    match step {
       Ok(false) => StepResult::Continue(*self),
       Ok(true) => {
         self.total_cycles += current_vm.get_cycle() as f64;
@@ -110,6 +115,7 @@ impl ExecuteState {
             self.editor,
           )));
         }
+
         StepResult::Continue(*self)
       },
       Err(e) => {
@@ -184,6 +190,10 @@ impl State for ExecuteState {
         StepResult::Continue(s) => Box::new(s),
         result @ StepResult::OtherState(_) => return Ok(result.into_box()),
       };
+
+      if self.speed == Speed::None {
+        return Ok(Some(self)); // Reached a breakpoint
+      }
     }
 
     if self.speed != Speed::None {
@@ -240,6 +250,18 @@ impl State for ExecuteState {
           },
           KeyCode::Char('6') => {
             self.speed = Speed::SuperTurbo;
+          },
+
+          // Breakpoint
+          KeyCode::Char(',') if self.speed == Speed::None => {
+            let current_vm = &mut self.vms[self.test_case];
+            let row = current_vm.row();
+            let col = current_vm.col();
+            for vm in self.vms.iter_mut() {
+              vm.toggle_breakpoint(row, col);
+            }
+            self.editor.toggle_breakpoint(row, col);
+            return Ok(Some(self));
           },
 
           // Go back
