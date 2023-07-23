@@ -1,124 +1,142 @@
 {
   "levels": [
-    {
-      "id": "b42f7f23-62aa-4b90-91b4-22cb5745211d",
-      "name": "Add 7",
-      "description": "Add 7 to every input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 992",
-      "luaFile": "add-7.lua"
-    },
-    {
-      "id": "a7799c55-c6fc-4b4e-9839-427d92e8f7fe",
-      "name": "Absolute Value",
-      "description": "Output the absolute value of the input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
-      "luaFile": "absolute-value.lua"
-    },
-    {
-      "id": "feb57646-7d5a-4564-930f-3040186b5897",
-      "name": "Reverse",
-      "description": "Reverse the order of the input items\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
-      "luaFile": "reverse.lua"
-    },
-    {
-      "id": "08a396a9-fc41-4146-9e3a-7d19d968b720",
-      "name": "Divide By 5",
-      "description": "Divide the input by 5, rounded down.\nFor example, 23 / 5 = 4.\n\n\nConstraints:\n∙ 5 ≤ Input ≤ 100",
-      "luaFile": "divide-by-5.lua"
-    },
-    {
-      "id": "32467c02-63e4-42cc-8bd0-e214fc6dd7b5",
-      "name": "Trim 0's",
-      "description": "Remove all 0's from the start and end of the input.\nLeave any 0's in the middle of the input (sandwiched between non-zero numbers).\n\nConstraints:\n∙ -9 ≤ Input ≤ 9",
-      "luaFile": "trim.lua"
-    },
-    {
-      "id": "d6c44eee-46f6-416b-8756-a2970d72659e",
-      "name": "Only Evens",
-      "description": "Output only the even numbers\n\n\nConstraints:\n∙ -10 ≤ Input ≤ 10",
-      "luaFile": "only-evens.lua"
-    },
-    {
-      "id": "70beb32f-056c-4730-87a5-0d851d81d6d3",
-      "name": "Maximum Value",
-      "description": "Output the maximum value from the list.\nThe maximum is guaranteed to be unique.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ Unique maximum",
-      "luaFile": "maximum.lua"
-    },
-    {
-      "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
-      "name": "Nth Fibonacci",
-      "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 16",
-      "luaFile": "nth-fibonacci.lua"
-    },
-    {
-      "id": "e2d916ee-c8c9-4556-a442-0f940c722aa7",
-      "name": "Caesar Cipher",
-      "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 24 (X)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
-      "luaFile": "caesar-cipher.lua"
-    },
-    {
-      "id": "e22d4ee3-0932-4686-be8b-086656accadc",
-      "name": "Total Ordering",
-      "description": "Read x and y from the input, then compute min{x,y} followed by max{x,y}.\nBe careful to avoid arithmetic overflow when comparing x and y.\n\n\nConstraints:\n∙ -999 ≤ x,y ≤ 999",
-      "luaFile": "total-ordering.lua"
-    },
-    {
-      "id": "67ac551c-3c7a-4f5f-b893-9d265aa89a43",
-      "name": "Average",
-      "description": "Compute the average of the input values, rounded down.\n\nExample:\n∙ average{3, 45, 19, 80} = 36\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ 2 ≤ Number of Input Values ≤ 10",
-      "luaFile": "average.lua"
-    },
-    {
-      "id": "d3b36c5d-cefd-4eeb-91fa-ab59d041019c",
-      "name": "Multiplication",
-      "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
-      "luaFile": "multiplication.lua"
-    },
-    {
-      "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
-      "name": "Interpreter",
-      "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6       Output: 99\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
-      "luaFile": "interpreter.lua"
-    },
-    {
-      "id": "bcae893b-dcc2-4a50-83c1-20836ee190ed",
-      "name": "Collatz Conjecture",
-      "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
-      "luaFile": "collatz.lua"
-    },
-    {
-      "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
-      "name": "Memory Unit",
-      "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
-      "luaFile": "memory-unit.lua"
-    },
-    {
-      "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
-      "name": "Sorting",
-      "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
-      "luaFile": "sort.lua"
-    },
-    {
-      "id": "8ab5300e-3378-4a0d-b890-b03160c882d3",
-      "name": "Exponentiation",
-      "description": "Read x and y from the input, then compute x^y.\nRecall that x^0 = 1 for any x (except 0^0, which is undefined).\n\n\nConstraints:\n∙ 0 ≤ x,y ≤ 9\n∙ x^y will not overflow\n∙ Will not ask for 0^0",
-      "luaFile": "exponent.lua"
-    },
-    {
-      "id": "56b6be1a-1063-4ae5-90dc-fe3e5d12f6e5",
-      "name": "Longest Subsequence",
-      "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
-      "luaFile": "longest-subsequence.lua"
-    },
-    {
-      "id": "11f50659-b719-409a-990b-4704d6edc3a1",
-      "name": "FPGA",
-      "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
-      "luaFile": "fpga.lua"
-    },
-    {
-      "id": "0fcc54db-8e05-4808-95da-0b2acc7a6480",
-      "name": "Generic Fibonacci",
-      "description": "Read k and n from input, then compute the nth k-Fibonacci number.\nRecall that the generic k-Fibonacci function is defined by:\n\n  f_k(0) ... f_k(k-2) = 0\n  f_k(k-1) = 1\n  f_k(n)   = f_k(n-1) + f_k(n-2) + ... + f_k(n-k)\n\n\nConstraints:\n∙ 2 ≤ k ≤ 9\n∙ 0 ≤ f_k(n) ≤ 999",
-      "luaFile": "generic-fibonacci.lua"
-    }
+    [
+      {
+        "id": "b42f7f23-62aa-4b90-91b4-22cb5745211d",
+        "name": "Add 7",
+        "description": "Add 7 to every input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 992",
+        "luaFile": "add-7.lua"
+      },
+      {
+        "id": "a7799c55-c6fc-4b4e-9839-427d92e8f7fe",
+        "name": "Absolute Value",
+        "description": "Output the absolute value of the input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+        "luaFile": "absolute-value.lua"
+      },
+      {
+        "id": "feb57646-7d5a-4564-930f-3040186b5897",
+        "name": "Reverse",
+        "description": "Reverse the order of the input items\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+        "luaFile": "reverse.lua"
+      }
+    ],
+    [
+      {
+        "id": "08a396a9-fc41-4146-9e3a-7d19d968b720",
+        "name": "Divide By 5",
+        "description": "Divide the input by 5, rounded down.\nFor example, 23 / 5 = 4.\n\n\nConstraints:\n∙ 5 ≤ Input ≤ 100",
+        "luaFile": "divide-by-5.lua"
+      },
+      {
+        "id": "32467c02-63e4-42cc-8bd0-e214fc6dd7b5",
+        "name": "Trim 0's",
+        "description": "Remove all 0's from the start and end of the input.\nLeave any 0's in the middle of the input (sandwiched between non-zero numbers).\n\nConstraints:\n∙ -9 ≤ Input ≤ 9",
+        "luaFile": "trim.lua"
+      },
+      {
+        "id": "d6c44eee-46f6-416b-8756-a2970d72659e",
+        "name": "Only Evens",
+        "description": "Output only the even numbers\n\n\nConstraints:\n∙ -10 ≤ Input ≤ 10",
+        "luaFile": "only-evens.lua"
+      },
+      {
+        "id": "70beb32f-056c-4730-87a5-0d851d81d6d3",
+        "name": "Maximum Value",
+        "description": "Output the maximum value from the list.\nThe maximum is guaranteed to be unique.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ Unique maximum",
+        "luaFile": "maximum.lua"
+      }
+    ],
+    [
+      {
+        "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
+        "name": "Nth Fibonacci",
+        "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 16",
+        "luaFile": "nth-fibonacci.lua",
+        "challengeLevels": [
+          {
+            "id": "b45d96eb-5488-49bd-825e-b6a53bcbc8b3",
+            "name": "Nth Tribonacci",
+            "description": "Compute the nth Tribonacci number.\nRecall that the Tribonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 0\n  f(2) = 1\n  f(n) = f(n-1) + f(n-2) + f(n-3)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 12",
+            "luaFile": "nth-tribonacci.lua"
+          },
+          {
+            "id": "0fcc54db-8e05-4808-95da-0b2acc7a6480",
+            "name": "Generic Fibonacci",
+            "description": "Read k and n from input, then compute the nth k-Fibonacci number.\nRecall that the generic k-Fibonacci function is defined by:\n\n  f_k(0) ... f_k(k-2) = 0\n  f_k(k-1) = 1\n  f_k(n)   = f_k(n-1) + f_k(n-2) + ... + f_k(n-k)\n\n\nConstraints:\n∙ 2 ≤ k ≤ 9\n∙ 0 ≤ f_k(n) ≤ 999",
+            "luaFile": "generic-fibonacci.lua"
+          }
+        ]
+      },
+      {
+        "id": "e2d916ee-c8c9-4556-a442-0f940c722aa7",
+        "name": "Caesar Cipher",
+        "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 24 (X)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
+        "luaFile": "caesar-cipher.lua"
+      },
+      {
+        "id": "e22d4ee3-0932-4686-be8b-086656accadc",
+        "name": "Total Ordering",
+        "description": "Read x and y from the input, then compute min{x,y} followed by max{x,y}.\nBe careful to avoid arithmetic overflow when comparing x and y.\n\n\nConstraints:\n∙ -999 ≤ x,y ≤ 999",
+        "luaFile": "total-ordering.lua"
+      },
+      {
+        "id": "67ac551c-3c7a-4f5f-b893-9d265aa89a43",
+        "name": "Average",
+        "description": "Compute the average of the input values, rounded down.\n\nExample:\n∙ average{3, 45, 19, 80} = 36\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ 2 ≤ Number of Input Values ≤ 10",
+        "luaFile": "average.lua"
+      },
+      {
+        "id": "d3b36c5d-cefd-4eeb-91fa-ab59d041019c",
+        "name": "Multiplication",
+        "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
+        "luaFile": "multiplication.lua"
+      }
+    ],
+    [
+      {
+        "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
+        "name": "Interpreter",
+        "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6       Output: 99\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
+        "luaFile": "interpreter.lua"
+      },
+      {
+        "id": "bcae893b-dcc2-4a50-83c1-20836ee190ed",
+        "name": "Collatz Conjecture",
+        "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
+        "luaFile": "collatz.lua"
+      },
+      {
+        "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
+        "name": "Memory Unit",
+        "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
+        "luaFile": "memory-unit.lua"
+      }
+    ],
+    [
+      {
+        "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
+        "name": "Sorting",
+        "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
+        "luaFile": "sort.lua"
+      },
+      {
+        "id": "8ab5300e-3378-4a0d-b890-b03160c882d3",
+        "name": "Exponentiation",
+        "description": "Read x and y from the input, then compute x^y.\nRecall that x^0 = 1 for any x (except 0^0, which is undefined).\n\n\nConstraints:\n∙ 0 ≤ x,y ≤ 9\n∙ x^y will not overflow\n∙ Will not ask for 0^0",
+        "luaFile": "exponent.lua"
+      },
+      {
+        "id": "56b6be1a-1063-4ae5-90dc-fe3e5d12f6e5",
+        "name": "Longest Subsequence",
+        "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
+        "luaFile": "longest-subsequence.lua"
+      },
+      {
+        "id": "11f50659-b719-409a-990b-4704d6edc3a1",
+        "name": "FPGA",
+        "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
+        "luaFile": "fpga.lua"
+      }
+    ]
   ]
 }
