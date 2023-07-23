@@ -13,7 +13,8 @@ use std::{
 
 use super::{print_string, EditorState, State, SuccessState};
 use crate::{
-  global_state::{GlobalState, LevelIndex, Statistics},
+  global_state::{GlobalState, Statistics},
+  level::LevelIndex,
   printable::Printable,
   vm::{VMError, VirtualMachine},
 };
@@ -132,11 +133,7 @@ impl State for ExecuteState {
 
     let level = global_state.level(self.level_index);
     stdout.queue(cursor::Hide)?;
-    write!(
-      stdout,
-      "     {}",
-      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
-    )?;
+    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
     self.vms[self.test_case].print_at(2, 0)?;
 

@@ -6,7 +6,8 @@ use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
 use super::{print_string, ShowHelpState, State};
-use crate::global_state::GlobalState;
+use crate::global_state::{GlobalState, Statistics};
+use crate::level::{Level, LevelIndex};
 
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;
@@ -25,10 +26,23 @@ pub struct LevelSelectState {
   page_offset: usize,
 }
 
+enum LevelListEntry<'l> {
+  NormalLevel {
+    level: &'l Level,
+    statistics: Option<Statistics>,
+  },
+  ChallengeLevel {
+    level: &'l Level,
+    statistics: Option<Statistics>,
+  },
+  LockedChallenge,
+}
+
 impl LevelSelectState {
-  pub fn new(selected_level_index: usize) -> Self {
+  pub fn new(level_index: LevelIndex, global_state: &GlobalState) -> Self {
+    let selected_level_index = global_state.get_pack().get_absolute_index(level_index) as isize;
     let mut state = Self {
-      selected_level_index: selected_level_index as isize,
+      selected_level_index,
       last_error: None,
       saved: false,
       page_offset: 0,
@@ -49,6 +63,63 @@ impl LevelSelectState {
         _ => break,
       }
     }
+  }
+
+  fn get_flattened_level_list<'l>(&self, global_state: &'l GlobalState) -> Vec<(LevelListEntry<'l>, LevelIndex)> {
+    use LevelListEntry::*;
+
+    let mut take_next_group = true; // We always take the first group
+    let unlocked_groups: Vec<_> = global_state
+      .get_pack()
+      .level_groups()
+      .into_iter()
+      .take_while(|lg| {
+        let ret = take_next_group;
+        take_next_group = lg.is_complete(global_state);
+        ret
+      })
+      .collect();
+
+    unlocked_groups
+      .into_iter()
+      .enumerate()
+      .flat_map(|(group, lg)| {
+        lg.main_levels()
+          .into_iter()
+          .enumerate()
+          .flat_map(move |(level_in_group, level)| {
+            let mut prev_level = level.level();
+
+            // Challenges require the previous level to be unlocked
+            let challenges_list = level
+              .challenge_levels()
+              .into_iter()
+              .enumerate()
+              .map(move |(challenge, cl)| {
+                let ret_val = if global_state.is_level_complete(prev_level.id()) {
+                  ChallengeLevel {
+                    level: cl,
+                    statistics: global_state.get_statistics(cl.id()),
+                  }
+                } else {
+                  LockedChallenge
+                };
+                prev_level = cl;
+                (ret_val, LevelIndex::new_challenge(group, level_in_group, challenge))
+              });
+
+            // The main level and any challenge levels
+            iter::once((
+              NormalLevel {
+                level: level.level(),
+                statistics: global_state.get_statistics(level.level().id()),
+              },
+              LevelIndex::new(group, level_in_group),
+            ))
+            .chain(challenges_list)
+          })
+      })
+      .collect()
   }
 }
 
@@ -78,52 +149,26 @@ impl State for LevelSelectState {
     }
     stdout.queue(cursor::MoveToNextLine(1))?;
 
-    let completed_levels = global_state.completed_levels();
-    let all_levels_completed = completed_levels.len() == global_state.levels().len();
+    let level_list = self.get_flattened_level_list(global_state);
 
-    let unlocked_levels = if all_levels_completed {
-      completed_levels
-    } else {
-      let next_level = global_state.level(completed_levels.len()).clone();
-      completed_levels.into_iter().chain(iter::once(next_level)).collect()
-    };
-
-    for (level, level_number) in unlocked_levels
+    for ((level_entry, level_index), absolute_index) in level_list
       .iter()
       .skip(self.page_offset)
       .take(LEVELS_PER_PAGE)
       .zip((self.page_offset + 1)..)
     {
-      if (self.selected_level_index + 1) == (level_number as isize) {
-        write!(stdout, "{}", "►".green())?;
+      if (self.selected_level_index + 1) == (absolute_index as isize) {
+        write!(stdout, "{} ", "►".green())?;
       } else {
-        write!(stdout, " ")?;
+        write!(stdout, "  ")?;
       }
 
-      // Color text depending on if it is completed or not
-      let text = format!(" Level {:2<} - {}", level_number, level.name());
-      if level_number as usize == unlocked_levels.len() && !all_levels_completed {
-        stdout.queue(style::SetForegroundColor(Color::Yellow))?;
-        write!(stdout, "{:40}", text)?;
-      } else {
-        stdout.queue(style::SetForegroundColor(Color::DarkGreen))?;
-        write!(stdout, "{:40}", text)?;
-      }
-
-      if let Some(statistics) = global_state.get_statistics(level.id()) {
-        write!(
-          stdout,
-          "{} {: <10.2}",
-          "Cycles:".dark_yellow(),
-          statistics.average_cycles()
-        )?;
-        write!(stdout, "   {} {}", "Symbols:".dark_cyan(), statistics.symbols_used())?;
-      }
+      level_entry.print_entry(*level_index)?;
 
       stdout.queue(style::ResetColor)?.queue(cursor::MoveToNextLine(1))?;
     }
 
-    if (self.page_offset as isize) < (unlocked_levels.len() as isize - LEVELS_PER_PAGE as isize) {
+    if (self.page_offset as isize) < (level_list.len() as isize - LEVELS_PER_PAGE as isize) {
       write!(stdout, "↓")?;
     }
 
@@ -141,14 +186,10 @@ impl State for LevelSelectState {
   }
 
   fn execute(mut self: Box<Self>, global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
-    let completed_levels = global_state.completed_levels();
-    let all_levels_completed = completed_levels.len() == global_state.levels().len();
+    let level_list = self.get_flattened_level_list(global_state);
 
-    let num_options = if all_levels_completed {
-      completed_levels.len() // No next level to unlock
-    } else {
-      completed_levels.len() + 1 // There is a next level to unlock
-    };
+    let num_options = level_list.len();
+    let (selected_level, level_index) = &level_list[self.selected_level_index as usize];
 
     loop {
       // `read()` blocks until an `Event` is available
@@ -187,8 +228,8 @@ impl State for LevelSelectState {
           },
 
           // Select Level
-          KeyCode::Enter => {
-            let level = global_state.level(self.selected_level_index as usize);
+          KeyCode::Enter if selected_level.is_unlocked() => {
+            let level = global_state.level(*level_index);
             let test_cases = match level.generate_test_cases(SEED, NUM_TEST_CASES) {
               Ok(t) => t,
               Err(e) => {
@@ -197,11 +238,7 @@ impl State for LevelSelectState {
               },
             };
 
-            return Ok(Some(Box::new(ShowHelpState::new(
-              self.selected_level_index as usize,
-              0,
-              test_cases,
-            ))));
+            return Ok(Some(Box::new(ShowHelpState::new(*level_index, 0, test_cases))));
           },
 
           _ => {},
@@ -209,5 +246,62 @@ impl State for LevelSelectState {
         _ => {},
       }
     }
+  }
+}
+
+impl<'l> LevelListEntry<'l> {
+  /// Can we actually play this level?
+  pub fn is_unlocked(&self) -> bool {
+    matches!(
+      self,
+      LevelListEntry::NormalLevel { .. } | LevelListEntry::ChallengeLevel { .. }
+    )
+  }
+
+  /// Challenge levels are tabbed
+  pub fn is_challenge(&self) -> bool {
+    matches!(
+      self,
+      LevelListEntry::ChallengeLevel { .. } | LevelListEntry::LockedChallenge
+    )
+  }
+
+  pub fn print_entry(&self, level_index: LevelIndex) -> io::Result<()> {
+    use LevelListEntry::*;
+
+    let mut stdout = io::stdout();
+    let challenge_index = level_index.get_challenge().unwrap_or(0) + 1;
+
+    let (level, statistics) = match self {
+      NormalLevel { level, statistics } => (level, statistics),
+      ChallengeLevel { level, statistics } => (level, statistics),
+      LockedChallenge => {
+        return write!(stdout, "  Challenge {}: Locked", challenge_index);
+      },
+    };
+
+    // Challenge levels get an indent
+    let level_text = if self.is_challenge() {
+      format!("  {:38}", format!("Challenge {}: {}", challenge_index, level.name()))
+    } else {
+      format!("{:40}", level.get_title(level_index))
+    };
+
+    // Color text depending on if it is completed or not
+    if let Some(statistics) = statistics {
+      write!(
+        stdout,
+        "{}{} {: <10.2}   {} {}",
+        level_text.dark_green(),
+        "Cycles:".dark_yellow(),
+        statistics.average_cycles(),
+        "Symbols:".dark_cyan(),
+        statistics.symbols_used()
+      )?;
+    } else {
+      write!(stdout, "{}", level_text.yellow())?;
+    }
+
+    Ok(())
   }
 }

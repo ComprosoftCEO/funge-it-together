@@ -5,7 +5,8 @@ use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::global_state::{GlobalState, LevelIndex, Statistics};
+use crate::global_state::{GlobalState, Statistics};
+use crate::level::LevelIndex;
 
 pub struct SuccessState {
   level_index: LevelIndex,
@@ -31,11 +32,7 @@ impl State for SuccessState {
     stdout.queue(cursor::Hide)?;
 
     let level = &global_state.level(self.level_index);
-    write!(
-      stdout,
-      "{}",
-      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
-    )?;
+    write!(stdout, "{}", level.get_title(self.level_index).yellow())?;
     stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
     stdout.queue(cursor::MoveToNextLine(3))?;
@@ -56,7 +53,7 @@ impl State for SuccessState {
     Ok(())
   }
 
-  fn execute(self: Box<Self>, _: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
+  fn execute(self: Box<Self>, state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
     loop {
       let event = match event::read() {
         Ok(e) => e,
@@ -73,7 +70,7 @@ impl State for SuccessState {
             return Ok(None);
           },
 
-          KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index)))),
+          KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index, state)))),
           KeyCode::Esc => return Ok(Some(Box::new(self.editor))),
 
           _ => {},

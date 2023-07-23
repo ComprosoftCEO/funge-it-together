@@ -8,7 +8,8 @@ use std::io::{self, Write};
 
 use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
 use crate::{
-  global_state::{GlobalState, LevelIndex, Solution},
+  global_state::{GlobalState, Solution},
+  level::LevelIndex,
   printable::Printable,
   puzzle::TestCaseSet,
   state::State,
@@ -102,11 +103,7 @@ impl State for EditorState {
     let mut stdout = io::stdout();
 
     let level = global_state.level(self.level_index);
-    write!(
-      stdout,
-      "     {}",
-      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
-    )?;
+    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
     self.solution.print_at(2, 0)?;
 

@@ -7,6 +7,7 @@ use crossterm::{cursor, event, QueueableCommand};
 
 use super::{LevelSelectState, State};
 use crate::global_state::GlobalState;
+use crate::level::LevelIndex;
 
 static TITLE: &str = r#"
     ███████╗██╗   ██╗███╗   ██╗ ██████╗ ███████╗    ██╗████████╗        
@@ -55,10 +56,13 @@ impl State for TitleState {
     Ok(())
   }
 
-  fn execute(self: Box<Self>, _global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
+  fn execute(self: Box<Self>, global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
     let elapsed = self.now.elapsed();
     if elapsed > Duration::from_secs(2) {
-      return Ok(Some(Box::new(LevelSelectState::new(0))));
+      return Ok(Some(Box::new(LevelSelectState::new(
+        LevelIndex::default(),
+        global_state,
+      ))));
     }
 
     if event::poll(Duration::from_millis(100))? {
@@ -78,7 +82,12 @@ impl State for TitleState {
             return Ok(None);
           },
 
-          KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(0)))),
+          KeyCode::Enter => {
+            return Ok(Some(Box::new(LevelSelectState::new(
+              LevelIndex::default(),
+              global_state,
+            ))))
+          },
           KeyCode::Esc => return Ok(None),
 
           _ => {},

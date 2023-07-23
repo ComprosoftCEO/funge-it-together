@@ -2,16 +2,14 @@ use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
-use std::fmt;
 use std::fs::File;
 use std::hash::Hash;
 use std::io::{self, BufReader, BufWriter, Write};
-use std::iter;
 use std::path::Path;
 use uuid::Uuid;
 
 use crate::grid::Grid;
-use crate::level::{Level, LevelPack};
+use crate::level::{Level, LevelIndex, LevelPack};
 use crate::printable::Printable;
 use crate::vm::Command;
 
@@ -49,13 +47,6 @@ pub struct Statistics {
   symbols_used: usize,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct LevelIndex {
-  group: usize,
-  level_in_group: usize,
-  challenge: Option<usize>,
-}
-
 impl GlobalState {
   pub fn load(levels: LevelPack) -> Self {
     let mut state = Self::from_file(SAVE_FILE).unwrap_or_default();
@@ -77,9 +68,16 @@ impl GlobalState {
     Ok(())
   }
 
+  pub fn get_pack(&self) -> &LevelPack {
+    &self.pack
+  }
+
   pub fn level(&self, index: LevelIndex) -> &Level {
-    let main_level = self.pack.level_group(index.group).main_level(index.level_in_group);
-    if let Some(challenge) = index.challenge {
+    let main_level = self
+      .pack
+      .level_group(index.get_group())
+      .main_level(index.get_level_in_group());
+    if let Some(challenge) = index.get_challenge() {
       main_level.challenge_level(challenge)
     } else {
       main_level.level()
@@ -243,60 +241,6 @@ impl Statistics {
     }
     if other.symbols_used < self.symbols_used {
       self.symbols_used = other.symbols_used;
-    }
-  }
-}
-
-impl LevelIndex {
-  pub fn new(group: usize, level_in_group: usize) -> Self {
-    Self {
-      group,
-      level_in_group,
-      challenge: None,
-    }
-  }
-
-  pub fn new_challenge(group: usize, level_in_group: usize, challenge: usize) -> Self {
-    Self {
-      group,
-      level_in_group,
-      challenge: Some(challenge),
-    }
-  }
-
-  pub fn get_group(&self) -> usize {
-    self.group
-  }
-
-  pub fn get_level_in_group(&self) -> usize {
-    self.level_in_group
-  }
-
-  pub fn get_challenge(&self) -> Option<usize> {
-    self.challenge
-  }
-}
-
-impl fmt::Display for LevelIndex {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let mut counter = self.level_in_group;
-    let level_index: String = iter::once(counter)
-      .chain(iter::from_fn(|| {
-        (counter >= 26).then(|| {
-          counter /= 26;
-          counter
-        })
-      }))
-      .map(|c| ((c % 26) as u8 + 'A' as u8) as char)
-      .collect::<String>()
-      .chars()
-      .rev()
-      .collect();
-
-    if let Some(challenge_index) = self.challenge {
-      write!(f, "{}{}-C{}", self.group + 1, level_index, challenge_index + 1)
-    } else {
-      write!(f, "{}{}", self.group + 1, level_index)
     }
   }
 }

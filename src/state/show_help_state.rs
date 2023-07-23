@@ -7,10 +7,7 @@ use crossterm::{
 use std::io::{self, Write};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::{
-  global_state::{GlobalState, LevelIndex},
-  puzzle::Puzzle,
-};
+use crate::{global_state::GlobalState, level::LevelIndex, puzzle::Puzzle};
 
 const SOLUTIONS_PER_PAGE: usize = 3;
 
@@ -213,7 +210,7 @@ impl State for ShowHelpState {
 
           // Go back
           KeyCode::Esc => {
-            return Ok(Some(Box::new(LevelSelectState::new(self.level_index))));
+            return Ok(Some(Box::new(LevelSelectState::new(self.level_index, global_state))));
           },
 
           // Movement
