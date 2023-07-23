@@ -1,5 +1,5 @@
 use global_state::GlobalState;
-use level::Levels;
+use level::LevelPack;
 use state::TitleState;
 
 mod global_state;
@@ -11,7 +11,7 @@ mod state;
 mod vm;
 
 fn main() {
-  let levels = match Levels::load() {
+  let levels = match LevelPack::load() {
     Ok(l) => l,
     Err(e) => {
       println!("Failed to load levels: {e}");

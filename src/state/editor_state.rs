@@ -8,7 +8,7 @@ use std::io::{self, Write};
 
 use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
 use crate::{
-  global_state::{GlobalState, Solution},
+  global_state::{GlobalState, LevelIndex, Solution},
   printable::Printable,
   puzzle::TestCaseSet,
   state::State,
@@ -41,7 +41,7 @@ static INSTRUCTIONS: &str = r#"
 │b      = Set start"#;
 
 pub struct EditorState {
-  level_index: usize,
+  level_index: LevelIndex,
   solution_index: usize,
 
   solution: Solution,
@@ -55,7 +55,7 @@ pub struct EditorState {
 
 impl EditorState {
   pub fn new(
-    level_index: usize,
+    level_index: LevelIndex,
     solution_index: usize,
     solution: Solution,
     test_cases: TestCaseSet,
@@ -78,7 +78,7 @@ impl EditorState {
       .set_grid_value(self.cursor_row as usize, self.cursor_col as usize, command);
   }
 
-  pub(crate) fn level_index(&self) -> usize {
+  pub(crate) fn level_index(&self) -> LevelIndex {
     self.level_index
   }
 
@@ -101,11 +101,11 @@ impl State for EditorState {
   fn render(&mut self, global_state: &mut GlobalState) -> io::Result<()> {
     let mut stdout = io::stdout();
 
-    let level = &global_state.levels()[self.level_index];
+    let level = global_state.level(self.level_index);
     write!(
       stdout,
       "     {}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
     )?;
 
     self.solution.print_at(2, 0)?;

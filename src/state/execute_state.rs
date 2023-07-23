@@ -13,7 +13,7 @@ use std::{
 
 use super::{print_string, EditorState, State, SuccessState};
 use crate::{
-  global_state::{GlobalState, Statistics},
+  global_state::{GlobalState, LevelIndex, Statistics},
   printable::Printable,
   vm::{VMError, VirtualMachine},
 };
@@ -45,7 +45,7 @@ static INSTRUCTIONS: &str = r#"
 
 pub struct ExecuteState {
   editor: EditorState,
-  level_index: usize,
+  level_index: LevelIndex,
 
   vms: Vec<VirtualMachine>,
   test_case: usize,
@@ -130,12 +130,12 @@ impl State for ExecuteState {
   fn render(&mut self, global_state: &mut GlobalState) -> std::io::Result<()> {
     let mut stdout = io::stdout();
 
-    let level = &global_state.levels()[self.level_index];
+    let level = global_state.level(self.level_index);
     stdout.queue(cursor::Hide)?;
     write!(
       stdout,
       "     {}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
     )?;
 
     self.vms[self.test_case].print_at(2, 0)?;

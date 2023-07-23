@@ -7,7 +7,10 @@ use crossterm::{
 use std::io::{self, Write};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::{global_state::GlobalState, puzzle::Puzzle};
+use crate::{
+  global_state::{GlobalState, LevelIndex},
+  puzzle::Puzzle,
+};
 
 const SOLUTIONS_PER_PAGE: usize = 3;
 
@@ -23,7 +26,7 @@ static SELECT_INSTRUCTIONS: &str = r#"
                                                        │"#;
 
 pub struct ShowHelpState {
-  level_index: usize,
+  level_index: LevelIndex,
   selected_solution_index: isize,
   page_offset: usize,
   test_cases: Vec<Puzzle>,
@@ -32,7 +35,7 @@ pub struct ShowHelpState {
 }
 
 impl ShowHelpState {
-  pub fn new(level_index: usize, selected_solution_index: usize, test_cases: Vec<Puzzle>) -> Self {
+  pub fn new(level_index: LevelIndex, selected_solution_index: usize, test_cases: Vec<Puzzle>) -> Self {
     let mut state = Self {
       level_index,
       selected_solution_index: selected_solution_index as isize,

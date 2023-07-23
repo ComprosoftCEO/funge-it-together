@@ -1,5 +1,5 @@
 use rlua::prelude::*;
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 use std::error::Error;
 use std::fs;
 use std::fs::File;
@@ -7,12 +7,14 @@ use std::io::{self, BufReader, ErrorKind};
 use std::path::Path;
 use uuid::Uuid;
 
+use crate::global_state::{GlobalState, LevelIndex};
 use crate::puzzle::{Puzzle, TestCaseSet};
 
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelPack {
+  #[serde(rename = "levels")]
   groups: Vec<LevelGroup>,
 }
 
@@ -20,35 +22,19 @@ pub struct LevelPack {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelGroup {
-  // If unset, requires all levels to unlock
-  #[serde(default)]
-  requred_to_unlock: UnlockRequirements,
-
+  #[serde(flatten)]
   levels: Vec<MainLevel>,
 }
 
-/// Top-level object for a level
+/// Top-level object for a level, may have optional "challenge" levels
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MainLevel {
   #[serde(flatten)]
   level: Level,
+
+  #[serde(default)]
   challenge_levels: Vec<Level>,
-}
-
-/// Stores the unlock requirements
-#[derive(Debug, Clone, Copy)]
-pub enum UnlockRequirements {
-  /// Complete at least X levels from the previous group to unlock.
-  /// This is indicated by a positive number.
-  AtLeast(u16),
-
-  /// Complete n - x levels from the previous group to unlock,
-  /// where n is the number of levels in the previous group.
-  /// This is indicated by a negative number or 0.
-  ///
-  /// If set to 0, it requires all levels to be completed.
-  AllExcept(u16),
 }
 
 /// Single entry in the levels.json file
@@ -61,19 +47,18 @@ pub struct Level {
   lua_file: String,
 }
 
-#[allow(unused)]
 impl LevelPack {
   pub fn load() -> io::Result<Self> {
     Self::from_file("levels/pack.json")
   }
 
-  // pub fn levels(&self) -> &Vec<Level> {
-  //   &self.levels
-  // }
+  pub fn level_groups(&self) -> &Vec<LevelGroup> {
+    &self.groups
+  }
 
-  // pub fn level(&self, index: usize) -> &Level {
-  //   &self.levels[index]
-  // }
+  pub fn level_group(&self, index: usize) -> &LevelGroup {
+    &self.groups[index]
+  }
 
   ///
   /// Load a level pack from a folder
@@ -85,8 +70,11 @@ impl LevelPack {
     let reader = BufReader::new(file);
     let mut me: Self = serde_json::from_reader(reader)?;
 
+    // Remove any groups that have no levels
+    me.groups = me.groups.into_iter().filter(|g| !g.levels.is_empty()).collect();
+
     // Make sure there is at least one level in one group
-    if me.groups.iter().find(|group| group.levels.len() > 0).is_none() {
+    if me.groups.is_empty() {
       Err(io::Error::new(
         ErrorKind::InvalidData,
         format!("No levels provided in pack file"),
@@ -97,27 +85,34 @@ impl LevelPack {
   }
 }
 
-impl Default for UnlockRequirements {
-  fn default() -> Self {
-    Self::AllExcept(0)
+impl LevelGroup {
+  pub fn main_levels(&self) -> &Vec<MainLevel> {
+    &self.levels
+  }
+
+  pub fn main_level(&self, index: usize) -> &MainLevel {
+    &self.levels[index]
+  }
+
+  pub fn is_complete(&self, global_state: &GlobalState) -> bool {
+    self.levels.iter().all(|l| global_state.is_level_complete(l.level.id))
   }
 }
 
-impl<'de> Deserialize<'de> for UnlockRequirements {
-  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-  where
-    D: Deserializer<'de>,
-  {
-    let val: i16 = Deserialize::deserialize(deserializer)?;
-    if val <= 0 {
-      Ok(Self::AllExcept(val.abs() as u16))
-    } else {
-      Ok(Self::AtLeast(val as u16))
-    }
+impl MainLevel {
+  pub fn level(&self) -> &Level {
+    &self.level
+  }
+
+  pub fn challenge_levels(&self) -> &Vec<Level> {
+    &self.challenge_levels
+  }
+
+  pub fn challenge_level(&self, index: usize) -> &Level {
+    &self.challenge_levels[index]
   }
 }
 
-#[allow(unused)]
 impl Level {
   pub fn id(&self) -> Uuid {
     self.id
@@ -135,15 +130,8 @@ impl Level {
     &self.lua_file
   }
 
-  pub fn get_title(&self, level_index: usize) -> String {
-    format!("Level {} - {}", level_index + 1, self.name())
-  }
-
-  ///
-  /// Print the full level details along with some examples
-  ///
-  pub fn print_level_details(&self, level_number: usize) {
-    println!("Level {}: {}", level_number, self.name);
+  pub fn get_title(&self, level_index: LevelIndex) -> String {
+    format!("Puzzle {} - {}", level_index, self.name())
   }
 
   ///

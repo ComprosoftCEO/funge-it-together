@@ -5,17 +5,17 @@ use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::global_state::{GlobalState, Statistics};
+use crate::global_state::{GlobalState, LevelIndex, Statistics};
 
 pub struct SuccessState {
-  level_index: usize,
+  level_index: LevelIndex,
   statistics: Statistics,
   best: Statistics,
   editor: EditorState,
 }
 
 impl SuccessState {
-  pub fn new(level_index: usize, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
+  pub fn new(level_index: LevelIndex, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
     Self {
       level_index,
       statistics,
@@ -30,11 +30,11 @@ impl State for SuccessState {
     let mut stdout = io::stdout();
     stdout.queue(cursor::Hide)?;
 
-    let level = &global_state.levels()[self.level_index];
+    let level = &global_state.level(self.level_index);
     write!(
       stdout,
       "{}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
+      format!("Puzzle {} - {}", self.level_index, level.name()).yellow()
     )?;
     stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
