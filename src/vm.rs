@@ -421,7 +421,7 @@ impl VirtualMachine {
   }
 
   pub fn is_at_breakpoint(&self) -> bool {
-    self.grid.has_breakpoint(self.row as usize, self.col as usize)
+    self.grid.has_breakpoint(self.row as usize, self.col as usize) && !self.skip_next_instruction
   }
 }
 
