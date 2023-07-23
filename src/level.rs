@@ -1,5 +1,5 @@
 use rlua::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::error::Error;
 use std::fs;
 use std::fs::File;
@@ -12,8 +12,43 @@ use crate::puzzle::{Puzzle, TestCaseSet};
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Levels {
-  levels: Vec<Level>,
+pub struct LevelPack {
+  groups: Vec<LevelGroup>,
+}
+
+/// Stores a group of levels that all unlock at once
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LevelGroup {
+  // If unset, requires all levels to unlock
+  #[serde(default)]
+  requred_to_unlock: UnlockRequirements,
+
+  levels: Vec<MainLevel>,
+}
+
+/// Top-level object for a level
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MainLevel {
+  #[serde(flatten)]
+  level: Level,
+  challenge_levels: Vec<Level>,
+}
+
+/// Stores the unlock requirements
+#[derive(Debug, Clone, Copy)]
+pub enum UnlockRequirements {
+  /// Complete at least X levels from the previous group to unlock.
+  /// This is indicated by a positive number.
+  AtLeast(u16),
+
+  /// Complete n - x levels from the previous group to unlock,
+  /// where n is the number of levels in the previous group.
+  /// This is indicated by a negative number or 0.
+  ///
+  /// If set to 0, it requires all levels to be completed.
+  AllExcept(u16),
 }
 
 /// Single entry in the levels.json file
@@ -27,18 +62,18 @@ pub struct Level {
 }
 
 #[allow(unused)]
-impl Levels {
+impl LevelPack {
   pub fn load() -> io::Result<Self> {
     Self::from_file("levels/pack.json")
   }
 
-  pub fn levels(&self) -> &Vec<Level> {
-    &self.levels
-  }
+  // pub fn levels(&self) -> &Vec<Level> {
+  //   &self.levels
+  // }
 
-  pub fn level(&self, index: usize) -> &Level {
-    &self.levels[index]
-  }
+  // pub fn level(&self, index: usize) -> &Level {
+  //   &self.levels[index]
+  // }
 
   ///
   /// Load a level pack from a folder
@@ -50,8 +85,8 @@ impl Levels {
     let reader = BufReader::new(file);
     let mut me: Self = serde_json::from_reader(reader)?;
 
-    // Make sure there is at least one level
-    if me.levels.len() == 0 {
+    // Make sure there is at least one level in one group
+    if me.groups.iter().find(|group| group.levels.len() > 0).is_none() {
       Err(io::Error::new(
         ErrorKind::InvalidData,
         format!("No levels provided in pack file"),
@@ -59,6 +94,26 @@ impl Levels {
     }
 
     Ok(me)
+  }
+}
+
+impl Default for UnlockRequirements {
+  fn default() -> Self {
+    Self::AllExcept(0)
+  }
+}
+
+impl<'de> Deserialize<'de> for UnlockRequirements {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'de>,
+  {
+    let val: i16 = Deserialize::deserialize(deserializer)?;
+    if val <= 0 {
+      Ok(Self::AllExcept(val.abs() as u16))
+    } else {
+      Ok(Self::AtLeast(val as u16))
+    }
   }
 }
 
