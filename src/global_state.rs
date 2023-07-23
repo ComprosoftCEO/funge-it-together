@@ -209,7 +209,7 @@ impl Printable for Solution {
       "{}",
       self
         .grid
-        .get_value(self.start_row as usize, self.start_col as usize)
+        .get_value(self.start_row, self.start_col)
         .get_char()
         .green()
         .reverse()

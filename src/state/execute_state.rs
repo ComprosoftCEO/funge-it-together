@@ -69,7 +69,7 @@ pub enum Speed {
 }
 
 enum StepResult {
-  Continue(ExecuteState),
+  Continue(Box<ExecuteState>),
   OtherState(Box<dyn State>),
 }
 
@@ -97,7 +97,7 @@ impl ExecuteState {
     }
 
     match step {
-      Ok(false) => StepResult::Continue(*self),
+      Ok(false) => StepResult::Continue(self),
       Ok(true) => {
         self.total_cycles += current_vm.get_cycle() as f64;
         let num_symbols = current_vm.count_symbols();
@@ -117,11 +117,11 @@ impl ExecuteState {
           )));
         }
 
-        StepResult::Continue(*self)
+        StepResult::Continue(self)
       },
       Err(e) => {
         self.last_error = Some(e);
-        return StepResult::OtherState(Box::new(*self));
+        StepResult::OtherState(Box::new(*self))
       },
     }
   }
@@ -184,7 +184,7 @@ impl State for ExecuteState {
 
     for _ in 0..self.speed.num_steps() {
       self = match self.step_vm(global_state) {
-        StepResult::Continue(s) => Box::new(s),
+        StepResult::Continue(s) => s,
         result @ StepResult::OtherState(_) => return Ok(result.into_box()),
       };
 
@@ -302,7 +302,7 @@ impl Speed {
 impl StepResult {
   pub fn into_box(self) -> Option<Box<dyn State>> {
     match self {
-      Self::Continue(s) => Some(Box::new(s)),
+      Self::Continue(s) => Some(s),
       Self::OtherState(s) => Some(s),
     }
   }

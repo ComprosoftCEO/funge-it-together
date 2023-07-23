@@ -85,7 +85,6 @@ impl EditorState {
 
   pub(crate) fn vms(&self) -> Vec<VirtualMachine> {
     (0..self.test_cases.len())
-      .into_iter()
       .map(|i| {
         let index = (self.test_case_index as usize + i).rem_euclid(self.test_cases.len());
         VirtualMachine::new(self.solution.clone(), index + 1, &self.test_cases[index])
@@ -392,6 +391,6 @@ impl State for EditorState {
     let level_id = global_state.level(self.level_index).id();
     global_state.save_solution(level_id, self.solution_index, &self.solution);
 
-    return Ok(Some(self));
+    Ok(Some(self))
   }
 }

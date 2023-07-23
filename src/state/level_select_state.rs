@@ -72,7 +72,7 @@ impl LevelSelectState {
     let unlocked_groups: Vec<_> = global_state
       .get_pack()
       .level_groups()
-      .into_iter()
+      .iter()
       .take_while(|lg| {
         let ret = take_next_group;
         take_next_group = lg.is_complete(global_state);
@@ -85,28 +85,24 @@ impl LevelSelectState {
       .enumerate()
       .flat_map(|(group, lg)| {
         lg.main_levels()
-          .into_iter()
+          .iter()
           .enumerate()
           .flat_map(move |(level_in_group, level)| {
             let mut prev_level = level.level();
 
             // Challenges require the previous level to be unlocked
-            let challenges_list = level
-              .challenge_levels()
-              .into_iter()
-              .enumerate()
-              .map(move |(challenge, cl)| {
-                let ret_val = if global_state.is_level_complete(prev_level.id()) {
-                  ChallengeLevel {
-                    level: cl,
-                    statistics: global_state.get_statistics(cl.id()),
-                  }
-                } else {
-                  LockedChallenge
-                };
-                prev_level = cl;
-                (ret_val, LevelIndex::new_challenge(group, level_in_group, challenge))
-              });
+            let challenges_list = level.challenge_levels().iter().enumerate().map(move |(challenge, cl)| {
+              let ret_val = if global_state.is_level_complete(prev_level.id()) {
+                ChallengeLevel {
+                  level: cl,
+                  statistics: global_state.get_statistics(cl.id()),
+                }
+              } else {
+                LockedChallenge
+              };
+              prev_level = cl;
+              (ret_val, LevelIndex::new_challenge(group, level_in_group, challenge))
+            });
 
             // The main level and any challenge levels
             iter::once((

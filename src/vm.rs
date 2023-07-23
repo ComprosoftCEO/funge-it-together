@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::cmp;
 use std::collections::VecDeque;
 use std::io::{self, Write};
-use std::iter;
 
 use crate::global_state::Solution;
 use crate::grid::Grid;
@@ -211,7 +210,7 @@ impl VirtualMachine {
 
   // Returns Ok(true) when the puzzle is solved
   pub fn step(&mut self) -> Result<bool, VMError> {
-    if self.inputs.len() == 0 && &self.outputs == &self.expected_outputs {
+    if self.inputs.len() == 0 && self.outputs == self.expected_outputs {
       return Ok(true);
     }
 
@@ -527,7 +526,7 @@ impl Stack {
 
   pub fn rotate_down(&mut self) {
     match self.pop() {
-      None => return,
+      None => (),
       Some(v) => {
         self.values.push_front(v);
       },
@@ -536,7 +535,7 @@ impl Stack {
 
   pub fn rotate_up(&mut self) {
     match self.values.pop_front() {
-      None => return,
+      None => (),
       Some(v) => self.values.push_back(v),
     }
   }
@@ -553,7 +552,7 @@ impl Printable for Stack {
     // ┌─┐
     // │ │
     // └─┘
-    let top_bottom_lines: String = iter::repeat("─").take(VAL_CHAR_WIDTH).collect();
+    let top_bottom_lines: String = "─".repeat(VAL_CHAR_WIDTH);
     write!(stdout, "┌{}┐", top_bottom_lines)?;
     stdout
       .queue(cursor::MoveLeft(VAL_CHAR_WIDTH as u16 + 2))?

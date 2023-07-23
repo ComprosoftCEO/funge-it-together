@@ -46,7 +46,7 @@ pub struct Level {
   lua_file: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct LevelIndex {
   group: usize,
   level_in_group: usize,
@@ -87,13 +87,13 @@ impl LevelPack {
     let mut me: Self = serde_json::from_reader(reader)?;
 
     // Remove any groups that have no levels
-    me.groups = me.groups.into_iter().filter(|g| !g.0.is_empty()).collect();
+    me.groups.retain(|g| !g.0.is_empty());
 
     // Make sure there is at least one level in one group
     if me.groups.is_empty() {
       Err(io::Error::new(
         ErrorKind::InvalidData,
-        format!("No levels provided in pack file"),
+        "No levels provided in pack file".to_string(),
       ))?;
     }
 
@@ -176,7 +176,7 @@ impl Level {
 
       // Add the levels folder to the path
       ctx
-        .load(&format!(r#"package.path = "./levels/?.lua;" .. package.path"#))
+        .load(&r#"package.path = "./levels/?.lua;" .. package.path"#)
         .exec()?;
 
       // Seed the random number generator
@@ -194,7 +194,7 @@ impl Level {
       let test_cases = (0..n)
         .map(|_| {
           let (inputs, outputs): (Vec<i16>, Vec<i16>) = generate_test_case.call(())?;
-          Puzzle::new(inputs, outputs).map_err(|e| LuaError::RuntimeError(e))
+          Puzzle::new(inputs, outputs).map_err(LuaError::RuntimeError)
         })
         .collect::<Result<_, _>>()?;
 
@@ -235,16 +235,6 @@ impl LevelIndex {
   }
 }
 
-impl Default for LevelIndex {
-  fn default() -> Self {
-    Self {
-      group: 0,
-      level_in_group: 0,
-      challenge: None,
-    }
-  }
-}
-
 impl fmt::Display for LevelIndex {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut counter = self.level_in_group;
@@ -255,7 +245,7 @@ impl fmt::Display for LevelIndex {
           counter
         })
       }))
-      .map(|c| ((c % 26) as u8 + 'A' as u8) as char)
+      .map(|c| ((c % 26) as u8 + b'A') as char)
       .collect::<String>()
       .chars()
       .rev()
