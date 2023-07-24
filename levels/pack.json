@@ -146,6 +146,12 @@
         "name": "Longest Subsequence",
         "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
         "luaFile": "longest-subsequence.lua"
+      },
+      {
+        "id": "6185615f-185a-46a6-848f-df7a682d8f1e",
+        "name": "Polynomial",
+        "description": "Output all integer solutions to the polynomial equation from smallest to largest.\nCoefficients are passed in from x^n, x^(n-1), ... x^1, x^0.\nOnly output duplicate solutions once.\n\nExample:\n  Input: 1 1 -25 -37 60     (x^4 + x^3 - 25x^2 - 37x + 60)\n  Output: -4 -3 1 5         (x + 4) * (x + 3) * (x - 1) * (x - 5)\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ -9 ≤ Output Solution ≤ 9\n∙ Duplicate solutions should only be output once",
+        "luaFile": "polynomial.lua"
       }
     ]
   ]
