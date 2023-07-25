@@ -48,6 +48,40 @@
     ],
     [
       {
+        "id": "e2d916ee-c8c9-4556-a442-0f940c722aa7",
+        "name": "Caesar Cipher",
+        "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 24 (X)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
+        "luaFile": "caesar-cipher.lua"
+      },
+      {
+        "id": "e22d4ee3-0932-4686-be8b-086656accadc",
+        "name": "Total Ordering",
+        "description": "Read x and y from the input, then compute min{x,y} followed by max{x,y}.\nBe careful to avoid arithmetic overflow when comparing x and y.\n\n\nConstraints:\n∙ -999 ≤ x,y ≤ 999",
+        "luaFile": "total-ordering.lua"
+      },
+      {
+        "id": "67ac551c-3c7a-4f5f-b893-9d265aa89a43",
+        "name": "Average",
+        "description": "Compute the average of the input values, rounded down.\n\nExample:\n∙ average{3, 45, 19, 80} = 36\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ 2 ≤ Number of Input Values ≤ 10",
+        "luaFile": "average.lua"
+      },
+      {
+        "id": "d3b36c5d-cefd-4eeb-91fa-ab59d041019c",
+        "name": "Multiplication",
+        "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
+        "luaFile": "multiplication.lua",
+        "challengeLevels": [
+          {
+            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
+            "name": "Factorial",
+            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
+            "luaFile": "factorial.lua"
+          }
+        ]
+      }
+    ],
+    [
+      {
         "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
         "name": "Nth Fibonacci",
         "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 16",
@@ -68,39 +102,19 @@
         ]
       },
       {
-        "id": "e2d916ee-c8c9-4556-a442-0f940c722aa7",
-        "name": "Caesar Cipher",
-        "description": "Encryption is an important part of secure data transmission.\n\nFirst, read the encryption key integer from input.\nThen, read the message and shift every letter (1-26, or A-Z) by that many characters.\nBe sure to wrap around letters outside the range 1-26.\n\nExample:\n∙ Encryption Key: -5\n∙ Input 3 (C), Output 24 (X)\n\n\nConstraints:\n∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)\n∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)\n∙ 1 ≤ Test Input ≤ 26",
-        "luaFile": "caesar-cipher.lua"
+        "id": "89b647a5-f0d7-4694-b942-d394474dcb76",
+        "name": "Palindrome Numbers",
+        "description": "Output only the palindrome numbers (number is the same written forwards and backwards).\nSingle-digit numbers are considered palindromes.\n\nExamples:\n∙ Palindromes:     101, 333, 99, 6, 262\n∙ Non-Palindromes: 321, 56, 234, 98, 23\n\nConstraints:\n∙ 0 ≤ Input ≤ 999",
+        "luaFile": "palindrome.lua"
       },
       {
-        "id": "e22d4ee3-0932-4686-be8b-086656accadc",
-        "name": "Total Ordering",
-        "description": "Read x and y from the input, then compute min{x,y} followed by max{x,y}.\nBe careful to avoid arithmetic overflow when comparing x and y.\n\n\nConstraints:\n∙ -999 ≤ x,y ≤ 999",
-        "luaFile": "total-ordering.lua"
-      },
-      {
-        "id": "67ac551c-3c7a-4f5f-b893-9d265aa89a43",
-        "name": "Average",
-        "description": "Compute the average of the input values, rounded down.\n\nExample:\n∙ average{3, 45, 19, 80} = 36\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ 2 ≤ Number of Input Values ≤ 10",
-        "luaFile": "average.lua"
+        "id": "05b4a5b6-0479-42c8-be35-e10da3671c56",
+        "name": "Prime Factorization",
+        "description": "Read a number and output it's prime factorization. For example:\n∙ Input: 840\n∙ Output: 2 2 2 3 5 7     (840 = 2^3 * 3 * 5 * 7)\n\nConstraints:\n∙ 2 ≤ Input ≤ 999",
+        "luaFile": "prime-factorization.lua"
       }
     ],
     [
-      {
-        "id": "d3b36c5d-cefd-4eeb-91fa-ab59d041019c",
-        "name": "Multiplication",
-        "description": "Read x and y from the input, then compute x*y.\n\n\nConstraints:\n∙ -99 ≤ x ≤ 99\n∙ -10 ≤ y ≤ 10",
-        "luaFile": "multiplication.lua",
-        "challengeLevels": [
-          {
-            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
-            "name": "Factorial",
-            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
-            "luaFile": "factorial.lua"
-          }
-        ]
-      },
       {
         "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
         "name": "Interpreter",
@@ -120,15 +134,15 @@
         "name": "Collatz Conjecture",
         "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
         "luaFile": "collatz.lua"
-      }
-    ],
-    [
+      },
       {
         "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
         "name": "Memory Unit",
         "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
         "luaFile": "memory-unit.lua"
-      },
+      }
+    ],
+    [
       {
         "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
         "name": "Sorting",
