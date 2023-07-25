@@ -18,6 +18,12 @@
         "name": "Reverse",
         "description": "Reverse the order of the input items\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
         "luaFile": "reverse.lua"
+      },
+      {
+        "id": "5214032e-87f1-415e-a086-15f4052d9fd4",
+        "name": "Take 10",
+        "description": "Take (at most) the first 10 input items.\nThe input may have fewer than 10 items.\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ 5 ≤ Number of Inputs ≤ 15",
+        "luaFile": "take-10.lua"
       }
     ],
     [
@@ -125,15 +131,7 @@
         "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
         "name": "Interpreter",
         "description": "Write an interpreter for a subset of the stack instructions:\n∙ 1 <Value> - Push <Value> onto the stack\n∙ 2 - Pop\n∙ 3 - Swap the top two values of the stack\n∙ 4 - Add, pop off two values from the stack and push their sum\n∙ 5 - Sub, pop off two values from the stack push their difference\n∙ 6 - Output, pop a value off the stack and push to the output stream\n\nExample:\n∙ Input: 1 10 1 20 4 1 99 3 2 6       Output: 99\n∙ Steps: PUSH 10, PUSH 20, ADD, PUSH 99, SWAP, POP, OUTPUT\n\nConstraints:\n∙ All instructions are valid\n∙ -99 ≤ Input ≤ 99\n∙ Program will not cause a stack or arithmetic error",
-        "luaFile": "interpreter.lua",
-        "challengeLevels": [
-          {
-            "id": "11f50659-b719-409a-990b-4704d6edc3a1",
-            "name": "FPGA",
-            "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
-            "luaFile": "fpga.lua"
-          }
-        ]
+        "luaFile": "interpreter.lua"
       },
       {
         "id": "bcae893b-dcc2-4a50-83c1-20836ee190ed",
@@ -146,6 +144,12 @@
         "name": "Memory Unit",
         "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
         "luaFile": "memory-unit.lua"
+      },
+      {
+        "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
+        "name": "Linked List",
+        "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 1 to 10\n   ∙ Each cell contains an index (1-10) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 1 ≤ Random Start, Memory Cell ≤ 10\n∙ Loop is guaranteed to terminate",
+        "luaFile": "linked-list.lua"
       }
     ],
     [
@@ -166,6 +170,12 @@
         "name": "Longest Subsequence",
         "description": "Find the longest subsequence (or run) of equal values.\nThe subsequence is guaranteed to be unique.\nOutput the repeated number and length of the subsequence.\n\nExample:\n∙ Input: 13 13 2 99 99 99 99 60 60\n∙ Output: 99 4\n\n\nConstraints:\n∙ 1 ≤ Input ≤ 99\n∙ -99 ≤ Input ≤ 99\n∙ Subsequence will be unique",
         "luaFile": "longest-subsequence.lua"
+      },
+      {
+        "id": "11f50659-b719-409a-990b-4704d6edc3a1",
+        "name": "FPGA",
+        "description": "Write a program to simulate a Field Programmable Gate Arrays (FPGA).\nRead an opcode from the input stream followed by two operands (a and b).\nThen perform the binary calculation and output the result.\nReference the following truth table for the opcodes and expected outputs:\n(Note that a NOT operation only has one operand a, so only read in one value)\n\n┌───────╥────┬────┬────┬────┬────┬────┬────┐\n│Opcode ║ 0  │ 1  │ 2  │ 3  │ -1 │ -2 │ -3 │\n╞═══╤═══╬════╪════╪════╪════╪════╪════╪════╡\n│ A │ B ║NOT │AND │ OR │XOR │NOR │NAND│XNOR│\n├───┼───╫────┼────┼────┼────┼────┼────┼────┤\n│ 1 │ 1 ║ -  │ 1  │ 1  │ 0  │ 0  │ 0  │ 1  │\n│ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │\n│ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │\n└───┴───╨────┴────┴────┴────┴────┴────┴────┘",
+        "luaFile": "fpga.lua"
       },
       {
         "id": "0d398ad2-7a36-4e27-9e0d-df08bc7b9d98",
