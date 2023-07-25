@@ -159,6 +159,7 @@ All levels live inside the [levels](levels/) folder. Levels are organized into g
 The next group unlocks once all levels from the previous group have been completed.
 Levels can also have optional "challenge" levels that unlock once the level is complete.
 Challenges are **not** required to unlock the next group of levels.
+All levels included with the game are guaranteed to have at least one solution (I solved them all myself).
 
 To write a new level:
 
