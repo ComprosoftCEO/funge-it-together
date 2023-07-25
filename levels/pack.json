@@ -82,6 +82,12 @@
     ],
     [
       {
+        "id": "65f6293f-c9db-47e0-9500-55a9ff712ee1",
+        "name": "Triangle Numbers",
+        "description": "Compute the nth triangle number.\nRecall that the triangle number function is defined by:\n\n  t(n) = 0 + 1 + 2 + ... + n\n\nConstraints:\n∙ 0 ≤ Input ≤ 44",
+        "luaFile": "nth-triangle.lua"
+      },
+      {
         "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
         "name": "Nth Fibonacci",
         "description": "Compute the nth Fibonacci number.\nRecall that the Fibonacci function is defined by:\n\n  f(0) = 0\n  f(1) = 1\n  f(n) = f(n-1) + f(n-2)\n\n\nConstraints:\n∙ 0 ≤ Input ≤ 16",
