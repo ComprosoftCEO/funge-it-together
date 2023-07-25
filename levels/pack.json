@@ -8,10 +8,18 @@
         "luaFile": "add-7.lua"
       },
       {
-        "id": "a7799c55-c6fc-4b4e-9839-427d92e8f7fe",
-        "name": "Absolute Value",
-        "description": "Output the absolute value of the input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
-        "luaFile": "absolute-value.lua"
+        "id": "bccd3d32-821c-4f6e-97f7-12616e25ac7a",
+        "name": "Sign",
+        "description": "Output the sign of the input:\n∙ +1 if positive\n∙ -1 if negative\n∙  0 otherwise\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+        "luaFile": "sign.lua",
+        "challengeLevels": [
+          {
+            "id": "a7799c55-c6fc-4b4e-9839-427d92e8f7fe",
+            "name": "Absolute Value",
+            "description": "Output the absolute value of the input\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+            "luaFile": "absolute-value.lua"
+          }
+        ]
       },
       {
         "id": "feb57646-7d5a-4564-930f-3040186b5897",
