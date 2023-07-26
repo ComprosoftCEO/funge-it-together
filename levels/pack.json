@@ -156,7 +156,7 @@
       {
         "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
         "name": "Linked List",
-        "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 1 to 10\n   ∙ Each cell contains an index (1-10) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 1 ≤ Random Start, Memory Cell ≤ 10\n∙ Loop is guaranteed to terminate",
+        "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 0 to 9\n   ∙ Each cell contains an index (0-9) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 0 ≤ Random Start, Memory Cell ≤ 9\n∙ Loop is guaranteed to terminate",
         "luaFile": "linked-list.lua"
       }
     ],

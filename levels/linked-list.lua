@@ -31,5 +31,13 @@ function generateTestCase()
     input[i + 1] = linkedList[i]
   end
 
+  -- Subtract 1 from everything to make it 0-based index
+  for i = 1, #input do
+    input[i] = input[i] - 1
+  end
+  for i = 1, #loop do
+    loop[i] = loop[i] - 1
+  end
+
   return input, loop
 end
