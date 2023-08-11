@@ -200,7 +200,7 @@
           {
             "id": "6185615f-185a-46a6-848f-df7a682d8f1e",
             "name": "Polynomial",
-            "description": "Output all integer solutions to the polynomial equation from smallest to largest.\nCoefficients are passed in from x^n, x^(n-1), ... x^1, x^0.\nOnly output duplicate solutions once.\n\nExample:\n  Input: 1 1 -25 -37 60     (x^4 + x^3 - 25x^2 - 37x + 60)\n  Output: -4 -3 1 5         (x + 4) * (x + 3) * (x - 1) * (x - 5)\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ -9 ≤ Output Solution ≤ 9\n∙ Duplicate solutions should only be output once\n∙ Polynomial can be computed without overflow",
+            "description": "Output all integer solutions to the polynomial equation from smallest to largest.\nCoefficients are passed in from x^n, x^(n-1), ... x^1, x^0.\nOnly output duplicate solutions once.\n\nExample:\n∙ Input: 1 6 9 -4 -12     (x^4 + 6x^3 + 9x^2 - 4x - 12)\n∙ Output: -3 -2 1         (x + 3) * (x + 2)^2 * (x - 1)\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ ┌───Degree───╥─x^2 ─┬─x^3 ─┬─x^4 ─┬─x^5 ─┬─x^6 ─┐\n  ├────────────╫──────┼──────┼──────┼──────┼──────┤\n  │Output Range║[-9,9]│[-7,7]│[-5,5]│[-3,3]│[-3,3]│\n  └────────────╨──────┴──────┴──────┴──────┴──────┘ \n∙ Duplicate solutions should only be output once\n∙ Polynomial can be computed without overflow",
             "luaFile": "polynomial.lua"
           }
         ]
