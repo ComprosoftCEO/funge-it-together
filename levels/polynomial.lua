@@ -1,28 +1,35 @@
+local MIN_DEGREE = 2
+local MAX_DEGREE = 6
+local DEGREE_X_RANGE = { -- -X to X
+  [2] = 9,
+  [3] = 7,
+  [4] = 5,
+  [5] = 3,
+  [6] = 3,
+}
+
+local validPolynomials = {} -- computed below
+
 function generateTestCase()
-  local outputs = {}
+  local randomDegree = math.random(MIN_DEGREE, MAX_DEGREE)
+  local randomIndex = math.random(1, #validPolynomials[randomDegree]) -- Guaranteed to be non-empty
 
-  -- Generate random polynomial with 2 to 7 coefficients
-  local polynomial = randomCoefficient()
-  outputs[#outputs + 1] = polynomial[2]
-  for i = 1, math.random(1, 6) do
-    local newPolynomial = multiplyPolynomials(polynomial, randomCoefficient())
-    while coefficientsTooLarge(newPolynomial) do
-      newPolynomial = multiplyPolynomials(polynomial, randomCoefficient())
-    end
+  local inputs = validPolynomials[randomDegree][randomIndex][1]
 
-    polynomial = newPolynomial
-    outputs[#outputs + 1] = polynomial[2]
-  end
-
-  outputs = uniqueValues(outputs)
+  local outputs = uniqueValues(validPolynomials[randomDegree][randomIndex][2])
   table.sort(outputs)
 
-  return polynomial, outputs
+  return inputs, outputs
 end
 
--- Return (x - a), where a is a random number in [-9, 9]
-function randomCoefficient()
-  return { 1, math.random(-9, 9) }
+-- Build a polynomial from a list of 1 or more roots
+function buildPolynomial(roots)
+  local polynomial = { 1, roots[1] }
+  for i = 2, #roots do
+    polynomial = multiplyPolynomials(polynomial, { 1, roots[i] })
+  end
+
+  return polynomial
 end
 
 -- Multiply two polynomials in vector form and return a new polynomial
@@ -42,11 +49,39 @@ function multiplyPolynomials(a, b)
   return newPolynomial
 end
 
--- Make sure all coefficients are small enough to multiply without overflowing
-function coefficientsTooLarge(x)
-  for i = 1, #x do
-    if x[i] < -99 or x[i] > 99 then
-      return true
+-- Create an iterator over all polynomials of a given degree
+--   n is the polynomial degree
+--   x varies from [minX, maxX]
+function allPolynomials(n, minX, maxX)
+  local function gen(tmpN, arr)
+    if tmpN == 0 then
+      coroutine.yield(buildPolynomial(arr), { table.unpack(arr) })
+    else
+      local curIndex = n - tmpN
+      for x = (arr[curIndex] or minX), maxX do
+        arr[curIndex + 1] = x
+        gen(tmpN - 1, arr)
+      end
+    end
+  end
+
+  return coroutine.wrap(function() gen(n, {}) end)
+end
+
+-- Make sure computing f(x) with Horner's Method won't overflow [-999,999]
+function coefficientsTooLarge(poly, min, max)
+  for x = min, max do
+    local acc = poly[1]
+    for i = 2, #poly do
+      acc = acc * x -- Multiply
+      if acc < -999 or acc > 999 then
+        return true
+      end
+
+      acc = acc + poly[i] -- Add
+      if acc < -999 or acc > 999 then
+        return true
+      end
     end
   end
 
@@ -66,4 +101,18 @@ function uniqueValues(x)
   end
 
   return res
+end
+
+-- Build cache of all polynomials that don't overflow with Horner's method
+for degree = MIN_DEGREE, MAX_DEGREE do
+  local validDegreePolynomials = {}
+  local degreeMin, degreeMax = -DEGREE_X_RANGE[degree], DEGREE_X_RANGE[degree]
+
+  for polynomial, roots in allPolynomials(degree, degreeMin, degreeMax) do
+    if not coefficientsTooLarge(polynomial, degreeMin, degreeMax) then
+      validDegreePolynomials[#validDegreePolynomials + 1] = { polynomial, roots }
+    end
+  end
+
+  validPolynomials[degree] = validDegreePolynomials
 end
