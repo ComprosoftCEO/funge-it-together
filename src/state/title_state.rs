@@ -23,6 +23,7 @@ static TITLE: &str = r#"
    ██║   ╚██████╔╝╚██████╔╝███████╗   ██║   ██║  ██║███████╗██║  ██║
    ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝"#;
 
+static VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
 static CREATOR: &str = "Created by Bryan McClain";
 static COPYRIGHT: &str = "© Comprosoft 2023";
 
@@ -46,7 +47,8 @@ impl State for TitleState {
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
 
-    stdout.queue(cursor::MoveToNextLine(1))?;
+    write!(stdout, "                            {}", VERSION)?;
+    stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "                    {}", CREATOR.dark_yellow())?;
     stdout.queue(cursor::MoveToNextLine(1))?;
     write!(stdout, "                       {}", COPYRIGHT.dark_green())?;
