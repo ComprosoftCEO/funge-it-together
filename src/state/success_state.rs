@@ -6,16 +6,17 @@ use crossterm::{cursor, QueueableCommand};
 
 use super::{EditorState, LevelSelectState, State};
 use crate::global_state::{GlobalState, Statistics};
+use crate::level::LevelIndex;
 
 pub struct SuccessState {
-  level_index: usize,
+  level_index: LevelIndex,
   statistics: Statistics,
   best: Statistics,
   editor: EditorState,
 }
 
 impl SuccessState {
-  pub fn new(level_index: usize, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
+  pub fn new(level_index: LevelIndex, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
     Self {
       level_index,
       statistics,
@@ -30,12 +31,8 @@ impl State for SuccessState {
     let mut stdout = io::stdout();
     stdout.queue(cursor::Hide)?;
 
-    let level = &global_state.levels()[self.level_index];
-    write!(
-      stdout,
-      "{}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
-    )?;
+    let level = &global_state.level(self.level_index);
+    write!(stdout, "{}", level.get_title(self.level_index).yellow())?;
     stdout.queue(cursor::MoveToNextLine(2))?;
     write!(stdout, "{}", "☺☺☺ Success! ☺☺☺".green())?;
     stdout.queue(cursor::MoveToNextLine(3))?;
@@ -56,7 +53,7 @@ impl State for SuccessState {
     Ok(())
   }
 
-  fn execute(self: Box<Self>, _: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
+  fn execute(self: Box<Self>, state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
     loop {
       let event = match event::read() {
         Ok(e) => e,
@@ -73,7 +70,7 @@ impl State for SuccessState {
             return Ok(None);
           },
 
-          KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index)))),
+          KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index, state)))),
           KeyCode::Esc => return Ok(Some(Box::new(self.editor))),
 
           _ => {},

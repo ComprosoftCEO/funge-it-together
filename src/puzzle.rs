@@ -2,10 +2,7 @@ use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 use rand::Rng;
 use std::collections::VecDeque;
-use std::{
-  io::{self, Write},
-  iter,
-};
+use std::io::{self, Write};
 
 use crate::vm::{VAL_MAX, VAL_MIN};
 use crate::{printable::Printable, vm::VAL_CHAR_WIDTH};
@@ -36,13 +33,13 @@ impl Puzzle {
       ));
     }
 
-    for val in inputs.iter().cloned() {
-      if val < VAL_MIN || val > VAL_MAX {
+    for val in inputs.iter() {
+      if !(VAL_MIN..=VAL_MAX).contains(val) {
         return Err(format!("Input {val} outside range [-999,999]"));
       }
     }
-    for val in outputs.iter().cloned() {
-      if val < VAL_MIN || val > VAL_MAX {
+    for val in outputs.iter() {
+      if !(VAL_MIN..=VAL_MAX).contains(val) {
         return Err(format!("Output {val} outside range [-999,999]"));
       }
     }
@@ -92,12 +89,7 @@ impl PuzzleIO {
 
   pub fn new_random() -> Self {
     let mut rng = rand::thread_rng();
-    Self(
-      (0..rng.gen_range(0..=10))
-        .into_iter()
-        .map(|_| rng.gen_range(-999..=999))
-        .collect(),
-    )
+    Self((0..rng.gen_range(0..=10)).map(|_| rng.gen_range(-999..=999)).collect())
   }
 
   pub fn len(&self) -> usize {
@@ -105,7 +97,7 @@ impl PuzzleIO {
   }
 
   pub fn can_read(&self) -> bool {
-    self.0.len() > 0
+    !self.0.is_empty()
   }
 
   pub fn read(&mut self) -> Option<i16> {
@@ -127,7 +119,7 @@ impl PuzzleIO {
     // ┌─┐
     // │ │
     // └─┘
-    let top_bottom_lines: String = iter::repeat("─").take(VAL_CHAR_WIDTH).collect();
+    let top_bottom_lines: String = "─".repeat(VAL_CHAR_WIDTH);
     write!(stdout, "┌{}┐", top_bottom_lines)?;
     stdout
       .queue(cursor::MoveLeft(VAL_CHAR_WIDTH as u16 + 2))?

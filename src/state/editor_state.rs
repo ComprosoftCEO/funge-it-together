@@ -9,6 +9,7 @@ use std::io::{self, Write};
 use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
 use crate::{
   global_state::{GlobalState, Solution},
+  level::LevelIndex,
   printable::Printable,
   puzzle::TestCaseSet,
   state::State,
@@ -41,7 +42,7 @@ static INSTRUCTIONS: &str = r#"
 │b      = Set start"#;
 
 pub struct EditorState {
-  level_index: usize,
+  level_index: LevelIndex,
   solution_index: usize,
 
   solution: Solution,
@@ -55,7 +56,7 @@ pub struct EditorState {
 
 impl EditorState {
   pub fn new(
-    level_index: usize,
+    level_index: LevelIndex,
     solution_index: usize,
     solution: Solution,
     test_cases: TestCaseSet,
@@ -78,13 +79,12 @@ impl EditorState {
       .set_grid_value(self.cursor_row as usize, self.cursor_col as usize, command);
   }
 
-  pub(crate) fn level_index(&self) -> usize {
+  pub(crate) fn level_index(&self) -> LevelIndex {
     self.level_index
   }
 
   pub(crate) fn vms(&self) -> Vec<VirtualMachine> {
     (0..self.test_cases.len())
-      .into_iter()
       .map(|i| {
         let index = (self.test_case_index as usize + i).rem_euclid(self.test_cases.len());
         VirtualMachine::new(self.solution.clone(), index + 1, &self.test_cases[index])
@@ -101,12 +101,8 @@ impl State for EditorState {
   fn render(&mut self, global_state: &mut GlobalState) -> io::Result<()> {
     let mut stdout = io::stdout();
 
-    let level = &global_state.levels()[self.level_index];
-    write!(
-      stdout,
-      "     {}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
-    )?;
+    let level = global_state.level(self.level_index);
+    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
     self.solution.print_at(2, 0)?;
 
@@ -395,6 +391,6 @@ impl State for EditorState {
     let level_id = global_state.level(self.level_index).id();
     global_state.save_solution(level_id, self.solution_index, &self.solution);
 
-    return Ok(Some(self));
+    Ok(Some(self))
   }
 }

@@ -14,6 +14,7 @@ use std::{
 use super::{print_string, EditorState, State, SuccessState};
 use crate::{
   global_state::{GlobalState, Statistics},
+  level::LevelIndex,
   printable::Printable,
   vm::{VMError, VirtualMachine},
 };
@@ -45,7 +46,7 @@ static INSTRUCTIONS: &str = r#"
 
 pub struct ExecuteState {
   editor: EditorState,
-  level_index: usize,
+  level_index: LevelIndex,
 
   vms: Vec<VirtualMachine>,
   test_case: usize,
@@ -68,7 +69,7 @@ pub enum Speed {
 }
 
 enum StepResult {
-  Continue(ExecuteState),
+  Continue(Box<ExecuteState>),
   OtherState(Box<dyn State>),
 }
 
@@ -96,7 +97,7 @@ impl ExecuteState {
     }
 
     match step {
-      Ok(false) => StepResult::Continue(*self),
+      Ok(false) => StepResult::Continue(self),
       Ok(true) => {
         self.total_cycles += current_vm.get_cycle() as f64;
         let num_symbols = current_vm.count_symbols();
@@ -116,11 +117,11 @@ impl ExecuteState {
           )));
         }
 
-        StepResult::Continue(*self)
+        StepResult::Continue(self)
       },
       Err(e) => {
         self.last_error = Some(e);
-        return StepResult::OtherState(Box::new(*self));
+        StepResult::OtherState(Box::new(*self))
       },
     }
   }
@@ -130,13 +131,9 @@ impl State for ExecuteState {
   fn render(&mut self, global_state: &mut GlobalState) -> std::io::Result<()> {
     let mut stdout = io::stdout();
 
-    let level = &global_state.levels()[self.level_index];
+    let level = global_state.level(self.level_index);
     stdout.queue(cursor::Hide)?;
-    write!(
-      stdout,
-      "     {}",
-      format!("Level {} - {}", self.level_index + 1, level.name()).yellow()
-    )?;
+    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
     self.vms[self.test_case].print_at(2, 0)?;
 
@@ -187,7 +184,7 @@ impl State for ExecuteState {
 
     for _ in 0..self.speed.num_steps() {
       self = match self.step_vm(global_state) {
-        StepResult::Continue(s) => Box::new(s),
+        StepResult::Continue(s) => s,
         result @ StepResult::OtherState(_) => return Ok(result.into_box()),
       };
 
@@ -305,7 +302,7 @@ impl Speed {
 impl StepResult {
   pub fn into_box(self) -> Option<Box<dyn State>> {
     match self {
-      Self::Continue(s) => Some(Box::new(s)),
+      Self::Continue(s) => Some(s),
       Self::OtherState(s) => Some(s),
     }
   }

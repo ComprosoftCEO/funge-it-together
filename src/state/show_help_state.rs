@@ -7,7 +7,7 @@ use crossterm::{
 use std::io::{self, Write};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::{global_state::GlobalState, puzzle::Puzzle};
+use crate::{global_state::GlobalState, level::LevelIndex, puzzle::Puzzle};
 
 const SOLUTIONS_PER_PAGE: usize = 3;
 
@@ -23,7 +23,7 @@ static SELECT_INSTRUCTIONS: &str = r#"
                                                        │"#;
 
 pub struct ShowHelpState {
-  level_index: usize,
+  level_index: LevelIndex,
   selected_solution_index: isize,
   page_offset: usize,
   test_cases: Vec<Puzzle>,
@@ -32,7 +32,7 @@ pub struct ShowHelpState {
 }
 
 impl ShowHelpState {
-  pub fn new(level_index: usize, selected_solution_index: usize, test_cases: Vec<Puzzle>) -> Self {
+  pub fn new(level_index: LevelIndex, selected_solution_index: usize, test_cases: Vec<Puzzle>) -> Self {
     let mut state = Self {
       level_index,
       selected_solution_index: selected_solution_index as isize,
@@ -168,7 +168,7 @@ impl State for ShowHelpState {
             },
 
             // Save rename
-            KeyCode::Enter if cur_name.len() > 0 => {
+            KeyCode::Enter if !cur_name.is_empty() => {
               let solutions = global_state.get_solutions_mut(level_id);
               solutions[self.selected_solution_index as usize].rename(self.in_rename.take().unwrap());
               return Ok(Some(self));
@@ -210,7 +210,7 @@ impl State for ShowHelpState {
 
           // Go back
           KeyCode::Esc => {
-            return Ok(Some(Box::new(LevelSelectState::new(self.level_index))));
+            return Ok(Some(Box::new(LevelSelectState::new(self.level_index, global_state))));
           },
 
           // Movement
@@ -307,7 +307,7 @@ impl State for ShowHelpState {
   }
 }
 
-fn remove_copy_suffix<'a>(s: &'a str) -> &'a str {
+fn remove_copy_suffix(s: &str) -> &str {
   if s.len() <= MAX_NAME_LEN {
     return s;
   }

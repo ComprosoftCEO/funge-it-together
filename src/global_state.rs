@@ -9,7 +9,7 @@ use std::path::Path;
 use uuid::Uuid;
 
 use crate::grid::Grid;
-use crate::level::{Level, Levels};
+use crate::level::{Level, LevelIndex, LevelPack};
 use crate::printable::Printable;
 use crate::vm::Command;
 
@@ -23,7 +23,7 @@ pub struct GlobalState {
   unlocked: HashMap<Uuid, Statistics>,
 
   #[serde(skip)]
-  levels: Levels,
+  pack: LevelPack,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,9 +48,9 @@ pub struct Statistics {
 }
 
 impl GlobalState {
-  pub fn load(levels: Levels) -> Self {
+  pub fn load(levels: LevelPack) -> Self {
     let mut state = Self::from_file(SAVE_FILE).unwrap_or_default();
-    state.levels = levels;
+    state.pack = levels;
     state
   }
 
@@ -68,21 +68,20 @@ impl GlobalState {
     Ok(())
   }
 
-  pub fn level(&self, index: usize) -> &Level {
-    self.levels.level(index)
+  pub fn get_pack(&self) -> &LevelPack {
+    &self.pack
   }
 
-  pub fn levels(&self) -> &Vec<Level> {
-    self.levels.levels()
-  }
-
-  pub fn completed_levels(&self) -> Vec<Level> {
-    self
-      .levels()
-      .iter()
-      .take_while(|l| self.is_level_complete(l.id()))
-      .cloned()
-      .collect()
+  pub fn level(&self, index: LevelIndex) -> &Level {
+    let main_level = self
+      .pack
+      .level_group(index.get_group())
+      .main_level(index.get_level_in_group());
+    if let Some(challenge) = index.get_challenge() {
+      main_level.challenge_level(challenge)
+    } else {
+      main_level.level()
+    }
   }
 
   // Create a new solution and return it's index
@@ -210,7 +209,7 @@ impl Printable for Solution {
       "{}",
       self
         .grid
-        .get_value(self.start_row as usize, self.start_col as usize)
+        .get_value(self.start_row, self.start_col)
         .get_char()
         .green()
         .reverse()

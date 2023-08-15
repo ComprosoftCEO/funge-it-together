@@ -155,7 +155,13 @@ Once your program reads all input values and writes the correct output values, i
 ## Creating Levels
 
 Levels are written using the [Lua Programming Language](https://www.lua.org/docs.html) and executed at runtime.
-All levels live inside the [levels](levels/) folder. To write a new level:
+All levels live inside the [levels](levels/) folder. Levels are organized into groups that unlock all levels in the group at once.
+The next group unlocks once all levels from the previous group have been completed.
+Levels can also have optional "challenge" levels that unlock once the level is complete.
+Challenges are **not** required to unlock the next group of levels.
+All levels included with the game are guaranteed to have at least one solution (I solved them all myself).
+
+To write a new level:
 
 1. Create a Lua file for the level
 2. Export a global function named `generateTestCase()` that randomly generates a new test case

@@ -3,7 +3,6 @@ use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::io::{self, Write};
-use std::iter;
 
 use crate::printable::Printable;
 use crate::vm::Command;
@@ -88,7 +87,7 @@ impl Printable for Grid {
     // ┌─┐
     // │ │
     // └─┘
-    let top_bottom_lines: String = iter::repeat("─").take(cols).collect();
+    let top_bottom_lines: String = "─".repeat(cols);
     write!(stdout, "┌{}┐", top_bottom_lines)?;
     stdout.queue(cursor::MoveLeft(cols as u16 + 2))?;
     stdout.queue(cursor::MoveDown(1))?;
@@ -104,11 +103,9 @@ impl Printable for Grid {
               .queue(style::SetForegroundColor(Color::Black))?;
             in_breakpoint = true;
           }
-        } else {
-          if in_breakpoint {
-            stdout.queue(style::ResetColor)?;
-            in_breakpoint = false;
-          }
+        } else if in_breakpoint {
+          stdout.queue(style::ResetColor)?;
+          in_breakpoint = false;
         }
 
         command.print()?;
