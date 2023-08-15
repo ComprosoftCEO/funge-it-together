@@ -1,11 +1,13 @@
 local MIN_DEGREE = 2
-local MAX_DEGREE = 6
-local DEGREE_X_RANGE = { -- -X to X
+local MAX_DEGREE = 5
+
+-- Range: -X to X
+-- Could probably be a function but I don't care
+local DEGREE_X_RANGE = {
   [2] = 9,
   [3] = 7,
   [4] = 5,
   [5] = 3,
-  [6] = 3,
 }
 
 local validPolynomials = {} -- computed below
@@ -24,9 +26,9 @@ end
 
 -- Build a polynomial from a list of 1 or more roots
 function buildPolynomial(roots)
-  local polynomial = { 1, roots[1] }
+  local polynomial = { 1, -roots[1] }
   for i = 2, #roots do
-    polynomial = multiplyPolynomials(polynomial, { 1, roots[i] })
+    polynomial = multiplyPolynomials(polynomial, { 1, -roots[i] })
   end
 
   return polynomial
