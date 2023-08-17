@@ -180,18 +180,34 @@
         "name": "Collatz Conjecture",
         "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
         "luaFile": "collatz.lua"
-      },
+      }
+    ],
+    [
       {
         "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
         "name": "Memory Unit",
         "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
-        "luaFile": "memory-unit.lua"
+        "luaFile": "memory-unit.lua",
+        "challengeLevels": [
+          {
+            "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
+            "name": "Linked List",
+            "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 0 to 9\n   ∙ Each cell contains an index (0-9) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 0 ≤ Random Start, Memory Cell ≤ 9\n∙ Loop is guaranteed to terminate",
+            "luaFile": "linked-list.lua"
+          }
+        ]
       },
       {
-        "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
-        "name": "Linked List",
-        "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 0 to 9\n   ∙ Each cell contains an index (0-9) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 0 ≤ Random Start, Memory Cell ≤ 9\n∙ Loop is guaranteed to terminate",
-        "luaFile": "linked-list.lua"
+        "id": "ef9c067c-24fd-4c90-88e4-073fdbbbbe61",
+        "name": "Random Number Generator",
+        "description": "Generate pseudo-random numbers using a linear congruential generator (LCG).\nThe random sequence is defined as:\n\n  r(n) = a * r(n-1) + b (mod 1000)\n\nRead a, b, and r(0) (the seed) from the input, and output r(1) to r(15).\n\nConstraints:\n∙ 2 ≤ a ≤ 999\n∙ 0 ≤ b ≤ 999\n∙ 0 ≤ Seed ≤ 999",
+        "luaFile": "prng.lua"
+      },
+      {
+        "id": "3da6926e-9450-4a36-986e-6a8b2c90f644",
+        "name": "Big Integer",
+        "description": "Big integers are a big-endian list of numbers from 0 to 999 that can represent values ≥ 1000.\nFor example, the number 123,456 can be represented by the list: 123 456.\n\nRead two big integers from input and output their sum.\nThe two big endian numbers are separated by a -1.\nDo not include any trailing 0's in the sum.\n\nConstraints:\n∙ 0 ≤ Digit ≤ 999\n∙ Each big integer will have 1 to 5 digits",
+        "luaFile": "bigint.lua"
       }
     ],
     [
