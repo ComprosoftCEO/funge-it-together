@@ -96,6 +96,34 @@
     ],
     [
       {
+        "id": "a5130269-de46-4e79-a34a-a085da8ceb0b",
+        "name": "Rising and Falling Edge",
+        "description": "Count the number of times the input switches from positive to negative or vice versa.\nReading the first input value does NOT count as a switch.\nThe input will never be 0.\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ Input ≠ 0",
+        "luaFile": "count-flips.lua"
+      },
+      {
+        "id": "cb69dbfe-b25c-40e2-9636-01136f30f1cb",
+        "name": "Digital Root",
+        "description": "Add together all the digits of the input to get a new number.\nRepeat until you have a number between 0 and 9.\n\nExample:\n∙ Input: 198\n∙ Output: 9    (1 + 9 + 8 = 18 → 1 + 8 = 9)\n\nConstraints:\n∙ 0 ≤ Input ≤ 999",
+        "luaFile": "digital-root.lua"
+      },
+      {
+        "id": "d3093ed1-25c0-4a55-9bd0-62fbf07f2c0b",
+        "name": "Binary Decoder",
+        "description": "Read the binary number from the input bits and convert to a base-10 number.\nThe bits are specified in big-endian order. There may be leading zeros.\n\nConstraints:\n∙ 0 ≤ Num Input Bits ≤ 10\n∙ Input may have leading zeros\n∙ 0 ≤ Output ≤ 999",
+        "luaFile": "binary-decoder.lua",
+        "challengeLevels": [
+          {
+            "id": "024c0950-084c-4804-9c4c-90293be2d210",
+            "name": "Binary Encoder",
+            "description": "Read a base-10 number and output its big-endian binary representation.\nThe output should NOT have any leading zeros.\n\nConstraints:\n∙ 0 ≤ Input ≤ 999\n∙ Output should not have any leading zeros",
+            "luaFile": "binary-encoder.lua"
+          }
+        ]
+      }
+    ],
+    [
+      {
         "id": "65f6293f-c9db-47e0-9500-55a9ff712ee1",
         "name": "Triangle Numbers",
         "description": "Compute the nth triangle number.\nRecall that the triangle number function is defined by:\n\n  t(n) = 0 + 1 + 2 + ... + n\n\nConstraints:\n∙ 0 ≤ Input ≤ 44",
@@ -128,13 +156,19 @@
         "luaFile": "palindrome.lua"
       },
       {
+        "id": "1b6cc3d5-4e94-4b3f-82e1-82d4a96f8e6d",
+        "name": "Remove Substring",
+        "description": "Read numbers from input and remove any sub-sequence of numbers 1 2 3.\nWrite the remaining numbers to the output in the same order.\n\nConstraints:\n∙ 0 ≤ Input ≤ 9",
+        "luaFile": "remove-substring.lua"
+      }
+    ],
+    [
+      {
         "id": "05b4a5b6-0479-42c8-be35-e10da3671c56",
         "name": "Prime Factorization",
         "description": "Read a number and output it's prime factorization. For example:\n∙ Input: 840\n∙ Output: 2 2 2 3 5 7     (840 = 2^3 * 3 * 5 * 7)\n\nConstraints:\n∙ 2 ≤ Input ≤ 999",
         "luaFile": "prime-factorization.lua"
-      }
-    ],
-    [
+      },
       {
         "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
         "name": "Interpreter",
@@ -165,7 +199,15 @@
         "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
         "name": "Sorting",
         "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
-        "luaFile": "sort.lua"
+        "luaFile": "sort.lua",
+        "challengeLevels": [
+          {
+            "id": "49c4bc11-dd71-4f5c-a374-3fc1740168d1",
+            "name": "Unique Values",
+            "description": "Read the list of input values and output only the unique values.\nOutput values should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
+            "luaFile": "unique.lua"
+          }
+        ]
       },
       {
         "id": "8ab5300e-3378-4a0d-b890-b03160c882d3",
