@@ -86,6 +86,12 @@
         "luaFile": "multiplication.lua",
         "challengeLevels": [
           {
+            "id": "76521aeb-bfd7-4502-962b-e9bbd18d9072",
+            "name": "Square Root",
+            "description": "Read x from the input, then compute √x rounded down.\n\nConstraints:\n∙ 0 ≤ x ≤ 999",
+            "luaFile": "square-root.lua"
+          },
+          {
             "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
             "name": "Factorial",
             "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
