@@ -58,6 +58,12 @@
         "name": "Maximum Value",
         "description": "Output the maximum value from the list.\nThe maximum is guaranteed to be unique.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ Unique maximum",
         "luaFile": "maximum.lua"
+      },
+      {
+        "id": "8339054a-ed5f-4686-bff5-eec510f03bae",
+        "name": "Matching Parentheses",
+        "description": "Read a sequence of open `(` (1) and closed `)` (-1) parentheses from the input.\nReturn 1 if the sequence contains valid matching parentheses, or 0 otherwise.\n\nEvery sequence should be wrapped in a pair of parentheses. For example:\n∙ Valid:   (()(()))\n∙ Invalid: ()(())()\n\nConstraints:\n∙ Input = 1 or Input = -1",
+        "luaFile": "parentheses.lua"
       }
     ],
     [
@@ -126,6 +132,18 @@
             "luaFile": "binary-encoder.lua"
           }
         ]
+      },
+      {
+        "id": "49c6aadf-cf77-46d0-9ba2-48f71cbdb0de",
+        "name": "Manhattan Distance",
+        "description": "A taxi driver visits various grid coordinates while driving in New York City.\nAssume the car only moves vertically and horizontally, never diagonally.\nFind out the total distance traveled.\n\nRead a series of (x,y) coordinates from the input and output the total distance.\n\nConstraints:\n∙ 0 ≤ x,y ≤ 99\n∙ The taxi visits 1 to 7 (x,y) coordinates\n∙ Total distance traveled ≤ 999",
+        "luaFile": "manhattan-distance.lua"
+      },
+      {
+        "id": "f26f174b-86eb-4c4f-9d06-af635b4f62e9",
+        "name": "Grandma Texting",
+        "description": "Your grandma bought a \"new\" phone from Goodwill, but is having trouble texting.\nIt appears the phone uses a non-standard keyboard layout for the letters.\nWrite a program to help your grandma out.\n                                                                 ┌───┬───┬───┐\nRead a letter A-Z (1 to 26) from the input.                      │ 1 │ 2 │ 3 │\nThen, output the keys to type the letter on Grandma's new phone. │ABC│DEF│GHI│\n                                                                 ├───┼───┼───┤\nFor example:                                                     │ 4 │ 5 │ 6 │\n∙ Input:  14 (N)                                                 │JKL│MNO│PQR│\n∙ Output: 55                                                     ├───┼───┼───┤\n                                                                 │ 7 │ 8 │ 9 │\nConstraints:                                                     │STU│VWX│YZ │\n∙ 1 ≤ Input ≤ 26                                                 └───┼───┼───┘\n                                                                     │ 0 │\n                                                                     └───┘",
+        "luaFile": "grandma-texting.lua"
       }
     ],
     [
