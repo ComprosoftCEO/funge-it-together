@@ -20,7 +20,7 @@ function generateBigInt()
     bigint[i] = math.random(0, 999)
   end
 
-  -- Last digit should not be a 0 unless it is the only digit
+  -- Highest digit should not be a 0 unless it is the only digit
   if #bigint > 0 then
     bigint[#bigint + 1] = math.random(1, 999)
   else
@@ -31,9 +31,6 @@ function generateBigInt()
 end
 
 function addBigInt(a, b)
-  a = reverse(a)
-  b = reverse(b)
-
   -- Make a and b have the same digits
   for i = math.min(#a, #b), math.max(#a, #b) do
     if a[i] == nil then
@@ -61,14 +58,5 @@ function addBigInt(a, b)
     end
   end
 
-  return reverse(sum)
-end
-
--- Reverse the direction of the list
-function reverse(x)
-  local rev = {}
-  for i = #x, 1, -1 do
-    rev[#rev + 1] = x[i]
-  end
-  return rev
+  return sum
 end

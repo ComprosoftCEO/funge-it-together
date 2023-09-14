@@ -230,7 +230,7 @@
       {
         "id": "3da6926e-9450-4a36-986e-6a8b2c90f644",
         "name": "Big Integer",
-        "description": "Big integers are a big-endian list of numbers from 0 to 999 that can represent values ≥ 1000.\nFor example, the number 123,456 can be represented by the list: 123 456.\n\nRead two big integers from input and output their sum.\nThe two big endian numbers are separated by a -1.\nDo not include any leading 0's in the sum.\n\nConstraints:\n∙ 0 ≤ Digit ≤ 999\n∙ Each big integer will have 1 to 5 digits",
+        "description": "Big integers are a little-endian list of numbers from 0 to 999 that can represent values ≥ 1000.\nFor example, the number 123,456 can be represented by the list: 456 123.\n\nRead two big integers from input and output their sum.\nThe two little-endian numbers are separated by a -1.\nDo not include any leading 0's in the sum.\n\nExample: 987,654 + 98,774 = 1,086,428\n∙ Input:  654 987 -1 774 98\n∙ Output: 428 86 1\n\nConstraints:\n∙ 0 ≤ Digit ≤ 999\n∙ Each big integer will have 1 to 5 digits",
         "luaFile": "bigint.lua"
       }
     ],
