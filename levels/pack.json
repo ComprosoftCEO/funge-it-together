@@ -98,6 +98,12 @@
             "luaFile": "square-root.lua"
           },
           {
+            "id": "8dc0aba7-1a18-4eb8-a3f2-7e301212130c",
+            "name": "Complex Product",
+            "description": "Read the list of complex numbers from the input, then compute their product.\nRecall that a complex number is given by z = a + b*i where i*i = -1.\n\nExample: (4 + 3i) * (-7 + 9i) * (3 - 6i) = (-75 + 375i)\n∙ Input:  4 3 -7 9 3 -6\n∙ Output: -75 375\n\n\nConstraints:\n∙ -9 ≤ a,b ≤ 9\n∙ Result can be computed without overflow",
+            "luaFile": "complex-product.lua"
+          },
+          {
             "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
             "name": "Factorial",
             "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
