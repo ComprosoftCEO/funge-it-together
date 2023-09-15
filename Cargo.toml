@@ -1,6 +1,6 @@
 [package]
 name = "funge-it-together"
-version = "1.2.0"
+version = "1.3.0"
 edition = "2021"
 authors = ["Bryan McClain <bamcclain10@gmail.com>"]
 description = "Solve programming puzzles using an esoteric \"funge\" language"

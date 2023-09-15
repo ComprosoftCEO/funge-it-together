@@ -58,6 +58,12 @@
         "name": "Maximum Value",
         "description": "Output the maximum value from the list.\nThe maximum is guaranteed to be unique.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ Unique maximum",
         "luaFile": "maximum.lua"
+      },
+      {
+        "id": "8339054a-ed5f-4686-bff5-eec510f03bae",
+        "name": "Matching Parentheses",
+        "description": "Read a sequence of open `(` (1) and closed `)` (-1) parentheses from the input.\nReturn 1 if the sequence contains valid matching parentheses, or 0 otherwise.\n\nEvery sequence should be wrapped in a pair of parentheses. For example:\n∙ Valid:   (()(()))\n∙ Invalid: ()(())()\n\nConstraints:\n∙ Input = 1 or Input = -1",
+        "luaFile": "parentheses.lua"
       }
     ],
     [
@@ -86,12 +92,52 @@
         "luaFile": "multiplication.lua",
         "challengeLevels": [
           {
-            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
-            "name": "Factorial",
-            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
-            "luaFile": "factorial.lua"
+            "id": "8dc0aba7-1a18-4eb8-a3f2-7e301212130c",
+            "name": "Complex Product",
+            "description": "Read the list of complex numbers from the input, then compute their product.\nRecall that a complex number is given by z = a + b*i where i*i = -1.\n\nExample: (4 + 3i) * (-7 + 9i) * (3 - 6i) = (-75 + 375i)\n∙ Input:  4 3 -7 9 3 -6\n∙ Output: -75 375\n\n\nConstraints:\n∙ -9 ≤ a,b ≤ 9\n∙ Result can be computed without overflow",
+            "luaFile": "complex-product.lua"
           }
         ]
+      }
+    ],
+    [
+      {
+        "id": "a5130269-de46-4e79-a34a-a085da8ceb0b",
+        "name": "Rising and Falling Edge",
+        "description": "Count the number of times the input switches from positive to negative or vice versa.\nReading the first input value does NOT count as a switch.\nThe input will never be 0.\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ Input ≠ 0",
+        "luaFile": "count-flips.lua"
+      },
+      {
+        "id": "cb69dbfe-b25c-40e2-9636-01136f30f1cb",
+        "name": "Digital Root",
+        "description": "Add together all the digits of the input to get a new number.\nRepeat until you have a number between 0 and 9.\n\nExample:\n∙ Input: 198\n∙ Output: 9    (1 + 9 + 8 = 18 → 1 + 8 = 9)\n\nConstraints:\n∙ 0 ≤ Input ≤ 999",
+        "luaFile": "digital-root.lua"
+      },
+      {
+        "id": "d3093ed1-25c0-4a55-9bd0-62fbf07f2c0b",
+        "name": "Binary Decoder",
+        "description": "Read the binary number from the input bits and convert to a base-10 number.\nThe bits are specified in big-endian order. There may be leading zeros.\n\nConstraints:\n∙ 0 ≤ Num Input Bits ≤ 10\n∙ Input may have leading zeros\n∙ 0 ≤ Output ≤ 999",
+        "luaFile": "binary-decoder.lua",
+        "challengeLevels": [
+          {
+            "id": "024c0950-084c-4804-9c4c-90293be2d210",
+            "name": "Binary Encoder",
+            "description": "Read a base-10 number and output its big-endian binary representation.\nThe output should NOT have any leading zeros.\n\nConstraints:\n∙ 0 ≤ Input ≤ 999\n∙ Output should not have any leading zeros",
+            "luaFile": "binary-encoder.lua"
+          }
+        ]
+      },
+      {
+        "id": "49c6aadf-cf77-46d0-9ba2-48f71cbdb0de",
+        "name": "Manhattan Distance",
+        "description": "A taxi driver visits various grid coordinates while driving in New York City.\nAssume the car only moves vertically and horizontally, never diagonally.\nFind out the total distance traveled.\n\nRead a series of (x,y) coordinates from the input and output the total distance.\n\nConstraints:\n∙ 0 ≤ x,y ≤ 99\n∙ The taxi visits 1 to 7 (x,y) coordinates\n∙ Total distance traveled ≤ 999",
+        "luaFile": "manhattan-distance.lua"
+      },
+      {
+        "id": "f26f174b-86eb-4c4f-9d06-af635b4f62e9",
+        "name": "Grandma Texting",
+        "description": "Your grandma bought a \"new\" phone from Goodwill, but is having trouble texting.\nIt appears the phone uses a non-standard keyboard layout for the letters.\nWrite a program to help your grandma out.\n                                                                 ┌───┬───┬───┐\nRead a letter A-Z (1 to 26) from the input.                      │ 1 │ 2 │ 3 │\nThen, output the keys to type the letter on Grandma's new phone. │ABC│DEF│GHI│\n                                                                 ├───┼───┼───┤\nFor example:                                                     │ 4 │ 5 │ 6 │\n∙ Input:  14 (N)                                                 │JKL│MNO│PQR│\n∙ Output: 55                                                     ├───┼───┼───┤\n                                                                 │ 7 │ 8 │ 9 │\nConstraints:                                                     │STU│VWX│YZ │\n∙ 1 ≤ Input ≤ 26                                                 └───┼───┼───┘\n                                                                     │ 0 │\n                                                                     └───┘",
+        "luaFile": "grandma-texting.lua"
       }
     ],
     [
@@ -99,7 +145,15 @@
         "id": "65f6293f-c9db-47e0-9500-55a9ff712ee1",
         "name": "Triangle Numbers",
         "description": "Compute the nth triangle number.\nRecall that the triangle number function is defined by:\n\n  t(n) = 0 + 1 + 2 + ... + n\n\nConstraints:\n∙ 0 ≤ Input ≤ 44",
-        "luaFile": "nth-triangle.lua"
+        "luaFile": "nth-triangle.lua",
+        "challengeLevels": [
+          {
+            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
+            "name": "Factorial",
+            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
+            "luaFile": "factorial.lua"
+          }
+        ]
       },
       {
         "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
@@ -128,13 +182,19 @@
         "luaFile": "palindrome.lua"
       },
       {
+        "id": "1b6cc3d5-4e94-4b3f-82e1-82d4a96f8e6d",
+        "name": "Remove Substring",
+        "description": "Read numbers from input and remove any sub-sequence of numbers 1 2 3.\nWrite the remaining numbers to the output in the same order.\n\nConstraints:\n∙ 0 ≤ Input ≤ 9",
+        "luaFile": "remove-substring.lua"
+      }
+    ],
+    [
+      {
         "id": "05b4a5b6-0479-42c8-be35-e10da3671c56",
         "name": "Prime Factorization",
         "description": "Read a number and output it's prime factorization. For example:\n∙ Input: 840\n∙ Output: 2 2 2 3 5 7     (840 = 2^3 * 3 * 5 * 7)\n\nConstraints:\n∙ 2 ≤ Input ≤ 999",
         "luaFile": "prime-factorization.lua"
-      }
-    ],
-    [
+      },
       {
         "id": "69e11ea2-ebcf-455f-aa0b-4b54481024b0",
         "name": "Interpreter",
@@ -148,16 +208,38 @@
         "luaFile": "collatz.lua"
       },
       {
+        "id": "76521aeb-bfd7-4502-962b-e9bbd18d9072",
+        "name": "Square Root",
+        "description": "Read x from the input, then compute √x rounded down.\n\nConstraints:\n∙ 0 ≤ x ≤ 999",
+        "luaFile": "square-root.lua"
+      }
+    ],
+    [
+      {
         "id": "0c111214-c16a-4bdc-a524-77381acf9cd2",
         "name": "Memory Unit",
         "description": "For this puzzle, you need to simulate a memory unit with 5 slots (numbered 0-4).\nRead the first input to set the initial value for all memory slots.\nThen execute commands in sequence:\n∙ -1 <Addr> <Value> - Write <Value> to memory slot at <Addr>\n∙  1 <Addr>         - Read memory slot at <Addr> and copy to the output stream\n\nExample:\n∙ Input: -123 -1 2 12 1 1 1 2     Output: -123 12\n∙ Initial = -123, WRITE Mem[2] = 12, READ Mem[1], READ Mem[2]\n\nConstraints:\n∙ Command = 1 (READ) or -1 (WRITE)\n∙ -999 ≤ Initial, <Value> ≤ 999\n∙ 0 ≤ <Addr> ≤ 4",
-        "luaFile": "memory-unit.lua"
+        "luaFile": "memory-unit.lua",
+        "challengeLevels": [
+          {
+            "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
+            "name": "Linked List",
+            "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 0 to 9\n   ∙ Each cell contains an index (0-9) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 0 ≤ Random Start, Memory Cell ≤ 9\n∙ Loop is guaranteed to terminate",
+            "luaFile": "linked-list.lua"
+          }
+        ]
       },
       {
-        "id": "701dab92-5e07-4d22-a12c-2eb3e6f0339e",
-        "name": "Linked List",
-        "description": "Find the loop in the linked list. The data is structured as follows:\n1. Random starting index in the list\n2. Ten memory cells numbered 0 to 9\n   ∙ Each cell contains an index (0-9) of the next memory cell in the list\n\nBegin at the random start and follow the linked list until you revisit a cell.\nOutput the path you took through the list.\n\nConstraints:\n∙ Linked list always contains 10 memory cells\n∙ 0 ≤ Random Start, Memory Cell ≤ 9\n∙ Loop is guaranteed to terminate",
-        "luaFile": "linked-list.lua"
+        "id": "ef9c067c-24fd-4c90-88e4-073fdbbbbe61",
+        "name": "Random Number Generator",
+        "description": "Generate pseudo-random numbers using a linear congruential generator (LCG).\nThe random sequence is defined as:\n\n  r(n) = a * r(n-1) + b (mod 1000)\n\nRead a, b, and r(0) (the seed) from the input, and output r(1) to r(15).\n\nConstraints:\n∙ 2 ≤ a ≤ 999\n∙ 0 ≤ b ≤ 999\n∙ 0 ≤ Seed ≤ 999",
+        "luaFile": "prng.lua"
+      },
+      {
+        "id": "3da6926e-9450-4a36-986e-6a8b2c90f644",
+        "name": "Big Integer",
+        "description": "Big integers are a little-endian list of numbers from 0 to 999 that can represent values ≥ 1000.\nFor example, the number 123,456 can be represented by the list: 456 123.\n\nRead two big integers from input and output their sum.\nThe two little-endian numbers are separated by a -1.\nDo not include any leading 0's in the sum.\n\nExample: 987,654 + 98,774 = 1,086,428\n∙ Input:  654 987 -1 774 98\n∙ Output: 428 86 1\n\nConstraints:\n∙ 0 ≤ Digit ≤ 999\n∙ Each big integer will have 1 to 5 digits",
+        "luaFile": "bigint.lua"
       }
     ],
     [
@@ -165,7 +247,15 @@
         "id": "3cabea8f-c4ce-4c8e-acbe-79e6717a5a34",
         "name": "Sorting",
         "description": "Read the list of input values and output them in sorted order.\nValues should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
-        "luaFile": "sort.lua"
+        "luaFile": "sort.lua",
+        "challengeLevels": [
+          {
+            "id": "49c4bc11-dd71-4f5c-a374-3fc1740168d1",
+            "name": "Unique Values",
+            "description": "Read the list of input values and output only the unique values.\nOutput values should be sorted from smallest to largest.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 6 ≤ Number of Values ≤ 10",
+            "luaFile": "unique.lua"
+          }
+        ]
       },
       {
         "id": "8ab5300e-3378-4a0d-b890-b03160c882d3",
