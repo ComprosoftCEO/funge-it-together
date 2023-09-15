@@ -92,22 +92,10 @@
         "luaFile": "multiplication.lua",
         "challengeLevels": [
           {
-            "id": "76521aeb-bfd7-4502-962b-e9bbd18d9072",
-            "name": "Square Root",
-            "description": "Read x from the input, then compute √x rounded down.\n\nConstraints:\n∙ 0 ≤ x ≤ 999",
-            "luaFile": "square-root.lua"
-          },
-          {
             "id": "8dc0aba7-1a18-4eb8-a3f2-7e301212130c",
             "name": "Complex Product",
             "description": "Read the list of complex numbers from the input, then compute their product.\nRecall that a complex number is given by z = a + b*i where i*i = -1.\n\nExample: (4 + 3i) * (-7 + 9i) * (3 - 6i) = (-75 + 375i)\n∙ Input:  4 3 -7 9 3 -6\n∙ Output: -75 375\n\n\nConstraints:\n∙ -9 ≤ a,b ≤ 9\n∙ Result can be computed without overflow",
             "luaFile": "complex-product.lua"
-          },
-          {
-            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
-            "name": "Factorial",
-            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
-            "luaFile": "factorial.lua"
           }
         ]
       }
@@ -157,7 +145,15 @@
         "id": "65f6293f-c9db-47e0-9500-55a9ff712ee1",
         "name": "Triangle Numbers",
         "description": "Compute the nth triangle number.\nRecall that the triangle number function is defined by:\n\n  t(n) = 0 + 1 + 2 + ... + n\n\nConstraints:\n∙ 0 ≤ Input ≤ 44",
-        "luaFile": "nth-triangle.lua"
+        "luaFile": "nth-triangle.lua",
+        "challengeLevels": [
+          {
+            "id": "79017cfa-a8e1-4ef9-9fab-67146746a317",
+            "name": "Factorial",
+            "description": "Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.\nRecall that 0! = 1\n\nConstraints:\n∙ 0 ≤ Input ≤ 6",
+            "luaFile": "factorial.lua"
+          }
+        ]
       },
       {
         "id": "6c6021e6-7e4c-4617-9543-3d9aa98344f7",
@@ -210,6 +206,12 @@
         "name": "Collatz Conjecture",
         "description": "Read a value from input. While the value is not equal to 1:\n∙ If the value is even, divide by 2\n∙ If the value is odd, multiply by 3 and add 1\n\nCount the number of steps it takes before the value reaches 1.\n\n\nExample:\n∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1\n∙ Output: 9 Steps",
         "luaFile": "collatz.lua"
+      },
+      {
+        "id": "76521aeb-bfd7-4502-962b-e9bbd18d9072",
+        "name": "Square Root",
+        "description": "Read x from the input, then compute √x rounded down.\n\nConstraints:\n∙ 0 ≤ x ≤ 999",
+        "luaFile": "square-root.lua"
       }
     ],
     [
