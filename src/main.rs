@@ -4,6 +4,7 @@ use state::TitleState;
 
 mod global_state;
 mod grid;
+mod isa;
 mod level;
 mod printable;
 mod puzzle;
