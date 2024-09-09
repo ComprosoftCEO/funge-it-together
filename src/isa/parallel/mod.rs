@@ -13,4 +13,5 @@ pub struct Parallel;
 
 impl InstructionSetArchitecture for Parallel {
   type Solution = Solution;
+  type Puzzle = puzzle::Puzzle;
 }

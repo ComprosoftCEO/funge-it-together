@@ -10,10 +10,10 @@ use super::execute_state::{ExecuteState, Speed};
 use super::puzzle::TestCaseSet;
 use super::solution::Solution;
 use super::vm::{Command, VirtualMachine};
-use crate::level::LevelIndex;
 use crate::printable::Printable;
 use crate::state::{print_string, ShowHelpState, State};
 use crate::{global_state::GlobalState, isa::SolutionManager};
+use crate::{isa, level::LevelIndex};
 
 const GRID_ROW: u16 = 3;
 const GRID_COL: u16 = 0;
@@ -226,7 +226,7 @@ impl State for EditorState {
           },
 
           KeyCode::Esc => {
-            return Ok(Some(Box::new(ShowHelpState::new(
+            return Ok(Some(Box::new(ShowHelpState::<isa::Parallel>::new(
               self.level_index,
               self.solution_index,
               self.test_cases,
@@ -451,7 +451,12 @@ impl State for EditorState {
     }
 
     let level_id = global_state.level(self.level_index).id();
-    global_state.save_solution(level_id, self.solution_index, &self.solution);
+    <GlobalState as SolutionManager<isa::Parallel>>::save_solution(
+      global_state,
+      level_id,
+      self.solution_index,
+      self.solution.clone(),
+    );
 
     Ok(Some(self))
   }

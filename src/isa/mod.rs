@@ -13,6 +13,7 @@ static COPY_STR: &str = " (Copy)";
 /// All level types need to implement this interface
 pub trait InstructionSetArchitecture {
   type Solution: Solution;
+  type Puzzle;
 }
 
 /// Any solution type should implement this interface

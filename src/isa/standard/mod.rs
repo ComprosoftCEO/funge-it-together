@@ -13,4 +13,5 @@ pub struct Standard;
 
 impl InstructionSetArchitecture for Standard {
   type Solution = Solution;
+  type Puzzle = puzzle::Puzzle;
 }
