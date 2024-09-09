@@ -1,4 +1,7 @@
 use crate::isa::InstructionSetArchitecture;
+use crate::level::LevelIndex;
+use crate::state::State;
+use editor_state::EditorState;
 use puzzle::ProcessorIO;
 use rlua::prelude::*;
 use std::error::Error;
@@ -62,5 +65,15 @@ impl InstructionSetArchitecture for Parallel {
     })?;
 
     Ok(test_cases)
+  }
+
+  fn open_editor(
+    level_index: LevelIndex,
+    solution_index: usize,
+    solution: Self::Solution,
+    test_cases: Vec<Self::Puzzle>,
+    test_case_index: usize,
+  ) -> impl State {
+    EditorState::new(level_index, solution_index, solution, test_cases, test_case_index)
   }
 }

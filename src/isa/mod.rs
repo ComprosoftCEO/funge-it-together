@@ -1,3 +1,4 @@
+use crate::{level::LevelIndex, state::State};
 use std::error::Error;
 use uuid::Uuid;
 
@@ -8,7 +9,7 @@ pub mod standard;
 pub use parallel::Parallel;
 pub use standard::Standard;
 
-pub const MAX_NAME_LEN: usize = 30;
+pub const MAX_SOLUTION_NAME_LEN: usize = 30;
 static COPY_STR: &str = " (Copy)";
 
 /// All level types need to implement this interface
@@ -17,6 +18,14 @@ pub trait InstructionSetArchitecture {
   type Puzzle;
 
   fn generate_test_cases(lua_file: &str, seed: u32, n: usize) -> Result<Vec<Self::Puzzle>, Box<dyn Error>>;
+
+  fn open_editor(
+    level_index: LevelIndex,
+    solution_index: usize,
+    solution: Self::Solution,
+    test_cases: Vec<Self::Puzzle>,
+    test_case_index: usize,
+  ) -> impl State;
 }
 
 /// Any solution type should implement this interface
@@ -67,7 +76,7 @@ pub trait SolutionManager<ISA: InstructionSetArchitecture> {
     // If the solution name + (Copy) is too long, then remove the trailing copy
     //  - "Too ... Long (Copy)" => "Too ... Long (Copy)"
     fn remove_copy_suffix(s: &str) -> &str {
-      if s.len() <= MAX_NAME_LEN {
+      if s.len() <= MAX_SOLUTION_NAME_LEN {
         return s;
       }
 

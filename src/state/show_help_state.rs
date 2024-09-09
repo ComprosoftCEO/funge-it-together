@@ -7,13 +7,10 @@ use crossterm::{
 use std::io::{self, Write};
 
 use super::{LevelSelectState, State};
-use crate::isa::{InstructionSetArchitecture, Solution, SolutionManager};
+use crate::isa::{self, InstructionSetArchitecture, Solution, SolutionManager};
 use crate::{global_state::GlobalState, level::LevelIndex};
 
 const SOLUTIONS_PER_PAGE: usize = 3;
-
-const MAX_NAME_LEN: usize = 30;
-static COPY_STR: &str = " (Copy)";
 
 static SELECT_INSTRUCTIONS: &str = r#"
 ───────────────────────────────────────────────────────┬────────────────────────
@@ -187,7 +184,7 @@ where
               return Ok(Some(self));
             },
 
-            KeyCode::Char(c) if cur_name.len() < MAX_NAME_LEN => {
+            KeyCode::Char(c) if cur_name.len() < isa::MAX_SOLUTION_NAME_LEN => {
               cur_name.push(c);
               return Ok(Some(self));
             },
@@ -245,14 +242,13 @@ where
               return Ok(Some(self));
             } else {
               let solution = global_state.get_all_solutions(level_id)[self.selected_solution_index as usize].clone();
-              return Ok(Some(self));
-              // return Ok(Some(Box::new(EditorState::new(
-              //   self.level_index,
-              //   self.selected_solution_index as usize,
-              //   solution,
-              //   self.test_cases,
-              //   0,
-              // ))));
+              return Ok(Some(Box::new(ISA::open_editor(
+                self.level_index,
+                self.selected_solution_index,
+                solution,
+                self.test_cases,
+                0,
+              ))));
             }
           },
 
@@ -309,16 +305,5 @@ where
         _ => {},
       }
     }
-  }
-}
-
-fn remove_copy_suffix(s: &str) -> &str {
-  if s.len() <= MAX_NAME_LEN {
-    return s;
-  }
-
-  match s.strip_suffix(COPY_STR) {
-    Some(s) => s,
-    None => s,
   }
 }

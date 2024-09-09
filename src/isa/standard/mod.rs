@@ -1,4 +1,5 @@
 use crate::isa::InstructionSetArchitecture;
+use editor_state::EditorState;
 use rlua::prelude::*;
 use std::error::Error;
 use std::fs;
@@ -57,5 +58,15 @@ impl InstructionSetArchitecture for Standard {
     })?;
 
     Ok(test_cases)
+  }
+
+  fn open_editor(
+    level_index: crate::level::LevelIndex,
+    solution_index: usize,
+    solution: Self::Solution,
+    test_cases: Vec<Self::Puzzle>,
+    test_case_index: usize,
+  ) -> impl crate::state::State {
+    EditorState::new(level_index, solution_index, solution, test_cases, test_case_index)
   }
 }

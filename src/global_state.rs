@@ -6,7 +6,6 @@ use std::io::{self, BufReader, BufWriter};
 use std::path::Path;
 use uuid::Uuid;
 
-use crate::isa::parallel::Solution;
 use crate::isa::{self, SolutionManager};
 use crate::level::{Level, LevelIndex, LevelPack};
 use crate::statistics::Statistics;
