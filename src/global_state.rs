@@ -1,50 +1,30 @@
-use crossterm::style::Stylize;
-use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::hash::Hash;
-use std::io::{self, BufReader, BufWriter, Write};
+use std::io::{self, BufReader, BufWriter};
 use std::path::Path;
 use uuid::Uuid;
 
-use crate::grid::Grid;
+use crate::isa::parallel::Solution;
+use crate::isa::{self, SolutionManager};
 use crate::level::{Level, LevelIndex, LevelPack};
-use crate::printable::Printable;
-use crate::vm::Command;
+use crate::statistics::Statistics;
 
 static SAVE_FILE: &str = "save.json";
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GlobalState {
-  #[serde(deserialize_with = "deserialize_one_or_many_map")]
-  solutions: HashMap<Uuid, Vec<Solution>>,
+  #[serde(default, deserialize_with = "deserialize_one_or_many_map")]
+  solutions: HashMap<Uuid, Vec<isa::standard::Solution>>,
+  #[serde(default)]
+  parallel_solutions: HashMap<Uuid, Vec<isa::parallel::Solution>>,
+  #[serde(default)]
   unlocked: HashMap<Uuid, Statistics>,
 
   #[serde(skip)]
   pack: LevelPack,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Solution {
-  #[serde(default = "default_name")]
-  name: String,
-  grid: Grid,
-  start_row: usize,
-  start_col: usize,
-}
-
-fn default_name() -> String {
-  "Solution 1".into()
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Statistics {
-  average_cycles: f64,
-  symbols_used: usize,
 }
 
 impl GlobalState {
@@ -84,21 +64,6 @@ impl GlobalState {
     }
   }
 
-  // Create a new solution and return it's index
-  pub fn new_solution(&mut self, level_id: Uuid) -> usize {
-    let vec = self.solutions.entry(level_id).or_default();
-    vec.push(Solution::new(format!("Solution {}", vec.len() + 1)));
-    vec.len()
-  }
-
-  pub fn save_solution(&mut self, level_id: Uuid, solution_index: usize, solution: &Solution) {
-    self.solutions.get_mut(&level_id).unwrap()[solution_index] = solution.clone();
-  }
-
-  pub fn get_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<Solution> {
-    self.solutions.entry(level_id).or_default()
-  }
-
   pub fn is_level_complete(&self, level_id: Uuid) -> bool {
     self.unlocked.contains_key(&level_id)
   }
@@ -124,130 +89,31 @@ impl GlobalState {
   }
 }
 
-#[allow(unused)]
-impl Solution {
-  pub fn new(name: impl Into<String>) -> Self {
-    Self {
-      name: name.into(),
-      ..Default::default()
-    }
+impl SolutionManager<isa::Standard> for GlobalState {
+  fn get_all_solutions(&self, level_id: Uuid) -> &Vec<isa::standard::Solution> {
+    static EMPTY_LIST: Vec<isa::standard::Solution> = Vec::new();
+    self.solutions.get(&level_id).unwrap_or(&EMPTY_LIST)
   }
 
-  pub fn name(&self) -> &String {
-    &self.name
-  }
-
-  pub fn rename(&mut self, new_name: impl Into<String>) {
-    self.name = new_name.into();
-  }
-
-  pub fn into_grid(self) -> Grid {
-    self.grid
-  }
-
-  pub fn rows(&self) -> usize {
-    self.grid.rows()
-  }
-
-  pub fn cols(&self) -> usize {
-    self.grid.cols()
-  }
-
-  pub fn set_grid_value(&mut self, row: usize, col: usize, value: Command) {
-    self.grid.set_value(row, col, value);
-  }
-
-  pub fn start_row(&self) -> usize {
-    self.start_row
-  }
-
-  pub fn start_col(&self) -> usize {
-    self.start_col
-  }
-
-  pub fn set_start(&mut self, start_row: usize, start_col: usize) {
-    debug_assert!(self.start_row < self.grid.rows());
-    debug_assert!(self.start_col < self.grid.cols());
-
-    self.start_row = start_row;
-    self.start_col = start_col;
-  }
-
-  pub fn symbols_used(&self) -> usize {
-    self.grid.count_symbols()
-  }
-
-  pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
-    self.grid.toggle_breakpoint(row, col);
+  fn get_all_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<isa::standard::Solution> {
+    self.solutions.entry(level_id).or_default()
   }
 }
 
-impl Default for Solution {
-  fn default() -> Self {
-    Self {
-      name: "New Solution".into(),
-      grid: Grid::default(),
-      start_row: 0,
-      start_col: 0,
-    }
-  }
-}
-
-impl Printable for Solution {
-  fn print(&self) -> io::Result<()> {
-    let mut stdout = io::stdout();
-    stdout.queue(cursor::SavePosition)?;
-    self.grid.print()?;
-
-    stdout
-      .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveRight(self.start_col as u16 + 1))?
-      .queue(cursor::MoveDown(self.start_row as u16 + 1))?;
-
-    write!(
-      stdout,
-      "{}",
-      self
-        .grid
-        .get_value(self.start_row, self.start_col)
-        .get_char()
-        .green()
-        .reverse()
-    )?;
-
-    Ok(())
-  }
-}
-
-impl Statistics {
-  pub fn new(average_cycles: f64, symbols_used: usize) -> Self {
-    Self {
-      average_cycles,
-      symbols_used,
-    }
+impl SolutionManager<isa::Parallel> for GlobalState {
+  fn get_all_solutions(&self, level_id: Uuid) -> &Vec<isa::parallel::Solution> {
+    static EMPTY_LIST: Vec<isa::parallel::Solution> = Vec::new();
+    self.parallel_solutions.get(&level_id).unwrap_or(&EMPTY_LIST)
   }
 
-  pub fn average_cycles(&self) -> f64 {
-    self.average_cycles
-  }
-
-  pub fn symbols_used(&self) -> usize {
-    self.symbols_used
-  }
-
-  pub fn set_to_best(&mut self, other: &Statistics) {
-    if other.average_cycles < self.average_cycles {
-      self.average_cycles = other.average_cycles;
-    }
-    if other.symbols_used < self.symbols_used {
-      self.symbols_used = other.symbols_used;
-    }
+  fn get_all_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<isa::parallel::Solution> {
+    self.parallel_solutions.entry(level_id).or_default()
   }
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(untagged)]
-pub enum OneOrManyMap<K, V>
+enum OneOrManyMap<K, V>
 where
   K: Eq + Hash,
 {

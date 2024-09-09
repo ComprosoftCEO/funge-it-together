@@ -9,6 +9,7 @@ mod level;
 mod printable;
 mod puzzle;
 mod state;
+mod statistics;
 mod vm;
 
 fn main() {

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
 use crate::grid::Grid;
+use crate::isa;
 use crate::printable::Printable;
 use crate::vm::Command;
 
@@ -21,23 +22,29 @@ fn default_name() -> String {
   "Solution 1".into()
 }
 
-#[allow(unused)]
-impl Solution {
-  pub fn new(name: impl Into<String>) -> Self {
+impl isa::Solution for Solution {
+  fn new(name: impl Into<String>) -> Self {
     Self {
       name: name.into(),
       ..Default::default()
     }
   }
 
-  pub fn name(&self) -> &String {
+  fn name(&self) -> &str {
     &self.name
   }
 
-  pub fn rename(&mut self, new_name: impl Into<String>) {
+  fn rename(&mut self, new_name: impl Into<String>) {
     self.name = new_name.into();
   }
 
+  fn symbols_used(&self) -> usize {
+    self.grid.count_symbols()
+  }
+}
+
+#[allow(unused)]
+impl Solution {
   pub fn into_grid(self) -> Grid {
     self.grid
   }
@@ -68,10 +75,6 @@ impl Solution {
 
     self.start_row = start_row;
     self.start_col = start_col;
-  }
-
-  pub fn symbols_used(&self) -> usize {
-    self.grid.count_symbols()
   }
 
   pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
