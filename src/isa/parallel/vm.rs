@@ -1,25 +1,34 @@
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
+use std::cell::{RefCell, RefMut};
 use std::cmp;
 use std::collections::VecDeque;
 use std::io::{self, Write};
+use std::rc::{Rc, Weak};
 
-use crate::global_state::Solution;
+// use crate::global_state::Solution;
+use super::puzzle::{ProcessorIO, Puzzle, PuzzleIO};
+use super::solution::{Program, Solution};
 use crate::grid::Grid;
 use crate::printable::Printable;
-use crate::puzzle::{Puzzle, PuzzleIO};
 
 pub const VAL_MIN: i16 = -999;
 pub const VAL_MAX: i16 = 999;
 pub const VAL_CHAR_WIDTH: usize = 4; // 3 numbers and negative sign
-const MAX_STACK_ENTRIES: usize = 15;
+const MAX_STACK_ENTRIES: usize = 8;
 
 #[derive(Debug, Clone)]
 pub struct VirtualMachine {
-  grid: Grid,
-
+  processors: [Rc<RefCell<Processor>>; 2],
   cycle: u32,
+  test_case: usize,
+}
+
+#[derive(Debug, Clone)]
+pub struct Processor {
+  grid: Grid<Command>,
+
   row: i16,
   col: i16,
   direction: Direction,
@@ -29,8 +38,10 @@ pub struct VirtualMachine {
 
   inputs: PuzzleIO,
   outputs: PuzzleIO,
-  test_case: usize,
   expected_outputs: PuzzleIO,
+
+  other_processor: Option<Weak<RefCell<Processor>>>,
+  sending_status: SendStatus,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -102,6 +113,8 @@ pub enum Command {
   Add,
   #[serde(rename = "-", alias = "subtract")]
   Subtract,
+  #[serde(rename = "х", alias = "multiply")]
+  Multiply,
   #[serde(rename = "<", alias = "ifLess")]
   IfLess,
   #[serde(rename = "=", alias = "ifEqual")]
@@ -116,6 +129,14 @@ pub enum Command {
   HasInput,
   #[serde(rename = "Θ", alias = "out")]
   Out,
+  #[serde(rename = "τ", alias = "transmit")]
+  Transmit,
+  #[serde(rename = "я", alias = "receive")]
+  Receive,
+  #[serde(rename = "Ť", alias = "tryTransmit")]
+  TryTransmit,
+  #[serde(rename = "Ř", alias = "tryReceive")]
+  TryReceive,
 }
 
 impl Command {
@@ -145,6 +166,7 @@ impl Command {
       Self::RotateUp => '∩',
       Self::Add => '+',
       Self::Subtract => '-',
+      Self::Multiply => 'х',
       Self::IfLess => '<',
       Self::IfEqual => '=',
       Self::IfGreater => '>',
@@ -152,6 +174,10 @@ impl Command {
       Self::In => 'Ї',
       Self::HasInput => '?',
       Self::Out => 'Θ',
+      Self::Transmit => 'τ',
+      Self::Receive => 'я',
+      Self::TryTransmit => 'Ť',
+      Self::TryReceive => 'Ř',
     }
   }
 }
@@ -162,33 +188,167 @@ impl Default for Command {
   }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum SendStatus {
+  None,
+  Transmitting,
+  TryTransmitting,
+  Receiving,
+  TryReceiving,
+  Completed,
+}
+
+impl SendStatus {
+  pub fn is_blocking(self) -> bool {
+    matches!(self, SendStatus::Transmitting | SendStatus::Receiving)
+  }
+}
+
 pub enum VMError {
   NumericOverflow,
   StackOverflow,
   StackUnderflow,
   NoInputs,
   TooManyOutputs,
+  Deadlock,
 }
 
 #[allow(unused)]
 impl VirtualMachine {
-  pub fn new(solution: Solution, test_case: usize, puzzle: &Puzzle) -> Self {
-    let row = solution.start_row() as i16;
-    let col = solution.start_col() as i16;
+  pub fn new(solution: Solution, test_case: usize, io: Puzzle) -> Self {
+    let (p0, p1) = solution.into_programs();
+    let (p0_io, p1_io) = io.into_processor_ios();
+
+    let mut processor_0 = Rc::new(RefCell::new(Processor::new(p0, p0_io)));
+    let mut processor_1 = Rc::new(RefCell::new(Processor::new(p1, p1_io)));
+
+    (*processor_0).borrow_mut().other_processor = Some(Rc::downgrade(&processor_1));
+    (*processor_1).borrow_mut().other_processor = Some(Rc::downgrade(&processor_0));
 
     Self {
-      grid: solution.into_grid(),
+      processors: [processor_0, processor_1],
       cycle: 0,
+      test_case,
+    }
+  }
+
+  pub fn get_cycle(&self) -> u32 {
+    self.cycle
+  }
+
+  pub fn count_symbols(&self) -> usize {
+    self
+      .processors
+      .iter()
+      .map(|processor| (**processor).borrow().count_symbols())
+      .sum()
+  }
+
+  pub fn is_at_breakpoint(&self) -> bool {
+    self
+      .processors
+      .iter()
+      .any(|processor| (**processor).borrow().is_at_breakpoint())
+  }
+
+  pub fn processor_0(&mut self) -> RefMut<Processor> {
+    (*self.processors[0]).borrow_mut()
+  }
+
+  pub fn processor_1(&mut self) -> RefMut<Processor> {
+    (*self.processors[1]).borrow_mut()
+  }
+
+  // Returns Ok(true) when the puzzle is solved
+  pub fn step(&mut self) -> Result<bool, (VMError, usize)> {
+    // Have we solved the puzzle?
+    if self.processors.iter().all(|processor| {
+      let processor = (**processor).borrow();
+      processor.inputs.len() == 0 && processor.outputs == processor.expected_outputs
+    }) {
+      return Ok(true);
+    }
+
+    for processor in self.processors.iter_mut() {
+      (**processor).borrow_mut().compute_send_status();
+    }
+
+    let mut result = None;
+
+    for (index, processor) in self.processors.iter_mut().enumerate() {
+      // Nope, so step the next processor
+      if let Err(e) = (**processor).borrow_mut().step() {
+        if result.is_none() {
+          result = Some((e, index)) // Only save the first error
+        }
+      }
+    }
+
+    self.cycle = self.cycle.wrapping_add(1);
+
+    if let Some(e) = result {
+      Err(e)
+    } else {
+      Ok(false)
+    }
+  }
+
+  fn print_processor_program(&self, processor: &Processor, line: u16) -> io::Result<()> {
+    let mut stdout = io::stdout();
+
+    if line > 0 {
+      stdout.queue(cursor::MoveDown(line))?;
+    }
+
+    processor.grid.print()?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveDown(processor.row as u16 + 2 + line))?
+      .queue(cursor::MoveRight(processor.col as u16 + 1))?;
+
+    if processor.skip_next_instruction {
+      write!(stdout, "{}", processor.direction.get_arrow().red())?;
+    } else if self.is_at_breakpoint() && processor.is_at_breakpoint() {
+      stdout.queue(style::SetBackgroundColor(Color::DarkCyan))?;
+      write!(stdout, "{}", processor.direction.get_arrow().black())?;
+      stdout.queue(style::ResetColor)?;
+    } else {
+      write!(stdout, "{}", processor.direction.get_arrow().green())?;
+    }
+
+    Ok(())
+  }
+
+  pub fn height(&self) -> u16 {
+    self
+      .processors
+      .iter()
+      .map(|processor| (**processor).borrow().rows() + 1)
+      .sum::<usize>() as u16
+      + 1
+  }
+}
+
+#[allow(unused)]
+impl Processor {
+  pub fn new(program: Program, io: ProcessorIO) -> Self {
+    let row = program.start_row() as i16;
+    let col = program.start_col() as i16;
+
+    Self {
+      grid: program.into_grid(),
       row,
       col,
       direction: Direction::Right, // Always starts facing right
       skip_next_instruction: false,
       last_was_number: false,
       stack: Stack::new(),
-      inputs: puzzle.get_inputs().clone(),
+      inputs: io.get_inputs().clone(),
       outputs: PuzzleIO::new(),
-      test_case,
-      expected_outputs: puzzle.get_outputs().clone(),
+      expected_outputs: io.get_outputs().clone(),
+      other_processor: None,
+      sending_status: SendStatus::None,
     }
   }
 
@@ -204,18 +364,18 @@ impl VirtualMachine {
     self.grid.count_symbols()
   }
 
-  pub fn get_cycle(&self) -> u32 {
-    self.cycle
+  pub fn compute_send_status(&mut self) {
+    self.sending_status = match self.grid.get_value(self.row as usize, self.col as usize) {
+      Command::Transmit => SendStatus::Transmitting,
+      Command::TryTransmit => SendStatus::TryTransmitting,
+      Command::Receive => SendStatus::Receiving,
+      Command::TryReceive => SendStatus::TryReceiving,
+      _ => SendStatus::None,
+    };
   }
 
   // Returns Ok(true) when the puzzle is solved
-  pub fn step(&mut self) -> Result<bool, VMError> {
-    if self.inputs.len() == 0 && self.outputs == self.expected_outputs {
-      return Ok(true);
-    }
-
-    self.cycle = self.cycle.wrapping_add(1);
-
+  pub fn step(&mut self) -> Result<(), VMError> {
     let mut is_number = false;
     if !self.skip_next_instruction {
       match self.grid.get_value(self.row as usize, self.col as usize) {
@@ -311,6 +471,11 @@ impl VirtualMachine {
           let v1 = self.pop()?;
           self.push(v1 - v2)?;
         },
+        Command::Multiply => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          self.push(v1 * v2)?;
+        },
         Command::IfLess => {
           let val = self.peek()?;
           self.skip_next_instruction = !(val < 0);
@@ -339,30 +504,44 @@ impl VirtualMachine {
             return Err(VMError::TooManyOutputs);
           }
         },
+        Command::Transmit => {
+          self.handle_transmit()?;
+        },
+        Command::Receive => {
+          self.handle_receive()?;
+        },
+        Command::TryTransmit => {
+          self.handle_try_transmit()?;
+        },
+        Command::TryReceive => {
+          self.handle_try_receive()?;
+        },
       }
     } else {
       self.skip_next_instruction = false;
     }
 
-    // Now perform movement
-    match self.direction {
-      Direction::Up => {
-        self.row = (self.row - 1).rem_euclid(self.grid.rows() as i16);
-      },
-      Direction::Down => {
-        self.row = (self.row + 1).rem_euclid(self.grid.rows() as i16);
-      },
-      Direction::Left => {
-        self.col = (self.col - 1).rem_euclid(self.grid.cols() as i16);
-      },
-      Direction::Right => {
-        self.col = (self.col + 1).rem_euclid(self.grid.cols() as i16);
-      },
+    // Now perform movement (if not waiting for the send status)
+    if !self.sending_status.is_blocking() {
+      match self.direction {
+        Direction::Up => {
+          self.row = (self.row - 1).rem_euclid(self.grid.rows() as i16);
+        },
+        Direction::Down => {
+          self.row = (self.row + 1).rem_euclid(self.grid.rows() as i16);
+        },
+        Direction::Left => {
+          self.col = (self.col - 1).rem_euclid(self.grid.cols() as i16);
+        },
+        Direction::Right => {
+          self.col = (self.col + 1).rem_euclid(self.grid.cols() as i16);
+        },
+      }
     }
 
     self.last_was_number = is_number;
 
-    Ok(false)
+    Ok(())
   }
 
   fn push(&mut self, val: i16) -> Result<(), VMError> {
@@ -388,6 +567,82 @@ impl VirtualMachine {
     } else {
       self.push(number)
     }
+  }
+
+  fn handle_transmit(&mut self) -> Result<(), VMError> {
+    let rc_other_processor = Weak::upgrade(self.other_processor.as_ref().unwrap()).unwrap();
+    let mut other_processor = (*rc_other_processor).borrow_mut();
+
+    match other_processor.sending_status {
+      SendStatus::None | SendStatus::TryTransmitting => { /* Block */ },
+      SendStatus::Transmitting => return Err(VMError::Deadlock),
+      SendStatus::Receiving | SendStatus::TryReceiving => {
+        other_processor.push(self.pop()?)?;
+        self.sending_status = SendStatus::Completed;
+      },
+      SendStatus::Completed => {
+        self.sending_status = SendStatus::Completed;
+      },
+    }
+
+    Ok(())
+  }
+
+  fn handle_receive(&mut self) -> Result<(), VMError> {
+    let rc_other_processor = Weak::upgrade(self.other_processor.as_ref().unwrap()).unwrap();
+    let mut other_processor = (*rc_other_processor).borrow_mut();
+
+    match other_processor.sending_status {
+      SendStatus::None | SendStatus::TryReceiving => { /* Block */ },
+      SendStatus::Receiving => return Err(VMError::Deadlock),
+      SendStatus::Transmitting | SendStatus::TryTransmitting => {
+        self.push(other_processor.pop()?)?;
+        self.sending_status = SendStatus::Completed;
+      },
+      SendStatus::Completed => {
+        self.sending_status = SendStatus::Completed;
+      },
+    }
+
+    Ok(())
+  }
+
+  fn handle_try_transmit(&mut self) -> Result<(), VMError> {
+    let rc_other_processor = Weak::upgrade(self.other_processor.as_ref().unwrap()).unwrap();
+    let mut other_processor = (*rc_other_processor).borrow_mut();
+
+    match other_processor.sending_status {
+      SendStatus::None | SendStatus::Transmitting | SendStatus::TryTransmitting => {
+        // Transmission failed, so skip the next instruction
+        self.skip_next_instruction = true;
+      },
+      SendStatus::Receiving | SendStatus::TryReceiving => {
+        other_processor.push(self.pop()?)?;
+      },
+      SendStatus::Completed => {},
+    }
+
+    self.sending_status = SendStatus::Completed;
+    Ok(())
+  }
+
+  fn handle_try_receive(&mut self) -> Result<(), VMError> {
+    let rc_other_processor = Weak::upgrade(self.other_processor.as_ref().unwrap()).unwrap();
+    let mut other_processor = (*rc_other_processor).borrow_mut();
+
+    match other_processor.sending_status {
+      SendStatus::None | SendStatus::Receiving | SendStatus::TryReceiving => {
+        // Receiving failed, so skip the next instruction
+        self.skip_next_instruction = true;
+      },
+      SendStatus::Transmitting | SendStatus::TryTransmitting => {
+        self.push(other_processor.pop()?)?;
+      },
+      SendStatus::Completed => {},
+    }
+
+    self.sending_status = SendStatus::Completed;
+    Ok(())
   }
 
   pub fn print_error_symbol_at(&self, row: u16, col: u16) -> io::Result<()> {
@@ -427,51 +682,62 @@ impl VirtualMachine {
 impl Printable for VirtualMachine {
   fn print(&self) -> io::Result<()> {
     let mut stdout = io::stdout();
-    stdout.queue(cursor::SavePosition)?;
-    self.grid.print()?;
+    stdout.queue(cursor::SavePosition)?.queue(cursor::MoveDown(1))?;
+
+    let p0 = (*self.processors[0]).borrow();
+    let p1 = (*self.processors[1]).borrow();
+
+    self.print_processor_program(&p0, 0)?;
+    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveDown(1))?;
+    self.print_processor_program(&p1, p0.rows() as u16 + 1)?;
 
     stdout
       .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveDown(self.grid.rows() as u16 + 2 + 1))?;
+      .queue(cursor::MoveDown(p0.rows() as u16 + 2))?;
+    write!(stdout, "├{}┤", "─".repeat(p1.cols()))?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveDown(self.height() as u16 + 1))?;
     write!(stdout, "{} {}", "Cycle:".dark_cyan(), self.cycle)?;
 
-    stdout
-      .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveDown(self.row as u16 + 1))?
-      .queue(cursor::MoveRight(self.col as u16 + 1))?;
-    if self.skip_next_instruction {
-      write!(stdout, "{}", self.direction.get_arrow().red())?;
-    } else if self.is_at_breakpoint() {
-      stdout.queue(style::SetBackgroundColor(Color::DarkCyan))?;
-      write!(stdout, "{}", self.direction.get_arrow().black())?;
-      stdout.queue(style::ResetColor)?;
-    } else {
-      write!(stdout, "{}", self.direction.get_arrow().green())?;
-    }
-
-    stdout
-      .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveRight(self.grid.cols() as u16 + 2 + 8))?
-      .queue(cursor::SavePosition)?;
-
+    stdout.queue(cursor::RestorePosition)?;
     write!(stdout, "{}", format!("Test Case {}", self.test_case).dark_yellow())?;
+
     stdout
       .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveDown(2))?
+      .queue(cursor::MoveRight(p0.cols() as u16 + 11))?
       .queue(cursor::SavePosition)?;
+
     write!(stdout, "Stack    Input  Output Expected")?;
 
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(1))?
       .queue(cursor::SavePosition)?;
-    self.stack.print()?;
+    p0.stack.print()?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(9))?;
-    self.inputs.print()?;
+    p0.inputs.print()?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(16))?;
-    self.outputs.print_with_expected_outputs(&self.expected_outputs)?;
+    p0.outputs.print_with_expected_outputs(&p0.expected_outputs)?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(23))?;
-    self.expected_outputs.print()?;
+    p0.expected_outputs.print()?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveDown(MAX_STACK_ENTRIES as u16 + 1))?
+      .queue(cursor::SavePosition)?;
+
+    p1.stack.print()?;
+    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(9))?;
+    p1.inputs.print()?;
+    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(16))?;
+    p1.outputs.print_with_expected_outputs(&p1.expected_outputs)?;
+    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(23))?;
+    p1.expected_outputs.print()?;
+
+    stdout.queue(cursor::RestorePosition)?;
+    write!(stdout, "├{0}┤   ├{0}┤ ├{0}┤ ├{0}┤", "─".repeat(VAL_CHAR_WIDTH))?;
 
     Ok(())
   }
@@ -586,6 +852,7 @@ impl VMError {
       Self::StackUnderflow => "Stack underflow",
       Self::NoInputs => "No inputs left",
       Self::TooManyOutputs => "Too many outputs",
+      Self::Deadlock => "Deadlock",
     }
   }
 }

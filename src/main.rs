@@ -7,10 +7,8 @@ mod grid;
 mod isa;
 mod level;
 mod printable;
-mod puzzle;
 mod state;
 mod statistics;
-mod vm;
 
 fn main() {
   let levels = match LevelPack::load() {

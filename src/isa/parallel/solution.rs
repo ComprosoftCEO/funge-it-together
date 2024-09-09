@@ -3,10 +3,10 @@ use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
+use super::vm::Command;
 use crate::grid::Grid;
 use crate::isa;
 use crate::printable::Printable;
-use crate::vm::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,7 +19,7 @@ pub struct Solution {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Program {
-  grid: Grid,
+  grid: Grid<Command>,
   start_row: usize,
   start_col: usize,
 }
@@ -88,7 +88,7 @@ impl Default for Solution {
 }
 
 impl Program {
-  pub fn into_grid(self) -> Grid {
+  pub fn into_grid(self) -> Grid<Command> {
     self.grid
   }
 

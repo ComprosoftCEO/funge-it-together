@@ -1,6 +1,8 @@
 use crate::isa::InstructionSetArchitecture;
 
+mod puzzle;
 mod solution;
+mod vm;
 
 pub use solution::Solution;
 
