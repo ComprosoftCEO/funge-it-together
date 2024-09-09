@@ -5,8 +5,9 @@ use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 
 use super::{EditorState, LevelSelectState, State};
-use crate::global_state::{GlobalState, Statistics};
+use crate::global_state::GlobalState;
 use crate::level::LevelIndex;
+use crate::statistics::Statistics;
 
 pub struct SuccessState {
   level_index: LevelIndex,

@@ -6,18 +6,19 @@ use crossterm::{
 };
 use rand::Rng;
 use std::{
+  cell::RefMut,
   io::{self, Write},
   thread,
   time::Duration,
 };
 
-use super::{print_string, EditorState, State, SuccessState};
-use crate::{
-  global_state::{GlobalState, Statistics},
-  level::LevelIndex,
-  printable::Printable,
-  vm::{VMError, VirtualMachine},
-};
+use super::editor_state::EditorState;
+use super::vm::{Processor, VMError, VirtualMachine};
+use crate::global_state::GlobalState;
+use crate::level::LevelIndex;
+use crate::printable::Printable;
+use crate::state::{print_string, State, SuccessState};
+use crate::statistics::Statistics;
 
 static INSTRUCTIONS: &str = r#"
 │Esc    = Editor
@@ -26,9 +27,9 @@ static INSTRUCTIONS: &str = r#"
 │Tab    = Step
 │Space  = Start/Stop
 │1-6    = Set Speed
-│,      = Breakpoint
 │
-│
+│,      = P0 Breakpoint
+│.      = P1 Breakpoint
 │
 │
 │
@@ -52,7 +53,7 @@ pub struct ExecuteState {
   test_case: usize,
   speed: Speed,
 
-  last_error: Option<VMError>,
+  last_error: Option<(VMError, usize)>,
 
   total_cycles: f64,
 }
@@ -125,6 +126,23 @@ impl ExecuteState {
       },
     }
   }
+
+  fn toggle_breakpoint(
+    &mut self,
+    func: impl Fn(&mut VirtualMachine) -> RefMut<Processor>,
+    toggle_editor: impl Fn(&mut EditorState, usize, usize),
+  ) {
+    let current_vm = func(&mut self.vms[self.test_case]);
+    let row = current_vm.row();
+    let col = current_vm.col();
+    drop(current_vm);
+
+    for mut vm in self.vms.iter_mut().map(func) {
+      vm.toggle_breakpoint(row, col);
+    }
+
+    toggle_editor(&mut self.editor, row, col);
+  }
 }
 
 impl State for ExecuteState {
@@ -133,13 +151,23 @@ impl State for ExecuteState {
 
     let level = global_state.level(self.level_index);
     stdout.queue(cursor::Hide)?;
-    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
+    write!(stdout, "     {} - {}", self.level_index, level.name().yellow())?;
 
     self.vms[self.test_case].print_at(2, 0)?;
 
-    if let Some(ref last_error) = self.last_error {
-      self.vms[self.test_case].print_error_symbol_at(2, 0)?;
-      last_error.print_at(self.vms[0].rows() as u16 + 2 + 2 + 4, 0)?;
+    if let Some((ref last_error, error_index)) = self.last_error {
+      match error_index {
+        0 => self.vms[self.test_case].processor_0().print_error_symbol_at(3, 0),
+        1 => {
+          let rows = self.vms[self.test_case].processor_0().rows() as u16;
+          self.vms[self.test_case]
+            .processor_1()
+            .print_error_symbol_at(3 + rows + 1, 0)
+        },
+        _ => Ok(()),
+      }?;
+
+      last_error.print_at(self.vms[0].height() + 4, 0)?;
     }
 
     stdout
@@ -251,13 +279,11 @@ impl State for ExecuteState {
 
           // Breakpoint
           KeyCode::Char(',') if self.speed == Speed::None => {
-            let current_vm = &mut self.vms[self.test_case];
-            let row = current_vm.row();
-            let col = current_vm.col();
-            for vm in self.vms.iter_mut() {
-              vm.toggle_breakpoint(row, col);
-            }
-            self.editor.toggle_breakpoint(row, col);
+            self.toggle_breakpoint(VirtualMachine::processor_0, EditorState::toggle_processor_0_breakpoint);
+            return Ok(Some(self));
+          },
+          KeyCode::Char('.') if self.speed == Speed::None => {
+            self.toggle_breakpoint(VirtualMachine::processor_1, EditorState::toggle_processor_1_breakpoint);
             return Ok(Some(self));
           },
 

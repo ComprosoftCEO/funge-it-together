@@ -1,5 +1,7 @@
 use crate::isa::InstructionSetArchitecture;
 
+mod editor_state;
+mod execute_state;
 mod puzzle;
 mod solution;
 mod vm;

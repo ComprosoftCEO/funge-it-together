@@ -40,7 +40,7 @@ pub trait SolutionManager<ISA: InstructionSetArchitecture> {
     all_solutions.len() - 1
   }
 
-  fn update_solution(&mut self, level_id: Uuid, solution_index: usize, solution: ISA::Solution) {
+  fn save_solution(&mut self, level_id: Uuid, solution_index: usize, solution: ISA::Solution) {
     let all_solutions = self.get_all_solutions_mut(level_id);
     all_solutions[solution_index] = solution;
   }

@@ -6,40 +6,52 @@ use crossterm::{
 };
 use std::io::{self, Write};
 
-use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
-use crate::{
-  global_state::{GlobalState, Solution},
-  level::LevelIndex,
-  printable::Printable,
-  puzzle::TestCaseSet,
-  state::State,
-  vm::{Command, VirtualMachine},
-};
+use super::execute_state::{ExecuteState, Speed};
+use super::puzzle::TestCaseSet;
+use super::solution::Solution;
+use super::vm::{Command, VirtualMachine};
+use crate::level::LevelIndex;
+use crate::printable::Printable;
+use crate::state::{print_string, ShowHelpState, State};
+use crate::{global_state::GlobalState, isa::SolutionManager};
+
+const GRID_ROW: u16 = 3;
+const GRID_COL: u16 = 0;
+
+macro_rules! current_program {
+  ($input:expr) => {
+    if $input.is_program_1 {
+      $input.solution.program_1()
+    } else {
+      $input.solution.program_0()
+    }
+  };
+}
 
 static INSTRUCTIONS: &str = r#"
 │Esc    = Main Menu
-│Ctrl-C = Close Program
-│
 │Tab    = Step
 │Space  = Start/Stop
 │[  ]   = Test Case
-│,      = Breakpoint
-│Arrow  = Move Cursor
-│Delete = Clear
-│asdw   = ←↓→↑ (Move)
-│/ \    = / \ (Bounce)
-│*      = » (Skip)
-│0-9    = 0-9
-│p      = ☼ (Pop)
-│c      = © (Copy)
-│~      = ∫ (Swap)
-│^ v    = ∩ u (Rotate)
-│+ -    = (Add, Sub)
-│< = >  = (Compare to 0)
-│i      = Ї (Input)
-│o      = Θ (Output)
-│?      = (Has input?)
-│b      = Set start"#;
+│, .    = Breakpoint
+│
+│asdw  = ←↓→↑ (Move)
+│/ \   = / \ (Bounce)
+│$     = » (Skip)
+│0-9   = 0-9
+│p     = ☼ (Pop)
+│c     = © (Copy)
+│~     = ∫ (Swap)
+│^ v   = ∩ u (Rotate)
+│+ - * = (Add/Sub/Mul)
+│< = > = (Compare to 0)
+│i     = Ї (Input)
+│o     = Θ (Output)
+│?     = (Has input?)
+│t     = τ (Transmit)
+│r     = я (Receive)
+|T R   = Ť Ř (Try T/R?)
+│b     = Set start"#;
 
 pub struct EditorState {
   level_index: LevelIndex,
@@ -49,6 +61,7 @@ pub struct EditorState {
 
   cursor_row: isize,
   cursor_col: isize,
+  is_program_1: bool,
 
   test_cases: TestCaseSet,
   test_case_index: isize,
@@ -68,15 +81,14 @@ impl EditorState {
       solution,
       cursor_row: 0,
       cursor_col: 0,
+      is_program_1: false,
       test_cases,
       test_case_index: test_case_index as isize,
     }
   }
 
   fn set_cell(&mut self, command: Command) {
-    self
-      .solution
-      .set_grid_value(self.cursor_row as usize, self.cursor_col as usize, command);
+    current_program!(self).set_grid_value(self.cursor_row as usize, self.cursor_col as usize, command);
   }
 
   pub(crate) fn level_index(&self) -> LevelIndex {
@@ -87,13 +99,17 @@ impl EditorState {
     (0..self.test_cases.len())
       .map(|i| {
         let index = (self.test_case_index as usize + i).rem_euclid(self.test_cases.len());
-        VirtualMachine::new(self.solution.clone(), index + 1, &self.test_cases[index])
+        VirtualMachine::new(self.solution.clone(), index + 1, self.test_cases[index].clone())
       })
       .collect()
   }
 
-  pub(crate) fn toggle_breakpoint(&mut self, row: usize, col: usize) {
-    self.solution.toggle_breakpoint(row, col);
+  pub(crate) fn toggle_processor_0_breakpoint(&mut self, row: usize, col: usize) {
+    self.solution.program_0().toggle_breakpoint(row, col);
+  }
+
+  pub(crate) fn toggle_processor_1_breakpoint(&mut self, row: usize, col: usize) {
+    self.solution.program_1().toggle_breakpoint(row, col);
   }
 }
 
@@ -102,20 +118,21 @@ impl State for EditorState {
     let mut stdout = io::stdout();
 
     let level = global_state.level(self.level_index);
-    write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
+    write!(stdout, "     {} - {}", self.level_index, level.name().yellow())?;
 
-    self.solution.print_at(2, 0)?;
+    self.solution.print_at(GRID_ROW, GRID_COL)?;
 
-    stdout
-      .queue(cursor::MoveTo(self.solution.cols() as u16 + 2 + 8, 2))?
-      .queue(cursor::SavePosition)?;
+    stdout.queue(cursor::MoveTo(GRID_COL, 2))?.queue(cursor::SavePosition)?;
 
     write!(
       stdout,
       "{}",
       format!("Test Case {}", self.test_case_index + 1).dark_yellow()
     )?;
-    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveDown(2))?;
+    stdout.queue(cursor::MoveTo(
+      GRID_COL + self.solution.program_0().cols() as u16 + 2 + 8,
+      2,
+    ))?;
 
     self.test_cases[self.test_case_index as usize].print()?;
 
@@ -128,8 +145,15 @@ impl State for EditorState {
       .queue(style::ResetColor)?
       .queue(cursor::EnableBlinking)?
       .execute(cursor::MoveTo(
-        self.cursor_col as u16 + 1,
-        self.cursor_row as u16 + 1 + 2,
+        GRID_COL + 1 + self.cursor_col as u16,
+        GRID_ROW
+          + 1
+          + self.cursor_row as u16
+          + if self.is_program_1 {
+            self.solution.program_1().cols() as u16 + 1
+          } else {
+            0
+          },
       ))?;
 
     Ok(())
@@ -153,19 +177,31 @@ impl State for EditorState {
 
         Event::Mouse(mouse) => {
           // Mouse only causes events inside the grid
-          let mouse_row = (mouse.row as isize) - 1 - 2;
-          let mouse_col = (mouse.column as isize) - 1;
+          let mouse_col = (mouse.column as isize) - 1 - GRID_COL as isize;
+          if mouse_col < 0 || mouse_col >= current_program!(self).cols() as isize {
+            continue;
+          }
+
+          let mut mouse_row = (mouse.row as isize) - 1 - GRID_ROW as isize;
           if mouse_row < 0
-            || mouse_row >= self.solution.rows() as isize
-            || mouse_col < 0
-            || mouse_col >= self.solution.cols() as isize
+            || mouse_row == self.solution.program_0().rows() as isize
+            || mouse_row >= (self.solution.program_0().rows() + self.solution.program_1().rows() + 1) as isize
           {
             continue;
           }
 
+          // Special case: handle program 0 vs 1
+          let is_program_1 = if mouse_row > self.solution.program_0().rows() as isize {
+            mouse_row = mouse_row - (self.solution.program_0().rows() + 1) as isize;
+            true
+          } else {
+            false
+          };
+
           match mouse.kind {
             // Left button just selects the space
             MouseEventKind::Down(MouseButton::Left) | MouseEventKind::Drag(MouseButton::Left) => {
+              self.is_program_1 = is_program_1;
               self.cursor_row = mouse_row;
               self.cursor_col = mouse_col;
               return Ok(Some(self));
@@ -173,6 +209,7 @@ impl State for EditorState {
 
             // Right button clears
             MouseEventKind::Down(MouseButton::Right) | MouseEventKind::Drag(MouseButton::Right) => {
+              self.is_program_1 = is_program_1;
               self.cursor_row = mouse_row;
               self.cursor_col = mouse_col;
               self.set_cell(Command::Empty);
@@ -202,19 +239,25 @@ impl State for EditorState {
 
           // Movement
           KeyCode::Up | KeyCode::Char('k') => {
-            self.cursor_row = (self.cursor_row - 1).rem_euclid(self.solution.rows() as isize);
+            if self.cursor_row == 0 {
+              self.is_program_1 = !self.is_program_1;
+            }
+            self.cursor_row = (self.cursor_row - 1).rem_euclid(current_program!(self).rows() as isize); // TODO
             return Ok(Some(self));
           },
           KeyCode::Down | KeyCode::Char('j') => {
-            self.cursor_row = (self.cursor_row + 1).rem_euclid(self.solution.rows() as isize);
+            if self.cursor_row + 1 == current_program!(self).rows() as isize {
+              self.is_program_1 = !self.is_program_1;
+            }
+            self.cursor_row = (self.cursor_row + 1).rem_euclid(current_program!(self).rows() as isize); // TODO
             return Ok(Some(self));
           },
           KeyCode::Left | KeyCode::Char('h') => {
-            self.cursor_col = (self.cursor_col - 1).rem_euclid(self.solution.cols() as isize);
+            self.cursor_col = (self.cursor_col - 1).rem_euclid(current_program!(self).cols() as isize);
             return Ok(Some(self));
           },
           KeyCode::Right | KeyCode::Char('l') => {
-            self.cursor_col = (self.cursor_col + 1).rem_euclid(self.solution.cols() as isize);
+            self.cursor_col = (self.cursor_col + 1).rem_euclid(current_program!(self).cols() as isize);
             return Ok(Some(self));
           },
 
@@ -229,10 +272,8 @@ impl State for EditorState {
           },
 
           // Breakpoint
-          KeyCode::Char(',') => {
-            self
-              .solution
-              .toggle_breakpoint(self.cursor_row as usize, self.cursor_col as usize);
+          KeyCode::Char(',') | KeyCode::Char('.') => {
+            current_program!(self).toggle_breakpoint(self.cursor_row as usize, self.cursor_col as usize);
             break;
           },
 
@@ -267,7 +308,7 @@ impl State for EditorState {
             self.set_cell(Command::BackSlash);
             break;
           },
-          KeyCode::Char('*') => {
+          KeyCode::Char('$') => {
             self.set_cell(Command::Skip);
             break;
           },
@@ -345,6 +386,11 @@ impl State for EditorState {
             self.set_cell(Command::Subtract);
             break;
           },
+          KeyCode::Char('*') if self.is_program_1 => {
+            // Only processor 1 can multiply
+            self.set_cell(Command::Multiply);
+            break;
+          },
 
           // Comparisons
           KeyCode::Char('<') => {
@@ -374,11 +420,27 @@ impl State for EditorState {
             break;
           },
 
+          // Transmit / Receive
+          KeyCode::Char('t') => {
+            self.set_cell(Command::Transmit);
+            break;
+          },
+          KeyCode::Char('r') => {
+            self.set_cell(Command::Receive);
+            break;
+          },
+          KeyCode::Char('T') => {
+            self.set_cell(Command::TryTransmit);
+            break;
+          },
+          KeyCode::Char('R') => {
+            self.set_cell(Command::TryReceive);
+            break;
+          },
+
           // Starting location
           KeyCode::Char('b') => {
-            self
-              .solution
-              .set_start(self.cursor_row as usize, self.cursor_col as usize);
+            current_program!(self).set_start(self.cursor_row as usize, self.cursor_col as usize);
             break;
           },
 

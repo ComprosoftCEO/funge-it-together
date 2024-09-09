@@ -9,8 +9,6 @@ mod state;
 mod success_state;
 mod title_state;
 
-pub use editor_state::EditorState;
-pub use execute_state::ExecuteState;
 pub use level_select_state::LevelSelectState;
 pub use show_help_state::ShowHelpState;
 pub use state::{run, State};
@@ -18,7 +16,7 @@ pub use success_state::SuccessState;
 pub use title_state::TitleState;
 
 // Print string in the same column, uses save/restore
-pub(crate) fn print_string(s: &str) -> io::Result<()> {
+pub fn print_string(s: &str) -> io::Result<()> {
   let mut stdout = io::stdout();
   stdout.queue(cursor::SavePosition)?;
 
