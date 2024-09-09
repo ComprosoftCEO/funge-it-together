@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use serde::Serialize;
 use std::error::Error;
 use std::fmt;
 use std::fs;
@@ -41,7 +42,22 @@ pub struct Level {
   id: Uuid,
   name: String,
   description: String,
+  #[serde(default)]
+  r#type: LevelType,
   lua_file: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum LevelType {
+  Standard,
+  Parallel,
+}
+
+impl Default for LevelType {
+  fn default() -> Self {
+    LevelType::Standard
+  }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -146,6 +162,10 @@ impl Level {
 
   pub fn description(&self) -> &str {
     &self.description
+  }
+
+  pub fn level_type(&self) -> LevelType {
+    self.r#type
   }
 
   #[allow(unused)]

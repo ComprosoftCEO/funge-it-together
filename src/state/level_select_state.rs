@@ -7,7 +7,8 @@ use crossterm::{cursor, event, QueueableCommand};
 
 use super::{print_string, ShowHelpState, State};
 use crate::global_state::GlobalState;
-use crate::level::{Level, LevelIndex};
+use crate::isa::{self, InstructionSetArchitecture};
+use crate::level::{Level, LevelIndex, LevelType};
 use crate::statistics::Statistics;
 
 const SEED: u32 = 0xdeadbeef;
@@ -37,6 +38,24 @@ enum LevelListEntry<'l> {
     statistics: Option<Statistics>,
   },
   LockedChallenge,
+}
+
+macro_rules! level_select_list {
+  (($self:ident, $level_index:ident, $level:expr), [ $(($match_type:pat, $isa_type:ty),)+ ]) => {
+    match $level.level_type() { $(
+      $match_type => {
+        let test_cases = match <$isa_type as InstructionSetArchitecture>::generate_test_cases($level.lua_file(), SEED, NUM_TEST_CASES) {
+          Ok(t) => t,
+          Err(e) => {
+            $self.last_error = Some(format!("Failed to generate test cases: {e}"));
+            return Ok(Some($self));
+          },
+        };
+
+        return Ok(Some(Box::new(ShowHelpState::<$isa_type>::new(*$level_index, 0, test_cases))));
+      }
+    )+ }
+  };
 }
 
 impl LevelSelectState {
@@ -227,15 +246,13 @@ impl State for LevelSelectState {
           // Select Level
           KeyCode::Enter if selected_level.is_unlocked() => {
             let level = global_state.level(*level_index);
-            let test_cases = match level.generate_test_cases(SEED, NUM_TEST_CASES) {
-              Ok(t) => t,
-              Err(e) => {
-                self.last_error = Some(format!("Failed to generate test cases: {e}"));
-                return Ok(Some(self));
-              },
-            };
-
-            return Ok(Some(Box::new(ShowHelpState::new(*level_index, 0, test_cases))));
+            level_select_list!(
+              (self, level_index, level),
+              [
+                (LevelType::Standard, isa::Standard),
+                (LevelType::Parallel, isa::Parallel),
+              ]
+            );
           },
 
           _ => {},
