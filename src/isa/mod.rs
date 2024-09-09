@@ -1,3 +1,4 @@
+use std::error::Error;
 use uuid::Uuid;
 
 pub mod parallel;
@@ -14,6 +15,8 @@ static COPY_STR: &str = " (Copy)";
 pub trait InstructionSetArchitecture {
   type Solution: Solution;
   type Puzzle;
+
+  fn generate_test_cases(lua_file: &str, seed: u32, n: usize) -> Result<Vec<Self::Puzzle>, Box<dyn Error>>;
 }
 
 /// Any solution type should implement this interface
