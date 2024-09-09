@@ -6,8 +6,9 @@ use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
 use super::{print_string, ShowHelpState, State};
-use crate::global_state::{GlobalState, Statistics};
+use crate::global_state::GlobalState;
 use crate::level::{Level, LevelIndex};
+use crate::statistics::Statistics;
 
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;

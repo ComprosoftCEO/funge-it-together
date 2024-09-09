@@ -4,7 +4,7 @@ use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
 
-use super::{EditorState, LevelSelectState, State};
+use super::{LevelSelectState, State};
 use crate::global_state::GlobalState;
 use crate::level::LevelIndex;
 use crate::statistics::Statistics;
@@ -13,11 +13,11 @@ pub struct SuccessState {
   level_index: LevelIndex,
   statistics: Statistics,
   best: Statistics,
-  editor: EditorState,
+  editor: Box<dyn State>,
 }
 
 impl SuccessState {
-  pub fn new(level_index: LevelIndex, statistics: Statistics, best: Statistics, editor: EditorState) -> Self {
+  pub fn new(level_index: LevelIndex, statistics: Statistics, best: Statistics, editor: Box<dyn State>) -> Self {
     Self {
       level_index,
       statistics,
@@ -72,7 +72,7 @@ impl State for SuccessState {
           },
 
           KeyCode::Enter => return Ok(Some(Box::new(LevelSelectState::new(self.level_index, state)))),
-          KeyCode::Esc => return Ok(Some(Box::new(self.editor))),
+          KeyCode::Esc => return Ok(Some(self.editor)),
 
           _ => {},
         },

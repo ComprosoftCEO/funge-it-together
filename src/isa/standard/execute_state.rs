@@ -110,7 +110,7 @@ impl ExecuteState {
             self.level_index,
             statistics,
             best,
-            self.editor,
+            Box::new(self.editor),
           )));
         }
 
