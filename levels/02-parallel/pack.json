@@ -1,0 +1,70 @@
+{
+  "levels": [
+    [
+      {
+        "id": "37399a9b-0748-46b6-935b-30d7b9e53882",
+        "name": "Sum and Product",
+        "description": "Read x from processor 0 input and y from processor 1 input.\nOutput x + y to processor 0 and x * y to processor 1.\n\n\nConstraints:\n∙ -9 ≤ x,y ≤ 9",
+        "luaFile": "sum-product.lua"
+      },
+      {
+        "id": "07a46c54-3913-4c0d-aa74-67949dacbf6e",
+        "name": "Swap Stacks",
+        "description": "Read all input from processor 0 and output to processor 1.\nRead all input from processor 1 and output to processor 0.\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ Each processor has 1 to 8 inputs",
+        "luaFile": "swap-stacks.lua"
+      },
+      {
+        "id": "01bb9405-65a8-46fd-bdad-8c2d2b3e6a00",
+        "name": "Extended Absolute Value",
+        "description": "Read an input x from processor 0.\n\nOutput the absolute value |x| to processor 0.\nOutput the sign of x to processor 1:\n∙ +1 if positive\n∙ -1 if negative\n∙  0 otherwise\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+        "luaFile": "abs-sign.lua"
+      }
+    ],
+    [
+      {
+        "id": "aaf544b6-3cf7-4ffd-87b4-920eddd6bde2",
+        "name": "Manhattan Distance",
+        "description": "A taxi driver visits various grid coordinates while driving in New York City.\nAssume the car only moves vertically and horizontally, never diagonally.\nFind out the total distance traveled.\n\nRead x coordinate from processor 0 and y coordinate from processor 1.\nOutput the total distance to both processors.\n\nConstraints:\n∙ 0 ≤ x,y ≤ 99\n∙ The taxi visits 1 to 7 (x,y) coordinates\n∙ Total distance traveled ≤ 999",
+        "luaFile": "manhattan-distance.lua"
+      },
+      {
+        "id": "97964639-2aed-405f-8b77-5c62fce71877",
+        "name": "Triangle - Factorial",
+        "description": "Read input x from processor 0, and output 1 + 2 + ... + x to processor 1.\n\nRead input y from processor 1, and output y! = 1 * 2 * ... * y to processor 0.\n\n\nConstraints:\n∙ 0 ≤ x ≤ 44\n∙ 0 ≤ y ≤ 6",
+        "luaFile": "triangle-factorial.lua"
+      },
+      {
+        "id": "b2f4f0e6-7771-40e7-a683-b253f5fe1a8f",
+        "name": "Exponentiation",
+        "description": "Read x from processor 0 input and b from processor 1 input.\nOutput b^x to processor 0 and x to processor 1.\nRecall that b^0 = 1 for any b (except 0^0, which is undefined).\n\n\nConstraints:\n∙ 0 ≤ b,x ≤ 9\n∙ x^y will not overflow\n∙ Will not ask for 0^0",
+        "luaFile": "exponent.lua"
+      },
+      {
+        "id": "17ad7316-9a20-46a5-ad74-589ec3b2b940",
+        "name": "Interwoven",
+        "description": "Read all inputs from processor 0. Output odd indexes (1, 3, 5, …) to processor 0.\nOutput even indexes (2, 4, 6 …) to processor 1.\n\nRead all inputs from processor 1. Output odd indexes (1, 3, 5, …) to processor 0.\nOutput even indexes (2, 4, 6, …) to processor 1.\n\n\nConstraints:\n∙ -999 ≤ Input ≤ 999",
+        "luaFile": "interwoven.lua"
+      }
+    ],
+    [
+      {
+        "id": "54453fdc-c0a5-442b-9e3c-bc1d228970c0",
+        "name": "Matrix Multiplication",
+        "description": "Read the coefficients of a 2x2 matrix A from processor 1 input: a, b, c, d.\nOutput the determinant the matrix |A| to processor 1 output.\n\nRead a sequence of 2x1 vectors X from processor 0 input: x, y\nOutput the matrix product A*X to processor 0 output.\n\nA = │a b│   X = │x|     A*X = |ax + by|                 |A| = ad - bc\n    │c d│       |y|           |cx + dy|\n\nFor example:\n\nA = |5 9|  X = | 1|     A*X = |5*1 + 9*(-6)| = |-49|    |A| = 5*8 - 9*4\n    |4 8|      |-6|           |4*1 + 8*(-6)|   |-47|        = 4\n\nConstraints:\n∙ Matrix operations can be computed without overflow",
+        "luaFile": "matrix.lua"
+      },
+      {
+        "id": "e08d131c-d9ae-4d77-8ada-a3834e0b62c4",
+        "name": "Filter List",
+        "description": "Read a list of values from processor 1 input.\nThen, read each input x from processor 0:\n- If x is in the list, output x to processor 1.\n- Otherwise, output x to processor 0.\n\n\nConstraints:\n∙ -99 ≤ Input ≤ 99\n∙ 1 ≤ Length of filter list ≤ 4",
+        "luaFile": "filter-list.lua"
+      },
+      {
+        "id": "fe8181f1-4759-42aa-a496-9c1d65e8e325",
+        "name": "Polynomial",
+        "description": "Output all integer solutions to the polynomial to processor 0.\nCoefficients are passed in to processor 1 from x^n, x^(n-1), ... x^1, x^0.\nOutput from smallest to largest. Only output duplicate solutions once.\nHint: use Horner's Method for computing the polynomial.\n\nExample:\n∙ P1 Input: 1 6 9 -4 -12     (x^4 + 6x^3 + 9x^2 - 4x - 12)\n∙ P0 Output: -3 -2 1         (x + 3) * (x + 2)^2 * (x - 1)\n\nConstraints:\n∙ -999 ≤ Input ≤ 999\n∙ ┌───Degree───╥─x^2 ─┬─x^3 ─┬─x^4 ─┬─x^5 ─┐\n  ├────────────╫──────┼──────┼──────┼──────┤\n  │Output Range║[-9,9]│[-7,7]│[-5,5]│[-3,3]│\n  └────────────╨──────┴──────┴──────┴──────┘ \n∙ Polynomial can be computed without overflow",
+        "luaFile": "polynomial.lua"
+      }
+    ]
+  ]
+}
