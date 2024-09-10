@@ -1,13 +1,16 @@
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, BufReader, ErrorKind};
 use std::iter;
 use std::path::Path;
 use uuid::Uuid;
 
 use crate::global_state::GlobalState;
+
+const LEVELS_FOLDER: &str = "levels";
+const PACK_FILE: &str = "pack.json";
 
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -79,10 +82,6 @@ impl LevelPack {
     &self.folder
   }
 
-  pub fn load() -> io::Result<Self> {
-    Self::from_file("levels/01-standard/pack.json")
-  }
-
   pub fn level_groups(&self) -> &Vec<LevelGroup> {
     &self.groups
   }
@@ -106,10 +105,21 @@ impl LevelPack {
   ///   Returns an error if there are no levels inside the pack file
   ///
   fn from_file<P: AsRef<Path>>(json_pack_file: P) -> io::Result<Self> {
+    let parent_folder = json_pack_file
+      .as_ref()
+      .parent()
+      .map(Path::to_str)
+      .flatten()
+      .unwrap_or("")
+      .to_string();
+
     // Parse the level as a JSON file
     let file = File::open(json_pack_file)?;
     let reader = BufReader::new(file);
     let mut me: Self = serde_json::from_reader(reader)?;
+
+    // Set the parent folder from the path
+    me.folder = parent_folder;
 
     // Remove any groups that have no levels
     me.groups.retain(|g| !g.0.is_empty());
@@ -251,4 +261,50 @@ impl fmt::Display for LevelIndex {
       write!(f, "{}{}", self.group + 1, level_index)
     }
   }
+}
+
+pub fn load_all_level_packs() -> io::Result<Vec<LevelPack>> {
+  let level_packs: Vec<LevelPack> = fs::read_dir(LEVELS_FOLDER)?
+    // Skip any errors from traversing the directory
+    .filter_map(|entry| match entry {
+      Ok(entry) => Some(entry),
+      Err(e) => {
+        println!("Failed to traverse \"{LEVELS_FOLDER}\" directory: {e}");
+        None
+      },
+    })
+    // Search all directories in the levels folder
+    .filter(|entry| entry.file_type().map(|t| t.is_dir()).unwrap_or(false))
+    // Make sure the directory has a pack JSON file
+    .filter_map(|entry| {
+      let mut pack_file_path = entry.path();
+      pack_file_path.push(PACK_FILE);
+
+      pack_file_path.exists().then_some(pack_file_path)
+    })
+    // Skip level packs that fail to load
+    .filter_map(|pack_file_path| match LevelPack::from_file(&pack_file_path) {
+      Ok(level_pack) => {
+        println!("Loaded level pack: {}", pack_file_path.to_string_lossy());
+        Some(level_pack)
+      },
+      Err(e) => {
+        println!(
+          "Failed to load level pack: {}\n  - Error: {e}",
+          pack_file_path.to_string_lossy()
+        );
+        None
+      },
+    })
+    .collect();
+
+  // Make sure we loaded at least one level pack
+  if level_packs.is_empty() {
+    Err(io::Error::new(
+      ErrorKind::InvalidData,
+      format!("No valid level packs found in the \"{LEVELS_FOLDER}\" folder"),
+    ))?;
+  }
+
+  Ok(level_packs)
 }

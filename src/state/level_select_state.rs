@@ -275,18 +275,20 @@ impl State for LevelSelectState {
           },
 
           // Level pack movement
-          KeyCode::Left | KeyCode::Char('h') => {
+          KeyCode::Left | KeyCode::Char('h') if self.selected_level_pack_index > 0 => {
             self.last_error = None;
             self.selected_level_pack_index =
               (self.selected_level_pack_index as isize - 1).rem_euclid(num_level_packs as isize) as usize;
+            self.page_offset = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
-          KeyCode::Right | KeyCode::Char('l') => {
+          KeyCode::Right | KeyCode::Char('l') if self.selected_level_pack_index < num_level_packs - 1 => {
             self.last_error = None;
             self.selected_level_pack_index =
               (self.selected_level_pack_index as isize + 1).rem_euclid(num_level_packs as isize) as usize;
+            self.page_offset = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));

@@ -27,9 +27,9 @@ pub struct GlobalState {
 }
 
 impl GlobalState {
-  pub fn load(levels: LevelPack) -> Self {
+  pub fn load(level_packs: Vec<LevelPack>) -> Self {
     let mut state = Self::from_file(SAVE_FILE).unwrap_or_default();
-    state.level_packs = vec![levels];
+    state.level_packs = level_packs;
     state
   }
 
