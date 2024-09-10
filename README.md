@@ -24,6 +24,8 @@ Then run the command:
 cargo run
 ```
 
+You can also use the provided build script `build.sh` (Linux / MacOS) or `build.bat` (Windows) to create a .zip file with everything needed to run the program.
+
 <br />
 
 ## Command-Line Interface
