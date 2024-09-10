@@ -23,7 +23,7 @@ static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___
 
 pub struct LevelSelectState {
   selected_level_pack_index: usize,
-  selected_level_index: usize,
+  selected_level_indexes: Vec<usize>,
   last_error: Option<String>,
   saved: bool,
   page_offset: usize,
@@ -66,9 +66,12 @@ impl LevelSelectState {
       .get_level_pack(selected_level_pack_index)
       .get_absolute_index(level_index);
 
+    let mut selected_level_indexes = vec![0; global_state.num_level_packs()];
+    selected_level_indexes[selected_level_pack_index] = selected_level_index;
+
     let mut state = Self {
       selected_level_pack_index,
-      selected_level_index,
+      selected_level_indexes,
       last_error: None,
       saved: false,
       page_offset: 0,
@@ -79,7 +82,8 @@ impl LevelSelectState {
 
   fn fix_page_offset(&mut self) {
     loop {
-      match (self.selected_level_index as isize) - (self.page_offset as isize) {
+      let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
+      match (selected_level_index as isize) - (self.page_offset as isize) {
         x if x >= (LEVELS_PER_PAGE as isize) => {
           self.page_offset += 1;
         },
@@ -189,13 +193,14 @@ impl State for LevelSelectState {
 
     let level_list = self.get_flattened_level_list(global_state);
 
+    let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
     for ((level_entry, level_index), absolute_index) in level_list
       .iter()
       .skip(self.page_offset)
       .take(LEVELS_PER_PAGE)
       .zip((self.page_offset + 1)..)
     {
-      if (self.selected_level_index + 1) == absolute_index {
+      if (selected_level_index + 1) == absolute_index {
         write!(stdout, "{} ", "►".green())?;
       } else {
         write!(stdout, "  ")?;
@@ -228,7 +233,8 @@ impl State for LevelSelectState {
     let level_list = self.get_flattened_level_list(global_state);
 
     let num_options = level_list.len();
-    let (selected_level, level_index) = &level_list[self.selected_level_index];
+    let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
+    let (selected_level, level_index) = &level_list[selected_level_index];
 
     loop {
       // `read()` blocks until an `Event` is available
@@ -253,16 +259,16 @@ impl State for LevelSelectState {
           // Level Movement
           KeyCode::Up | KeyCode::Char('k') => {
             self.last_error = None;
-            self.selected_level_index =
-              (self.selected_level_index as isize - 1).rem_euclid(num_options as isize) as usize;
+            self.selected_level_indexes[self.selected_level_pack_index] =
+              (selected_level_index as isize - 1).rem_euclid(num_options as isize) as usize;
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
           KeyCode::Down | KeyCode::Char('j') => {
             self.last_error = None;
-            self.selected_level_index =
-              (self.selected_level_index as isize + 1).rem_euclid(num_options as isize) as usize;
+            self.selected_level_indexes[self.selected_level_pack_index] =
+              (selected_level_index as isize + 1).rem_euclid(num_options as isize) as usize;
             self.fix_page_offset();
 
             return Ok(Some(self));
@@ -273,7 +279,6 @@ impl State for LevelSelectState {
             self.last_error = None;
             self.selected_level_pack_index =
               (self.selected_level_pack_index as isize - 1).rem_euclid(num_level_packs as isize) as usize;
-            self.selected_level_index = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));
@@ -282,7 +287,6 @@ impl State for LevelSelectState {
             self.last_error = None;
             self.selected_level_pack_index =
               (self.selected_level_pack_index as isize + 1).rem_euclid(num_level_packs as isize) as usize;
-            self.selected_level_index = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));
