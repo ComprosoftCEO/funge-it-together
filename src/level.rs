@@ -264,7 +264,7 @@ impl fmt::Display for LevelIndex {
 }
 
 pub fn load_all_level_packs() -> io::Result<Vec<LevelPack>> {
-  let level_packs: Vec<LevelPack> = fs::read_dir(LEVELS_FOLDER)?
+  let mut level_packs: Vec<LevelPack> = fs::read_dir(LEVELS_FOLDER)?
     // Skip any errors from traversing the directory
     .filter_map(|entry| match entry {
       Ok(entry) => Some(entry),
@@ -305,6 +305,9 @@ pub fn load_all_level_packs() -> io::Result<Vec<LevelPack>> {
       format!("No valid level packs found in the \"{LEVELS_FOLDER}\" folder"),
     ))?;
   }
+
+  // Sort the levels by folder name to keep the order consistent
+  level_packs.sort_by(|a, b| a.folder.cmp(&b.folder));
 
   Ok(level_packs)
 }

@@ -171,6 +171,10 @@ impl State for LevelSelectState {
     }
 
     // Level pack selector
+    let level_pack_name = global_state.get_level_pack(self.selected_level_pack_index).name();
+    write!(stdout, "{level_pack_name:^len$}", len = MIN_TERMINAL_WIDTH as usize)?;
+    stdout.queue(cursor::MoveToNextLine(1))?;
+
     let left_arrow = if self.selected_level_pack_index > 0 { '←' } else { ' ' };
     let right_arrow = if self.selected_level_pack_index < global_state.num_level_packs() - 1 {
       '→'
@@ -178,14 +182,10 @@ impl State for LevelSelectState {
       ' '
     };
 
-    let level_pack_str = format!(
-      "{left_arrow} {:^40} {right_arrow}",
-      global_state.get_level_pack(self.selected_level_pack_index).name(),
-    );
+    let arrows = format!("{left_arrow} {right_arrow}");
+    write!(stdout, "{arrows:^len$}", len = MIN_TERMINAL_WIDTH as usize)?;
 
-    write!(stdout, "{:^len$}", level_pack_str, len = MIN_TERMINAL_WIDTH as usize)?;
-    stdout.queue(cursor::MoveToNextLine(1))?;
-
+    stdout.queue(cursor::MoveToColumn(0))?;
     if self.page_offset > 0 {
       write!(stdout, "↑")?;
     }
