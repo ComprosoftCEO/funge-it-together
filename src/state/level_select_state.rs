@@ -5,7 +5,7 @@ use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
-use super::{print_string, ShowHelpState, State};
+use super::{print_string, ShowHelpState, State, MIN_TERMINAL_WIDTH};
 use crate::global_state::GlobalState;
 use crate::isa::{self, InstructionSetArchitecture};
 use crate::level::{Level, LevelIndex, LevelType};
@@ -22,7 +22,8 @@ static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___
 "#;
 
 pub struct LevelSelectState {
-  selected_level_index: isize,
+  selected_level_pack_index: usize,
+  selected_level_index: usize,
   last_error: Option<String>,
   saved: bool,
   page_offset: usize,
@@ -60,8 +61,13 @@ macro_rules! level_select_list {
 
 impl LevelSelectState {
   pub fn new(level_index: LevelIndex, global_state: &GlobalState) -> Self {
-    let selected_level_index = global_state.get_pack().get_absolute_index(level_index) as isize;
+    let selected_level_pack_index = level_index.get_level_pack_index();
+    let selected_level_index = global_state
+      .get_level_pack(selected_level_pack_index)
+      .get_absolute_index(level_index);
+
     let mut state = Self {
+      selected_level_pack_index,
       selected_level_index,
       last_error: None,
       saved: false,
@@ -73,7 +79,7 @@ impl LevelSelectState {
 
   fn fix_page_offset(&mut self) {
     loop {
-      match self.selected_level_index - self.page_offset as isize {
+      match (self.selected_level_index as isize) - (self.page_offset as isize) {
         x if x >= (LEVELS_PER_PAGE as isize) => {
           self.page_offset += 1;
         },
@@ -90,7 +96,7 @@ impl LevelSelectState {
 
     let mut take_next_group = true; // We always take the first group
     let unlocked_groups: Vec<_> = global_state
-      .get_pack()
+      .get_level_pack(self.selected_level_pack_index)
       .level_groups()
       .iter()
       .take_while(|lg| {
@@ -121,7 +127,10 @@ impl LevelSelectState {
                 LockedChallenge
               };
               prev_level = cl;
-              (ret_val, LevelIndex::new_challenge(group, level_in_group, challenge))
+              (
+                ret_val,
+                LevelIndex::new_challenge(self.selected_level_pack_index, group, level_in_group, challenge),
+              )
             });
 
             // The main level and any challenge levels
@@ -130,7 +139,7 @@ impl LevelSelectState {
                 level: level.level(),
                 statistics: global_state.get_statistics(level.level().id()),
               },
-              LevelIndex::new(group, level_in_group),
+              LevelIndex::new(self.selected_level_pack_index, group, level_in_group),
             ))
             .chain(challenges_list)
           })
@@ -157,7 +166,20 @@ impl State for LevelSelectState {
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
 
-    write!(stdout, "Level Select:")?;
+    // Level pack selector
+    let left_arrow = if self.selected_level_pack_index > 0 { '←' } else { ' ' };
+    let right_arrow = if self.selected_level_pack_index < global_state.num_level_packs() - 1 {
+      '→'
+    } else {
+      ' '
+    };
+
+    let level_pack_str = format!(
+      "{left_arrow} {:^40} {right_arrow}",
+      global_state.get_level_pack(self.selected_level_pack_index).name(),
+    );
+
+    write!(stdout, "{:^len$}", level_pack_str, len = MIN_TERMINAL_WIDTH as usize)?;
     stdout.queue(cursor::MoveToNextLine(1))?;
 
     if self.page_offset > 0 {
@@ -173,7 +195,7 @@ impl State for LevelSelectState {
       .take(LEVELS_PER_PAGE)
       .zip((self.page_offset + 1)..)
     {
-      if (self.selected_level_index + 1) == (absolute_index as isize) {
+      if (self.selected_level_index + 1) == absolute_index {
         write!(stdout, "{} ", "►".green())?;
       } else {
         write!(stdout, "  ")?;
@@ -202,10 +224,11 @@ impl State for LevelSelectState {
   }
 
   fn execute(mut self: Box<Self>, global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
+    let num_level_packs = global_state.num_level_packs();
     let level_list = self.get_flattened_level_list(global_state);
 
     let num_options = level_list.len();
-    let (selected_level, level_index) = &level_list[self.selected_level_index as usize];
+    let (selected_level, level_index) = &level_list[self.selected_level_index];
 
     loop {
       // `read()` blocks until an `Event` is available
@@ -227,17 +250,39 @@ impl State for LevelSelectState {
           // Close the game
           KeyCode::Esc => return Ok(None),
 
-          // Movement
+          // Level Movement
           KeyCode::Up | KeyCode::Char('k') => {
             self.last_error = None;
-            self.selected_level_index = (self.selected_level_index - 1).rem_euclid(num_options as isize);
+            self.selected_level_index =
+              (self.selected_level_index as isize - 1).rem_euclid(num_options as isize) as usize;
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
           KeyCode::Down | KeyCode::Char('j') => {
             self.last_error = None;
-            self.selected_level_index = (self.selected_level_index + 1).rem_euclid(num_options as isize);
+            self.selected_level_index =
+              (self.selected_level_index as isize + 1).rem_euclid(num_options as isize) as usize;
+            self.fix_page_offset();
+
+            return Ok(Some(self));
+          },
+
+          // Level pack movement
+          KeyCode::Left | KeyCode::Char('h') => {
+            self.last_error = None;
+            self.selected_level_pack_index =
+              (self.selected_level_pack_index as isize - 1).rem_euclid(num_level_packs as isize) as usize;
+            self.selected_level_index = 0;
+            self.fix_page_offset();
+
+            return Ok(Some(self));
+          },
+          KeyCode::Right | KeyCode::Char('l') => {
+            self.last_error = None;
+            self.selected_level_pack_index =
+              (self.selected_level_pack_index as isize + 1).rem_euclid(num_level_packs as isize) as usize;
+            self.selected_level_index = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));

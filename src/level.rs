@@ -13,8 +13,12 @@ use crate::global_state::GlobalState;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelPack {
+  name: String,
   #[serde(rename = "levels")]
   groups: Vec<LevelGroup>,
+
+  #[serde(skip)]
+  folder: String,
 }
 
 /// Stores a group of levels that all unlock at once
@@ -60,14 +64,23 @@ impl Default for LevelType {
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct LevelIndex {
+  pack_index: usize,
   group: usize,
   level_in_group: usize,
   challenge: Option<usize>,
 }
 
 impl LevelPack {
+  pub fn name(&self) -> &String {
+    &self.name
+  }
+
+  pub fn folder(&self) -> &String {
+    &self.folder
+  }
+
   pub fn load() -> io::Result<Self> {
-    Self::from_file("levels/pack.json")
+    Self::from_file("levels/01-standard/pack.json")
   }
 
   pub fn level_groups(&self) -> &Vec<LevelGroup> {
@@ -181,20 +194,26 @@ impl Level {
 }
 
 impl LevelIndex {
-  pub fn new(group: usize, level_in_group: usize) -> Self {
+  pub fn new(pack_index: usize, group: usize, level_in_group: usize) -> Self {
     Self {
+      pack_index,
       group,
       level_in_group,
       challenge: None,
     }
   }
 
-  pub fn new_challenge(group: usize, level_in_group: usize, challenge: usize) -> Self {
+  pub fn new_challenge(pack_index: usize, group: usize, level_in_group: usize, challenge: usize) -> Self {
     Self {
+      pack_index,
       group,
       level_in_group,
       challenge: Some(challenge),
     }
+  }
+
+  pub fn get_level_pack_index(&self) -> usize {
+    self.pack_index
   }
 
   pub fn get_group(&self) -> usize {

@@ -9,7 +9,8 @@ mod title_state;
 
 pub use level_select_state::LevelSelectState;
 pub use show_help_state::ShowHelpState;
-pub use state::{run, State};
+#[allow(unused)]
+pub use state::{run, State, MIN_TERMINAL_HEIGHT, MIN_TERMINAL_WIDTH};
 pub use success_state::SuccessState;
 pub use title_state::TitleState;
 

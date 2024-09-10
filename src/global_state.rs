@@ -23,13 +23,13 @@ pub struct GlobalState {
   unlocked: HashMap<Uuid, Statistics>,
 
   #[serde(skip)]
-  pack: LevelPack,
+  level_packs: Vec<LevelPack>,
 }
 
 impl GlobalState {
   pub fn load(levels: LevelPack) -> Self {
     let mut state = Self::from_file(SAVE_FILE).unwrap_or_default();
-    state.pack = levels;
+    state.level_packs = vec![levels];
     state
   }
 
@@ -47,13 +47,18 @@ impl GlobalState {
     Ok(())
   }
 
-  pub fn get_pack(&self) -> &LevelPack {
-    &self.pack
+  #[inline]
+  pub fn num_level_packs(&self) -> usize {
+    self.level_packs.len()
+  }
+
+  #[inline]
+  pub fn get_level_pack(&self, pack_index: usize) -> &LevelPack {
+    &self.level_packs[pack_index]
   }
 
   pub fn level(&self, index: LevelIndex) -> &Level {
-    let main_level = self
-      .pack
+    let main_level = self.level_packs[index.get_level_pack_index()]
       .level_group(index.get_group())
       .main_level(index.get_level_in_group());
     if let Some(challenge) = index.get_challenge() {
