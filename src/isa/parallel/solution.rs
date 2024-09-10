@@ -8,6 +8,9 @@ use crate::grid::Grid;
 use crate::isa;
 use crate::printable::Printable;
 
+// Parallel levels use an 8x8 grid
+const GRID_SIZE: usize = 8;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Solution {
@@ -132,7 +135,7 @@ impl Program {
 impl Default for Program {
   fn default() -> Self {
     Self {
-      grid: Grid::default(),
+      grid: Grid::new(GRID_SIZE, GRID_SIZE),
       start_row: 0,
       start_col: 0,
     }

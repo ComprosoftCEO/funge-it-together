@@ -6,8 +6,6 @@ use std::io::{self, Write};
 
 use crate::printable::Printable;
 
-const DEFAULT_GRID_SIZE: usize = 10;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Grid<C> {
   values: Vec<Vec<C>>,
@@ -80,15 +78,6 @@ where
       .iter()
       .map(|row| row.iter().filter(|x| **x != default).count())
       .sum()
-  }
-}
-
-impl<C> Default for Grid<C>
-where
-  C: Default + Clone,
-{
-  fn default() -> Self {
-    Self::new(DEFAULT_GRID_SIZE, DEFAULT_GRID_SIZE)
   }
 }
 

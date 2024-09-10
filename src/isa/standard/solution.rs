@@ -8,6 +8,9 @@ use crate::grid::Grid;
 use crate::isa;
 use crate::printable::Printable;
 
+// Standard levels use a 10x10 grid
+const GRID_SIZE: usize = 10;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Solution {
@@ -86,7 +89,7 @@ impl Default for Solution {
   fn default() -> Self {
     Self {
       name: "New Solution".into(),
-      grid: Grid::default(),
+      grid: Grid::new(GRID_SIZE, GRID_SIZE),
       start_row: 0,
       start_col: 0,
     }
