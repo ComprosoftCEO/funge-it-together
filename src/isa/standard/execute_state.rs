@@ -23,7 +23,7 @@ static INSTRUCTIONS: &str = r#"
 │Tab    = Step
 │Space  = Start/Stop
 │1-6    = Set Speed
-│,      = Breakpoint
+│, .    = Breakpoint
 │
 │
 │
@@ -247,7 +247,7 @@ impl State for ExecuteState {
           },
 
           // Breakpoint
-          KeyCode::Char(',') if self.speed == Speed::None => {
+          KeyCode::Char(',') | KeyCode::Char('.') if self.speed == Speed::None => {
             let current_vm = &mut self.vms[self.test_case];
             let row = current_vm.row();
             let col = current_vm.col();
