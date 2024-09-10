@@ -25,9 +25,14 @@ impl InstructionSetArchitecture for Parallel {
   ///
   /// Load and run the Lua code to generate the puzzles
   ///
-  fn generate_test_cases(lua_file: &str, seed: u32, n: usize) -> Result<Vec<Self::Puzzle>, Box<dyn Error>> {
+  fn generate_test_cases(
+    folder: &str,
+    lua_file: &str,
+    seed: u32,
+    n: usize,
+  ) -> Result<Vec<Self::Puzzle>, Box<dyn Error>> {
     // Try to load the Lua code file into memory
-    let lua_code = fs::read_to_string(format!("levels/{}", lua_file))?;
+    let lua_code = fs::read_to_string(format!("{folder}/{lua_file}"))?;
 
     // Generate and run the code within the Lua context
     let test_cases = Lua::new().context::<_, LuaResult<Vec<Self::Puzzle>>>(|ctx| {
@@ -35,7 +40,7 @@ impl InstructionSetArchitecture for Parallel {
 
       // Add the levels folder to the path
       ctx
-        .load(&format!(r#"package.path = "./levels/?.lua;" .. package.path"#))
+        .load(&format!(r#"package.path = "./{folder}/?.lua;" .. package.path"#))
         .exec()?;
 
       // Seed the random number generator

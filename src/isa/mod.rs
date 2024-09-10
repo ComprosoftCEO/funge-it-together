@@ -17,7 +17,12 @@ pub trait InstructionSetArchitecture {
   type Solution: Solution;
   type Puzzle;
 
-  fn generate_test_cases(lua_file: &str, seed: u32, n: usize) -> Result<Vec<Self::Puzzle>, Box<dyn Error>>;
+  fn generate_test_cases(
+    folder: &str,
+    lua_file: &str,
+    seed: u32,
+    n: usize,
+  ) -> Result<Vec<Self::Puzzle>, Box<dyn Error>>;
 
   fn open_editor(
     level_index: LevelIndex,

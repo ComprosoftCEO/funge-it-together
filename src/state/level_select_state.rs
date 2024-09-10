@@ -42,10 +42,10 @@ enum LevelListEntry<'l> {
 }
 
 macro_rules! level_select_list {
-  (($self:ident, $level_index:ident, $level:expr), [ $(($match_type:pat, $isa_type:ty),)+ ]) => {
+  (($self:ident, $level_pack:expr, $level_index:expr, $level:expr), [ $(($match_type:pat, $isa_type:ty),)+ ]) => {
     match $level.level_type() { $(
       $match_type => {
-        let test_cases = match <$isa_type as InstructionSetArchitecture>::generate_test_cases($level.lua_file(), SEED, NUM_TEST_CASES) {
+        let test_cases = match <$isa_type as InstructionSetArchitecture>::generate_test_cases($level_pack.folder(), $level.lua_file(), SEED, NUM_TEST_CASES) {
           Ok(t) => t,
           Err(e) => {
             $self.last_error = Some(format!("Failed to generate test cases: {e}"));
@@ -296,9 +296,10 @@ impl State for LevelSelectState {
 
           // Select Level
           KeyCode::Enter if selected_level.is_unlocked() => {
+            let level_pack = global_state.get_level_pack(self.selected_level_pack_index);
             let level = global_state.level(*level_index);
             level_select_list!(
-              (self, level_index, level),
+              (self, level_pack, level_index, level),
               [
                 (LevelType::Standard, isa::Standard),
                 (LevelType::Parallel, isa::Parallel),
