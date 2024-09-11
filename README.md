@@ -180,6 +180,9 @@ Transmission instructions can either be blocking or non-blocking.
 Blocking instructions will halt the processor until the data becomes available.
 Non-blocking instructions will skip the next instruction if the other processor is not sending or receiving data.
 
+The processor will throw an error if synchronization instructions cause a deadlock.
+This can happen if both processors are blocked receiving, or both processors are blocked transmitting.
+
 | Instruction  | Symbol | Blocking? | Description                                                                                                                                                                                                                              |
 | :----------- | :----: | :-------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Transmit     |  `τ`   |    Yes    | Pop an item off this processor's stack and transmit it to the other processor. Blocks the current processor if the other processor is not receiving.                                                                                     |
