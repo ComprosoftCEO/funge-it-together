@@ -2,7 +2,6 @@ use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
 use std::cell::{RefCell, RefMut};
-use std::cmp;
 use std::collections::VecDeque;
 use std::io::{self, Write};
 use std::rc::{Rc, Weak};
@@ -545,7 +544,7 @@ impl Processor {
   }
 
   fn push(&mut self, val: i16) -> Result<(), VMError> {
-    if val != clamp(val) {
+    if val != val.clamp(VAL_MIN, VAL_MAX) {
       return Err(VMError::NumericOverflow);
     }
 
@@ -698,7 +697,7 @@ impl Printable for VirtualMachine {
 
     stdout
       .queue(cursor::RestorePosition)?
-      .queue(cursor::MoveDown(self.height() as u16 + 1))?;
+      .queue(cursor::MoveDown(self.height() + 1))?;
     write!(stdout, "{} {}", "Cycle:".dark_cyan(), self.cycle)?;
 
     stdout.queue(cursor::RestorePosition)?;
@@ -774,7 +773,7 @@ impl Stack {
   // Returns false if the stack overflows
   pub fn push(&mut self, val: i16) -> bool {
     if self.values.len() < MAX_STACK_ENTRIES {
-      self.values.push_back(clamp(val));
+      self.values.push_back(val.clamp(VAL_MIN, VAL_MAX));
       true
     } else {
       false
@@ -805,11 +804,6 @@ impl Stack {
       Some(v) => self.values.push_back(v),
     }
   }
-}
-
-#[inline]
-fn clamp(input: i16) -> i16 {
-  cmp::min(cmp::max(input, VAL_MIN), VAL_MAX)
 }
 
 impl Printable for Stack {

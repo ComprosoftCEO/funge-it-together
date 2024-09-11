@@ -1,7 +1,6 @@
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
-use std::cmp;
 use std::collections::VecDeque;
 use std::io::{self, Write};
 
@@ -366,7 +365,7 @@ impl VirtualMachine {
   }
 
   fn push(&mut self, val: i16) -> Result<(), VMError> {
-    if val != clamp(val) {
+    if val != val.clamp(VAL_MIN, VAL_MAX) {
       return Err(VMError::NumericOverflow);
     }
 
@@ -508,7 +507,7 @@ impl Stack {
   // Returns false if the stack overflows
   pub fn push(&mut self, val: i16) -> bool {
     if self.values.len() < MAX_STACK_ENTRIES {
-      self.values.push_back(clamp(val));
+      self.values.push_back(val.clamp(VAL_MIN, VAL_MAX));
       true
     } else {
       false
@@ -539,11 +538,6 @@ impl Stack {
       Some(v) => self.values.push_back(v),
     }
   }
-}
-
-#[inline]
-fn clamp(input: i16) -> i16 {
-  cmp::min(cmp::max(input, VAL_MIN), VAL_MAX)
 }
 
 impl Printable for Stack {

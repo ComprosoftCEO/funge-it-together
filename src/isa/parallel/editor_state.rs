@@ -192,7 +192,7 @@ impl State for EditorState {
 
           // Special case: handle program 0 vs 1
           let is_program_1 = if mouse_row > self.solution.program_0().rows() as isize {
-            mouse_row = mouse_row - (self.solution.program_0().rows() + 1) as isize;
+            mouse_row -= (self.solution.program_0().rows() + 1) as isize;
             true
           } else {
             false

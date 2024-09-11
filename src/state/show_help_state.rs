@@ -171,11 +171,7 @@ where
 
             // Save rename
             KeyCode::Enter if !cur_name.is_empty() => {
-              global_state.rename_solution(
-                level_id,
-                self.selected_solution_index as usize,
-                self.in_rename.take().unwrap(),
-              );
+              global_state.rename_solution(level_id, self.selected_solution_index, self.in_rename.take().unwrap());
               return Ok(Some(self));
             },
 
@@ -241,7 +237,7 @@ where
               global_state.new_solution(level_id);
               return Ok(Some(self));
             } else {
-              let solution = global_state.get_all_solutions(level_id)[self.selected_solution_index as usize].clone();
+              let solution = global_state.get_all_solutions(level_id)[self.selected_solution_index].clone();
               return Ok(Some(Box::new(ISA::open_editor(
                 self.level_index,
                 self.selected_solution_index,
@@ -270,11 +266,7 @@ where
           KeyCode::Char('^')
             if self.selected_solution_index > 0 && self.selected_solution_index < (num_options - 1) =>
           {
-            global_state.swap_solutions_order(
-              level_id,
-              self.selected_solution_index as usize - 1,
-              self.selected_solution_index as usize,
-            );
+            global_state.swap_solutions_order(level_id, self.selected_solution_index - 1, self.selected_solution_index);
 
             self.selected_solution_index -= 1;
             self.fix_page_offset();
@@ -282,11 +274,7 @@ where
             return Ok(Some(self));
           },
           KeyCode::Char('v') if (self.selected_solution_index as isize) < (num_options as isize - 2) => {
-            global_state.swap_solutions_order(
-              level_id,
-              self.selected_solution_index as usize + 1,
-              self.selected_solution_index as usize,
-            );
+            global_state.swap_solutions_order(level_id, self.selected_solution_index + 1, self.selected_solution_index);
 
             self.selected_solution_index += 1;
             self.fix_page_offset();

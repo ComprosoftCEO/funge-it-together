@@ -52,17 +52,12 @@ pub struct Level {
   lua_file: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum LevelType {
+  #[default]
   Standard,
   Parallel,
-}
-
-impl Default for LevelType {
-  fn default() -> Self {
-    LevelType::Standard
-  }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -108,8 +103,7 @@ impl LevelPack {
     let parent_folder = json_pack_file
       .as_ref()
       .parent()
-      .map(Path::to_str)
-      .flatten()
+      .and_then(Path::to_str)
       .unwrap_or("")
       .to_string();
 

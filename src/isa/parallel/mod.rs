@@ -60,8 +60,8 @@ impl InstructionSetArchitecture for Parallel {
           let (p0_inputs, p0_outputs, p1_inputs, p1_outputs): (Vec<i16>, Vec<i16>, Vec<i16>, Vec<i16>) =
             generate_test_case.call(())?;
 
-          let p0 = ProcessorIO::new(p0_inputs, p0_outputs).map_err(|e| LuaError::RuntimeError(e))?;
-          let p1 = ProcessorIO::new(p1_inputs, p1_outputs).map_err(|e| LuaError::RuntimeError(e))?;
+          let p0 = ProcessorIO::new(p0_inputs, p0_outputs).map_err(LuaError::RuntimeError)?;
+          let p1 = ProcessorIO::new(p1_inputs, p1_outputs).map_err(LuaError::RuntimeError)?;
           Ok(Self::Puzzle::new(p0, p1))
         })
         .collect::<Result<_, _>>()?;
