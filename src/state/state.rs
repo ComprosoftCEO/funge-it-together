@@ -10,8 +10,8 @@ use crossterm::{
 
 use crate::global_state::GlobalState;
 
-const MIN_WIDTH: u16 = 80;
-const MIN_HEIGHT: u16 = 24;
+pub const MIN_TERMINAL_WIDTH: u16 = 80;
+pub const MIN_TERMINAL_HEIGHT: u16 = 24;
 
 pub trait State {
   fn render(&mut self, global_state: &mut GlobalState) -> io::Result<()>;
@@ -35,7 +35,7 @@ pub fn run(mut state: Box<dyn State>, global_state: &mut GlobalState) -> io::Res
 
     // Special case, show a warning if the terminal is too small
     let (cols, rows) = terminal::size()?;
-    if rows < MIN_HEIGHT || cols < MIN_WIDTH {
+    if rows < MIN_TERMINAL_HEIGHT || cols < MIN_TERMINAL_WIDTH {
       if wait_for_window_resize()? {
         continue;
       }
@@ -70,7 +70,7 @@ fn wait_for_window_resize() -> io::Result<bool> {
   let mut stdout = io::stdout();
   loop {
     let (cols, rows) = terminal::size()?;
-    if rows < MIN_HEIGHT || cols < MIN_WIDTH {
+    if rows < MIN_TERMINAL_HEIGHT || cols < MIN_TERMINAL_WIDTH {
       loop {
         let (cols, rows) = terminal::size()?;
         stdout.queue(cursor::MoveTo(0, 0))?.queue(cursor::Hide)?;
@@ -78,7 +78,11 @@ fn wait_for_window_resize() -> io::Result<bool> {
         stdout.queue(cursor::MoveToNextLine(1))?;
         write!(stdout, "  ∙ Current Size: {}x{}", cols, rows)?;
         stdout.queue(cursor::MoveToNextLine(1))?;
-        write!(stdout, "  ∙ Required Size: {}x{}", MIN_WIDTH, MIN_HEIGHT)?;
+        write!(
+          stdout,
+          "  ∙ Required Size: {}x{}",
+          MIN_TERMINAL_WIDTH, MIN_TERMINAL_HEIGHT
+        )?;
         stdout.flush()?;
 
         let event = match event::read() {
@@ -87,7 +91,7 @@ fn wait_for_window_resize() -> io::Result<bool> {
         };
 
         match event {
-          Event::Resize(cols, rows) if rows >= MIN_HEIGHT && cols >= MIN_WIDTH => {
+          Event::Resize(cols, rows) if rows >= MIN_TERMINAL_HEIGHT && cols >= MIN_TERMINAL_WIDTH => {
             return Ok(true);
           },
 

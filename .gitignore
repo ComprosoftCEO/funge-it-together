@@ -1,8 +1,10 @@
 /target
 **/*.rs.bk
+.DS_Store
 
 # Vim Swap Files
 *.sw*
 
 .vscode/
 save*.json
+build*.zip

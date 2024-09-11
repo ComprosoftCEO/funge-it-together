@@ -4,20 +4,38 @@ use rand::Rng;
 use std::collections::VecDeque;
 use std::io::{self, Write};
 
-use crate::vm::{VAL_MAX, VAL_MIN};
-use crate::{printable::Printable, vm::VAL_CHAR_WIDTH};
+use super::vm::{VAL_CHAR_WIDTH, VAL_MAX, VAL_MIN};
+use crate::printable::Printable;
 
-pub const MAX_PUZZLE_VALUES: usize = 15;
+pub const MAX_PUZZLE_VALUES: usize = 8;
 
 pub type TestCaseSet = Vec<Puzzle>;
 
 #[derive(Debug, Clone)]
 pub struct Puzzle {
+  processor_io: [ProcessorIO; 2],
+}
+
+#[derive(Debug, Clone)]
+pub struct ProcessorIO {
   inputs: PuzzleIO,
   outputs: PuzzleIO,
 }
 
 impl Puzzle {
+  pub fn new(processor_0: ProcessorIO, processor_1: ProcessorIO) -> Self {
+    Self {
+      processor_io: [processor_0, processor_1],
+    }
+  }
+
+  pub fn into_processor_ios(self) -> (ProcessorIO, ProcessorIO) {
+    let [p0, p1] = self.processor_io;
+    (p0, p1)
+  }
+}
+
+impl ProcessorIO {
   // Performs validation and returns a printable error string
   pub fn new(inputs: Vec<i16>, outputs: Vec<i16>) -> Result<Self, String> {
     if inputs.len() > MAX_PUZZLE_VALUES {
@@ -69,10 +87,32 @@ impl Printable for Puzzle {
       .queue(cursor::MoveLeft(HEADER.len() as u16))?
       .queue(cursor::MoveDown(1))?
       .queue(cursor::SavePosition)?;
-    self.inputs.print()?;
 
-    stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(7))?;
-    self.outputs.print()?;
+    self.processor_io[0].inputs.print()?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveDown(MAX_PUZZLE_VALUES as u16 + 1))?;
+    self.processor_io[1].inputs.print()?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveRight(7))?
+      .queue(cursor::SavePosition)?;
+
+    self.processor_io[0].outputs.print()?;
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveDown(MAX_PUZZLE_VALUES as u16 + 1))?;
+
+    self.processor_io[1].outputs.print()?;
+
+    stdout
+      .queue(cursor::RestorePosition)?
+      .queue(cursor::MoveLeft(7))?
+      .queue(cursor::MoveDown(MAX_PUZZLE_VALUES as u16 + 1))?;
+
+    write!(stdout, "├{0}┤ ├{0}┤", "─".repeat(VAL_CHAR_WIDTH))?;
 
     Ok(())
   }

@@ -5,9 +5,11 @@ use crossterm::event::{Event, KeyCode, KeyEventKind, KeyModifiers};
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, event, QueueableCommand};
 
-use super::{print_string, ShowHelpState, State};
-use crate::global_state::{GlobalState, Statistics};
-use crate::level::{Level, LevelIndex};
+use super::{print_string, ShowHelpState, State, MIN_TERMINAL_WIDTH};
+use crate::global_state::GlobalState;
+use crate::isa::{self, InstructionSetArchitecture};
+use crate::level::{Level, LevelIndex, LevelType};
+use crate::statistics::Statistics;
 
 const SEED: u32 = 0xdeadbeef;
 const NUM_TEST_CASES: usize = 25;
@@ -20,7 +22,8 @@ static TITLE: &str = r#"  ___            ___  ___    _ ___    ___  __   ___  ___
 "#;
 
 pub struct LevelSelectState {
-  selected_level_index: isize,
+  selected_level_pack_index: usize,
+  selected_level_indexes: Vec<usize>,
   last_error: Option<String>,
   saved: bool,
   page_offset: usize,
@@ -38,11 +41,37 @@ enum LevelListEntry<'l> {
   LockedChallenge,
 }
 
+macro_rules! level_select_list {
+  (($self:ident, $level_pack:expr, $level_index:expr, $level:expr), [ $(($match_type:pat, $isa_type:ty),)+ ]) => {
+    match $level.level_type() { $(
+      $match_type => {
+        let test_cases = match <$isa_type as InstructionSetArchitecture>::generate_test_cases($level_pack.folder(), $level.lua_file(), SEED, NUM_TEST_CASES) {
+          Ok(t) => t,
+          Err(e) => {
+            $self.last_error = Some(format!("Failed to generate test cases: {e}"));
+            return Ok(Some($self));
+          },
+        };
+
+        return Ok(Some(Box::new(ShowHelpState::<$isa_type>::new(*$level_index, 0, test_cases))));
+      }
+    )+ }
+  };
+}
+
 impl LevelSelectState {
   pub fn new(level_index: LevelIndex, global_state: &GlobalState) -> Self {
-    let selected_level_index = global_state.get_pack().get_absolute_index(level_index) as isize;
+    let selected_level_pack_index = level_index.get_level_pack_index();
+    let selected_level_index = global_state
+      .get_level_pack(selected_level_pack_index)
+      .get_absolute_index(level_index);
+
+    let mut selected_level_indexes = vec![0; global_state.num_level_packs()];
+    selected_level_indexes[selected_level_pack_index] = selected_level_index;
+
     let mut state = Self {
-      selected_level_index,
+      selected_level_pack_index,
+      selected_level_indexes,
       last_error: None,
       saved: false,
       page_offset: 0,
@@ -53,7 +82,8 @@ impl LevelSelectState {
 
   fn fix_page_offset(&mut self) {
     loop {
-      match self.selected_level_index - self.page_offset as isize {
+      let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
+      match (selected_level_index as isize) - (self.page_offset as isize) {
         x if x >= (LEVELS_PER_PAGE as isize) => {
           self.page_offset += 1;
         },
@@ -70,7 +100,7 @@ impl LevelSelectState {
 
     let mut take_next_group = true; // We always take the first group
     let unlocked_groups: Vec<_> = global_state
-      .get_pack()
+      .get_level_pack(self.selected_level_pack_index)
       .level_groups()
       .iter()
       .take_while(|lg| {
@@ -101,7 +131,10 @@ impl LevelSelectState {
                 LockedChallenge
               };
               prev_level = cl;
-              (ret_val, LevelIndex::new_challenge(group, level_in_group, challenge))
+              (
+                ret_val,
+                LevelIndex::new_challenge(self.selected_level_pack_index, group, level_in_group, challenge),
+              )
             });
 
             // The main level and any challenge levels
@@ -110,7 +143,7 @@ impl LevelSelectState {
                 level: level.level(),
                 statistics: global_state.get_statistics(level.level().id()),
               },
-              LevelIndex::new(group, level_in_group),
+              LevelIndex::new(self.selected_level_pack_index, group, level_in_group),
             ))
             .chain(challenges_list)
           })
@@ -137,9 +170,22 @@ impl State for LevelSelectState {
       stdout.queue(cursor::MoveToNextLine(1))?;
     }
 
-    write!(stdout, "Level Select:")?;
+    // Level pack selector
+    let level_pack_name = global_state.get_level_pack(self.selected_level_pack_index).name();
+    write!(stdout, "{level_pack_name:^len$}", len = MIN_TERMINAL_WIDTH as usize)?;
     stdout.queue(cursor::MoveToNextLine(1))?;
 
+    let left_arrow = if self.selected_level_pack_index > 0 { '←' } else { ' ' };
+    let right_arrow = if self.selected_level_pack_index < global_state.num_level_packs() - 1 {
+      '→'
+    } else {
+      ' '
+    };
+
+    let arrows = format!("{left_arrow} {right_arrow}");
+    write!(stdout, "{arrows:^len$}", len = MIN_TERMINAL_WIDTH as usize)?;
+
+    stdout.queue(cursor::MoveToColumn(0))?;
     if self.page_offset > 0 {
       write!(stdout, "↑")?;
     }
@@ -147,13 +193,14 @@ impl State for LevelSelectState {
 
     let level_list = self.get_flattened_level_list(global_state);
 
+    let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
     for ((level_entry, level_index), absolute_index) in level_list
       .iter()
       .skip(self.page_offset)
       .take(LEVELS_PER_PAGE)
       .zip((self.page_offset + 1)..)
     {
-      if (self.selected_level_index + 1) == (absolute_index as isize) {
+      if (selected_level_index + 1) == absolute_index {
         write!(stdout, "{} ", "►".green())?;
       } else {
         write!(stdout, "  ")?;
@@ -182,10 +229,12 @@ impl State for LevelSelectState {
   }
 
   fn execute(mut self: Box<Self>, global_state: &mut GlobalState) -> io::Result<Option<Box<dyn State>>> {
+    let num_level_packs = global_state.num_level_packs();
     let level_list = self.get_flattened_level_list(global_state);
 
     let num_options = level_list.len();
-    let (selected_level, level_index) = &level_list[self.selected_level_index as usize];
+    let selected_level_index = self.selected_level_indexes[self.selected_level_pack_index];
+    let (selected_level, level_index) = &level_list[selected_level_index];
 
     loop {
       // `read()` blocks until an `Event` is available
@@ -207,17 +256,39 @@ impl State for LevelSelectState {
           // Close the game
           KeyCode::Esc => return Ok(None),
 
-          // Movement
+          // Level Movement
           KeyCode::Up | KeyCode::Char('k') => {
             self.last_error = None;
-            self.selected_level_index = (self.selected_level_index - 1).rem_euclid(num_options as isize);
+            self.selected_level_indexes[self.selected_level_pack_index] =
+              (selected_level_index as isize - 1).rem_euclid(num_options as isize) as usize;
             self.fix_page_offset();
 
             return Ok(Some(self));
           },
           KeyCode::Down | KeyCode::Char('j') => {
             self.last_error = None;
-            self.selected_level_index = (self.selected_level_index + 1).rem_euclid(num_options as isize);
+            self.selected_level_indexes[self.selected_level_pack_index] =
+              (selected_level_index as isize + 1).rem_euclid(num_options as isize) as usize;
+            self.fix_page_offset();
+
+            return Ok(Some(self));
+          },
+
+          // Level pack movement
+          KeyCode::Left | KeyCode::Char('h') if self.selected_level_pack_index > 0 => {
+            self.last_error = None;
+            self.selected_level_pack_index =
+              (self.selected_level_pack_index as isize - 1).rem_euclid(num_level_packs as isize) as usize;
+            self.page_offset = 0;
+            self.fix_page_offset();
+
+            return Ok(Some(self));
+          },
+          KeyCode::Right | KeyCode::Char('l') if self.selected_level_pack_index < num_level_packs - 1 => {
+            self.last_error = None;
+            self.selected_level_pack_index =
+              (self.selected_level_pack_index as isize + 1).rem_euclid(num_level_packs as isize) as usize;
+            self.page_offset = 0;
             self.fix_page_offset();
 
             return Ok(Some(self));
@@ -225,16 +296,15 @@ impl State for LevelSelectState {
 
           // Select Level
           KeyCode::Enter if selected_level.is_unlocked() => {
+            let level_pack = global_state.get_level_pack(self.selected_level_pack_index);
             let level = global_state.level(*level_index);
-            let test_cases = match level.generate_test_cases(SEED, NUM_TEST_CASES) {
-              Ok(t) => t,
-              Err(e) => {
-                self.last_error = Some(format!("Failed to generate test cases: {e}"));
-                return Ok(Some(self));
-              },
-            };
-
-            return Ok(Some(Box::new(ShowHelpState::new(*level_index, 0, test_cases))));
+            level_select_list!(
+              (self, level_pack, level_index, level),
+              [
+                (LevelType::Standard, isa::Standard),
+                (LevelType::Parallel, isa::Parallel),
+              ]
+            );
           },
 
           _ => {},

@@ -5,29 +5,31 @@ use std::collections::HashSet;
 use std::io::{self, Write};
 
 use crate::printable::Printable;
-use crate::vm::Command;
-
-const DEFAULT_GRID_SIZE: usize = 10;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Grid {
-  values: Vec<Vec<Command>>,
+pub struct Grid<C> {
+  values: Vec<Vec<C>>,
 
   #[serde(default)]
   breakpoints: HashSet<(usize, usize)>,
 }
 
-impl Grid {
+impl<C> Grid<C>
+where
+  C: Default + Clone,
+{
   pub fn new(rows: usize, cols: usize) -> Self {
     debug_assert!(rows > 0);
     debug_assert!(cols > 0);
 
     Self {
-      values: vec![vec![Command::Empty; cols]; rows],
+      values: vec![vec![C::default(); cols]; rows],
       breakpoints: HashSet::new(),
     }
   }
+}
 
+impl<C> Grid<C> {
   #[inline]
   pub fn rows(&self) -> usize {
     self.values.len()
@@ -39,13 +41,13 @@ impl Grid {
   }
 
   #[inline]
-  pub fn set_value(&mut self, row: usize, col: usize, value: Command) {
+  pub fn set_value(&mut self, row: usize, col: usize, value: C) {
     self.values[row][col] = value;
   }
 
   #[inline]
-  pub fn get_value(&self, row: usize, col: usize) -> Command {
-    self.values[row][col]
+  pub fn get_value(&self, row: usize, col: usize) -> &C {
+    &self.values[row][col]
   }
 
   pub fn has_breakpoint(&self, row: usize, col: usize) -> bool {
@@ -63,23 +65,26 @@ impl Grid {
       self.breakpoints.insert(point);
     }
   }
+}
 
+impl<C> Grid<C>
+where
+  C: Default + PartialEq<C>,
+{
   pub fn count_symbols(&self) -> usize {
+    let default = C::default();
     self
       .values
       .iter()
-      .map(|row| row.iter().filter(|x| **x != Command::Empty).count())
+      .map(|row| row.iter().filter(|x| **x != default).count())
       .sum()
   }
 }
 
-impl Default for Grid {
-  fn default() -> Self {
-    Self::new(DEFAULT_GRID_SIZE, DEFAULT_GRID_SIZE)
-  }
-}
-
-impl Printable for Grid {
+impl<C> Printable for Grid<C>
+where
+  C: Printable,
+{
   fn print(&self) -> io::Result<()> {
     let cols = self.values[0].len();
     let mut stdout = io::stdout();

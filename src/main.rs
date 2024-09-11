@@ -1,17 +1,17 @@
 use global_state::GlobalState;
-use level::LevelPack;
+use level::load_all_level_packs;
 use state::TitleState;
 
 mod global_state;
 mod grid;
+mod isa;
 mod level;
 mod printable;
-mod puzzle;
 mod state;
-mod vm;
+mod statistics;
 
 fn main() {
-  let levels = match LevelPack::load() {
+  let all_level_packs = match load_all_level_packs() {
     Ok(l) => l,
     Err(e) => {
       println!("Failed to load levels: {e}");
@@ -19,7 +19,7 @@ fn main() {
     },
   };
 
-  let mut global_state = GlobalState::load(levels);
+  let mut global_state = GlobalState::load(all_level_packs);
 
   state::run(Box::new(TitleState::new()), &mut global_state).ok();
 

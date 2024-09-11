@@ -1,24 +1,21 @@
 use crossterm::{cursor, QueueableCommand};
 use std::io::{self, Write};
 
-mod editor_state;
-mod execute_state;
 mod level_select_state;
 mod show_help_state;
 mod state;
 mod success_state;
 mod title_state;
 
-pub use editor_state::EditorState;
-pub use execute_state::ExecuteState;
 pub use level_select_state::LevelSelectState;
 pub use show_help_state::ShowHelpState;
-pub use state::{run, State};
+#[allow(unused)]
+pub use state::{run, State, MIN_TERMINAL_HEIGHT, MIN_TERMINAL_WIDTH};
 pub use success_state::SuccessState;
 pub use title_state::TitleState;
 
 // Print string in the same column, uses save/restore
-pub(crate) fn print_string(s: &str) -> io::Result<()> {
+pub fn print_string(s: &str) -> io::Result<()> {
   let mut stdout = io::stdout();
   stdout.queue(cursor::SavePosition)?;
 

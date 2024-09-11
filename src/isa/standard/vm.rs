@@ -1,14 +1,13 @@
 use crossterm::style::{self, Color, Stylize};
 use crossterm::{cursor, QueueableCommand};
 use serde::{Deserialize, Serialize};
-use std::cmp;
 use std::collections::VecDeque;
 use std::io::{self, Write};
 
-use crate::global_state::Solution;
+use super::puzzle::{Puzzle, PuzzleIO};
+use super::solution::Solution;
 use crate::grid::Grid;
 use crate::printable::Printable;
-use crate::puzzle::{Puzzle, PuzzleIO};
 
 pub const VAL_MIN: i16 = -999;
 pub const VAL_MAX: i16 = 999;
@@ -17,7 +16,7 @@ const MAX_STACK_ENTRIES: usize = 15;
 
 #[derive(Debug, Clone)]
 pub struct VirtualMachine {
-  grid: Grid,
+  grid: Grid<Command>,
 
   cycle: u32,
   row: i16,
@@ -366,7 +365,7 @@ impl VirtualMachine {
   }
 
   fn push(&mut self, val: i16) -> Result<(), VMError> {
-    if val != clamp(val) {
+    if val != val.clamp(VAL_MIN, VAL_MAX) {
       return Err(VMError::NumericOverflow);
     }
 
@@ -508,7 +507,7 @@ impl Stack {
   // Returns false if the stack overflows
   pub fn push(&mut self, val: i16) -> bool {
     if self.values.len() < MAX_STACK_ENTRIES {
-      self.values.push_back(clamp(val));
+      self.values.push_back(val.clamp(VAL_MIN, VAL_MAX));
       true
     } else {
       false
@@ -539,11 +538,6 @@ impl Stack {
       Some(v) => self.values.push_back(v),
     }
   }
-}
-
-#[inline]
-fn clamp(input: i16) -> i16 {
-  cmp::min(cmp::max(input, VAL_MIN), VAL_MAX)
 }
 
 impl Printable for Stack {

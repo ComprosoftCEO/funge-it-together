@@ -11,13 +11,10 @@ use std::{
   time::Duration,
 };
 
-use super::{print_string, EditorState, State, SuccessState};
-use crate::{
-  global_state::{GlobalState, Statistics},
-  level::LevelIndex,
-  printable::Printable,
-  vm::{VMError, VirtualMachine},
-};
+use super::editor_state::EditorState;
+use super::vm::{VMError, VirtualMachine};
+use crate::state::{print_string, State, SuccessState};
+use crate::{global_state::GlobalState, level::LevelIndex, printable::Printable, statistics::Statistics};
 
 static INSTRUCTIONS: &str = r#"
 │Esc    = Editor
@@ -113,7 +110,7 @@ impl ExecuteState {
             self.level_index,
             statistics,
             best,
-            self.editor,
+            Box::new(self.editor),
           )));
         }
 

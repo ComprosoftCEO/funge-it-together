@@ -6,14 +6,14 @@ use crossterm::{
 };
 use std::io::{self, Write};
 
-use super::{execute_state::Speed, print_string, ExecuteState, ShowHelpState};
+use super::execute_state::{ExecuteState, Speed};
+use super::puzzle::TestCaseSet;
+use super::solution::Solution;
+use super::vm::{Command, VirtualMachine};
+use crate::{global_state::GlobalState, isa, level::LevelIndex, printable::Printable, state::State};
 use crate::{
-  global_state::{GlobalState, Solution},
-  level::LevelIndex,
-  printable::Printable,
-  puzzle::TestCaseSet,
-  state::State,
-  vm::{Command, VirtualMachine},
+  isa::SolutionManager,
+  state::{print_string, ShowHelpState},
 };
 
 static INSTRUCTIONS: &str = r#"
@@ -189,7 +189,7 @@ impl State for EditorState {
           },
 
           KeyCode::Esc => {
-            return Ok(Some(Box::new(ShowHelpState::new(
+            return Ok(Some(Box::new(ShowHelpState::<isa::Standard>::new(
               self.level_index,
               self.solution_index,
               self.test_cases,
@@ -389,7 +389,12 @@ impl State for EditorState {
     }
 
     let level_id = global_state.level(self.level_index).id();
-    global_state.save_solution(level_id, self.solution_index, &self.solution);
+    <GlobalState as SolutionManager<isa::Standard>>::save_solution(
+      global_state,
+      level_id,
+      self.solution_index,
+      self.solution.clone(),
+    );
 
     Ok(Some(self))
   }

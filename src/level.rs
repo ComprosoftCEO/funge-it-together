@@ -1,23 +1,27 @@
-use rlua::prelude::*;
 use serde::Deserialize;
-use std::error::Error;
+use serde::Serialize;
 use std::fmt;
-use std::fs;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, BufReader, ErrorKind};
 use std::iter;
 use std::path::Path;
 use uuid::Uuid;
 
 use crate::global_state::GlobalState;
-use crate::puzzle::{Puzzle, TestCaseSet};
+
+const LEVELS_FOLDER: &str = "levels";
+const PACK_FILE: &str = "pack.json";
 
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelPack {
+  name: String,
   #[serde(rename = "levels")]
   groups: Vec<LevelGroup>,
+
+  #[serde(skip)]
+  folder: String,
 }
 
 /// Stores a group of levels that all unlock at once
@@ -43,19 +47,34 @@ pub struct Level {
   id: Uuid,
   name: String,
   description: String,
+  #[serde(default)]
+  r#type: LevelType,
   lua_file: String,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum LevelType {
+  #[default]
+  Standard,
+  Parallel,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct LevelIndex {
+  pack_index: usize,
   group: usize,
   level_in_group: usize,
   challenge: Option<usize>,
 }
 
 impl LevelPack {
-  pub fn load() -> io::Result<Self> {
-    Self::from_file("levels/pack.json")
+  pub fn name(&self) -> &String {
+    &self.name
+  }
+
+  pub fn folder(&self) -> &String {
+    &self.folder
   }
 
   pub fn level_groups(&self) -> &Vec<LevelGroup> {
@@ -81,10 +100,20 @@ impl LevelPack {
   ///   Returns an error if there are no levels inside the pack file
   ///
   fn from_file<P: AsRef<Path>>(json_pack_file: P) -> io::Result<Self> {
+    let parent_folder = json_pack_file
+      .as_ref()
+      .parent()
+      .and_then(Path::to_str)
+      .unwrap_or("")
+      .to_string();
+
     // Parse the level as a JSON file
     let file = File::open(json_pack_file)?;
     let reader = BufReader::new(file);
     let mut me: Self = serde_json::from_reader(reader)?;
+
+    // Set the parent folder from the path
+    me.folder = parent_folder;
 
     // Remove any groups that have no levels
     me.groups.retain(|g| !g.0.is_empty());
@@ -150,6 +179,10 @@ impl Level {
     &self.description
   }
 
+  pub fn level_type(&self) -> LevelType {
+    self.r#type
+  }
+
   #[allow(unused)]
   pub fn lua_file(&self) -> &str {
     &self.lua_file
@@ -162,64 +195,29 @@ impl Level {
       format!("Level {} - {}", level_index, self.name())
     }
   }
-
-  ///
-  /// Load and run the Lua code to generate the puzzles
-  ///
-  pub fn generate_test_cases(&self, seed: u32, n: usize) -> Result<TestCaseSet, Box<dyn Error>> {
-    // Try to load the Lua code file into memory
-    let lua_code = fs::read_to_string(format!("levels/{}", self.lua_file))?;
-
-    // Generate and run the code within the Lua context
-    let test_cases = Lua::new().context::<_, LuaResult<TestCaseSet>>(|ctx| {
-      let globals = ctx.globals();
-
-      // Add the levels folder to the path
-      ctx
-        .load(&r#"package.path = "./levels/?.lua;" .. package.path"#)
-        .exec()?;
-
-      // Seed the random number generator
-      globals
-        .get::<_, LuaTable>("math")?
-        .get::<_, LuaFunction>("randomseed")?
-        .call::<_, ()>(seed)?;
-
-      // Load the script code
-      //  This should define a global function named "generateTestCase"
-      ctx.load(&lua_code).exec()?;
-
-      // Generate the test cases one-by-one
-      let generate_test_case: LuaFunction = globals.get("generateTestCase")?;
-      let test_cases = (0..n)
-        .map(|_| {
-          let (inputs, outputs): (Vec<i16>, Vec<i16>) = generate_test_case.call(())?;
-          Puzzle::new(inputs, outputs).map_err(LuaError::RuntimeError)
-        })
-        .collect::<Result<_, _>>()?;
-
-      Ok(test_cases)
-    })?;
-
-    Ok(test_cases)
-  }
 }
 
 impl LevelIndex {
-  pub fn new(group: usize, level_in_group: usize) -> Self {
+  pub fn new(pack_index: usize, group: usize, level_in_group: usize) -> Self {
     Self {
+      pack_index,
       group,
       level_in_group,
       challenge: None,
     }
   }
 
-  pub fn new_challenge(group: usize, level_in_group: usize, challenge: usize) -> Self {
+  pub fn new_challenge(pack_index: usize, group: usize, level_in_group: usize, challenge: usize) -> Self {
     Self {
+      pack_index,
       group,
       level_in_group,
       challenge: Some(challenge),
     }
+  }
+
+  pub fn get_level_pack_index(&self) -> usize {
+    self.pack_index
   }
 
   pub fn get_group(&self) -> usize {
@@ -257,4 +255,53 @@ impl fmt::Display for LevelIndex {
       write!(f, "{}{}", self.group + 1, level_index)
     }
   }
+}
+
+pub fn load_all_level_packs() -> io::Result<Vec<LevelPack>> {
+  let mut level_packs: Vec<LevelPack> = fs::read_dir(LEVELS_FOLDER)?
+    // Skip any errors from traversing the directory
+    .filter_map(|entry| match entry {
+      Ok(entry) => Some(entry),
+      Err(e) => {
+        println!("Failed to traverse \"{LEVELS_FOLDER}\" directory: {e}");
+        None
+      },
+    })
+    // Search all directories in the levels folder
+    .filter(|entry| entry.file_type().map(|t| t.is_dir()).unwrap_or(false))
+    // Make sure the directory has a pack JSON file
+    .filter_map(|entry| {
+      let mut pack_file_path = entry.path();
+      pack_file_path.push(PACK_FILE);
+
+      pack_file_path.exists().then_some(pack_file_path)
+    })
+    // Skip level packs that fail to load
+    .filter_map(|pack_file_path| match LevelPack::from_file(&pack_file_path) {
+      Ok(level_pack) => {
+        println!("Loaded level pack: {}", pack_file_path.to_string_lossy());
+        Some(level_pack)
+      },
+      Err(e) => {
+        println!(
+          "Failed to load level pack: {}\n  - Error: {e}",
+          pack_file_path.to_string_lossy()
+        );
+        None
+      },
+    })
+    .collect();
+
+  // Make sure we loaded at least one level pack
+  if level_packs.is_empty() {
+    Err(io::Error::new(
+      ErrorKind::InvalidData,
+      format!("No valid level packs found in the \"{LEVELS_FOLDER}\" folder"),
+    ))?;
+  }
+
+  // Sort the levels by folder name to keep the order consistent
+  level_packs.sort_by(|a, b| a.folder.cmp(&b.folder));
+
+  Ok(level_packs)
 }
