@@ -1,0 +1,197 @@
+name = "Parallel Levels"
+
+# -----------------
+# | Level Group 1 |
+# -----------------
+[[levelGroups]]
+[[levelGroups.levels]]
+id = "37399a9b-0748-46b6-935b-30d7b9e53882"
+name = "Sum and Product"
+type = "parallel"
+luaFile = "sum-product.lua"
+description = """
+Read x from processor 0 input and y from processor 1 input.
+Output x + y to processor 0 and x * y to processor 1.
+
+
+Constraints:
+∙ -9 ≤ x,y ≤ 9
+"""
+
+[[levelGroups.levels]]
+id = "07a46c54-3913-4c0d-aa74-67949dacbf6e"
+name = "Swap Stacks"
+type = "parallel"
+luaFile = "swap-stacks.lua"
+description = """
+Read all input from processor 0 and output to processor 1.
+Read all input from processor 1 and output to processor 0.
+
+
+Constraints:
+∙ -999 ≤ Input ≤ 999
+∙ Each processor has 1 to 8 inputs
+"""
+
+[[levelGroups.levels]]
+id = "01bb9405-65a8-46fd-bdad-8c2d2b3e6a00"
+name = "Extended Absolute Value"
+type = "parallel"
+luaFile = "abs-sign.lua"
+description = """
+Read an input x from processor 0.
+
+Output the absolute value |x| to processor 0.
+Output the sign of x to processor 1:
+∙ +1 if positive
+∙ -1 if negative
+∙  0 otherwise
+
+
+Constraints:
+∙ -999 ≤ Input ≤ 999
+"""
+
+
+# -----------------
+# | Level Group 2 |
+# -----------------
+[[levelGroups]]
+[[levelGroups.levelGroups]]
+id = "aaf544b6-3cf7-4ffd-87b4-920eddd6bde2"
+name = "Manhattan Distance"
+type = "parallel"
+luaFile = "manhattan-distance.lua"
+description = """
+A taxi driver visits various grid coordinates while driving in New York City.
+Assume the car only moves vertically and horizontally, never diagonally.
+Find out the total distance traveled.
+
+Read x coordinate from processor 0 and y coordinate from processor 1.
+Output the total distance to both processors.
+
+Constraints:
+∙ 0 ≤ x,y ≤ 99
+∙ The taxi visits 1 to 7 (x,y) coordinates
+∙ Total distance traveled ≤ 999
+"""
+
+[[levelGroups.levelGroups]]
+id = "97964639-2aed-405f-8b77-5c62fce71877"
+name = "Triangle - Factorial"
+type = "parallel"
+luaFile = "triangle-factorial.lua"
+description = """
+Read input x from processor 0, and output 1 + 2 + ... + x to processor 1.
+
+Read input y from processor 1, and output y! = 1 * 2 * ... * y to processor 0.
+
+
+Constraints:
+∙ 0 ≤ x ≤ 44
+∙ 0 ≤ y ≤ 6
+"""
+
+[[levelGroups.levelGroups]]
+id = "b2f4f0e6-7771-40e7-a683-b253f5fe1a8f"
+name = "Exponentiation"
+type = "parallel"
+luaFile = "exponent.lua"
+description = """
+Read x from processor 0 input and b from processor 1 input.
+Output b^x to processor 0 and x to processor 1.
+Recall that b^0 = 1 for any b (except 0^0, which is undefined).
+
+
+Constraints:
+∙ 0 ≤ b,x ≤ 9
+∙ x^y will not overflow
+∙ Will not ask for 0^0
+"""
+
+[[levelGroups.levelGroups]]
+id = "17ad7316-9a20-46a5-ad74-589ec3b2b940"
+name = "Interwoven"
+type = "parallel"
+luaFile = "interwoven.lua"
+description = """
+Read all inputs from processor 0. Output odd indexes (1, 3, 5, …) to processor 0.
+Output even indexes (2, 4, 6 …) to processor 1.
+
+Read all inputs from processor 1. Output odd indexes (1, 3, 5, …) to processor 0.
+Output even indexes (2, 4, 6, …) to processor 1.
+
+
+Constraints:
+∙ -999 ≤ Input ≤ 999
+"""
+
+
+# -----------------
+# | Level Group 3 |
+# -----------------
+[[levelGroups]]
+[[levelGroups.levels]]
+id = "54453fdc-c0a5-442b-9e3c-bc1d228970c0"
+name = "Matrix Multiplication"
+type = "parallel"
+luaFile = "matrix.lua"
+description = """
+Read the coefficients of a 2x2 matrix A from processor 1 input: a, b, c, d.
+Output the determinant the matrix |A| to processor 1 output.
+
+Read a sequence of 2x1 vectors X from processor 0 input: x, y
+Output the matrix product A*X to processor 0 output.
+
+A = │a b│   X = │x|     A*X = |ax + by|                 |A| = ad - bc
+    │c d│       |y|           |cx + dy|
+
+For example:
+
+A = |5 9|  X = | 1|     A*X = |5*1 + 9*(-6)| = |-49|    |A| = 5*8 - 9*4
+    |4 8|      |-6|           |4*1 + 8*(-6)|   |-47|        = 4
+
+Constraints:
+∙ Matrix operations can be computed without overflow
+"""
+
+[[levelGroups.levels]]
+id = "e08d131c-d9ae-4d77-8ada-a3834e0b62c4"
+name = "Filter List"
+type = "parallel"
+luaFile = "filter-list.lua"
+description = """
+Read a list of values from processor 1 input.
+Then, read each input x from processor 0:
+- If x is in the list, output x to processor 1.
+- Otherwise, output x to processor 0.
+
+
+Constraints:
+∙ -99 ≤ Input ≤ 99
+∙ 1 ≤ Length of filter list ≤ 4
+"""
+
+[[levelGroups.levels]]
+id = "fe8181f1-4759-42aa-a496-9c1d65e8e325"
+name = "Polynomial"
+type = "parallel"
+luaFile = "polynomial.lua"
+description = """
+Output all integer solutions to the polynomial to processor 0.
+Coefficients are passed in to processor 1 from x^n, x^(n-1), ... x^1, x^0.
+Output from smallest to largest. Only output duplicate solutions once.
+Hint: use Horner's Method for computing the polynomial.
+
+Example:
+∙ P1 Input: 1 6 9 -4 -12     (x^4 + 6x^3 + 9x^2 - 4x - 12)
+∙ P0 Output: -3 -2 1         (x + 3) * (x + 2)^2 * (x - 1)
+
+Constraints:
+∙ -999 ≤ Input ≤ 999
+∙ ┌───Degree───╥─x^2 ─┬─x^3 ─┬─x^4 ─┬─x^5 ─┐
+  ├────────────╫──────┼──────┼──────┼──────┤
+  │Output Range║[-9,9]│[-7,7]│[-5,5]│[-3,3]│
+  └────────────╨──────┴──────┴──────┴──────┘
+∙ Polynomial can be computed without overflow
+"""
