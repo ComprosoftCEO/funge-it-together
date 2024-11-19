@@ -196,9 +196,9 @@ This can happen if both processors are blocked receiving, or both processors are
 
 Levels are written using the [Lua Programming Language](https://www.lua.org/docs.html) and executed at runtime.
 All levels live inside the [levels](levels/) folder. Levels are organized into level packs that live inside a folder.
-Each level pack folder must contain a `pack.json` file specifying the levels included in a pack.
+Each level pack folder must contain a `pack.toml` file specifying the levels included in a pack.
 
-The `pack.json` file specifies groups of levels that unlock at once.
+The `pack.toml` file specifies groups of levels that unlock at once.
 The next group unlocks once all levels from the previous group have been completed.
 Levels can also have optional "challenge" levels that unlock once the level is complete.
 Challenges are **not** required to unlock the next group of levels.
@@ -207,15 +207,15 @@ All levels included with the game are guaranteed to have at least one solution (
 To write a new pack:
 
 1. Create a new folder in the [levels](levels/) folder.
-2. Create a `pack.json` file in the folder with the following properties
-   1. `name` - Name of the level pack
-   2. `levels` - List of level groups that all unlock at once
+2. Create a `pack.toml` file in the folder with the following properties
+   - `packName` - Name of the level pack
+   - `levelGroups` - List of level groups that all unlock at once. Each level group has a non-empty list of `levels`, and each level has an optional list of `challengeLevels`.
 
 To write a new level:
 
 1. Create a Lua file for the level
 2. Export a global function named `generateTestCase()` that randomly generates a new test case
-3. Add an entry to the `pack.json` file. The file format should be self-explanatory, but here are a few guidelines to keep in mind:
+3. Add an entry to the `pack.toml` file. The file format should be self-explanatory, but here are a few guidelines to keep in mind:
    - The name should be short enough that it doesn't overflow the level select interface.
    - The description should fit into an 80 column x 24 row terminal window and not overflow the list of solutions.
    - Be sure to generate a new unique UUID. [See Here](http://www.wasteaguid.info/).
