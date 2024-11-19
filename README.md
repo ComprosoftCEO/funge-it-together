@@ -197,7 +197,6 @@ This can happen if both processors are blocked receiving, or both processors are
 Levels are written using the [Lua Programming Language](https://www.lua.org/docs.html) and executed at runtime.
 All levels live inside the [levels](levels/) folder. Levels are organized into level packs that live inside a folder.
 Each level pack folder must contain a `pack.toml` file specifying the levels included in a pack.
-(_[See here](https://toml.io/en/v1.0.0) for details about the TOML file format_)
 
 The `pack.toml` file specifies groups of levels that unlock at once.
 The next group unlocks once all levels from the previous group have been completed.
@@ -216,7 +215,7 @@ To write a new level:
 
 1. Create a Lua file for the level
 2. Export a global function named `generateTestCase()` that randomly generates a new test case
-3. Add an entry to the `pack.yaml` file. The file format should be self-explanatory, but here are a few guidelines to keep in mind:
+3. Add an entry to the `pack.toml` file. The file format should be self-explanatory, but here are a few guidelines to keep in mind:
    - The name should be short enough that it doesn't overflow the level select interface.
    - The description should fit into an 80 column x 24 row terminal window and not overflow the list of solutions.
    - Be sure to generate a new unique UUID. [See Here](http://www.wasteaguid.info/).

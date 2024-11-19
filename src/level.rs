@@ -43,7 +43,7 @@ pub struct MainLevel {
   challenge_levels: Vec<Level>,
 }
 
-/// Single entry in the levels.json file
+/// Single entry in the pack file
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Level {
@@ -110,7 +110,7 @@ impl LevelPack {
       .unwrap_or("")
       .to_string();
 
-    // Parse the level as a JSON file
+    // Parse the level as a TOML file
     let file_data = fs::read_to_string(toml_pack_file)?;
     let mut me: Self = toml::from_str(&file_data).map_err(io::Error::other)?;
 
@@ -271,7 +271,7 @@ pub fn load_all_level_packs() -> io::Result<Vec<LevelPack>> {
     })
     // Search all directories in the levels folder
     .filter(|entry| entry.file_type().map(|t| t.is_dir()).unwrap_or(false))
-    // Make sure the directory has a pack JSON file
+    // Make sure the directory has a pack file
     .filter_map(|entry| {
       let mut pack_file_path = entry.path();
       pack_file_path.push(PACK_FILE);
