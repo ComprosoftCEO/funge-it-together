@@ -1,8 +1,8 @@
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
-use std::fs::{self, File};
-use std::io::{self, BufReader, ErrorKind};
+use std::fs;
+use std::io::{self, ErrorKind};
 use std::iter;
 use std::path::Path;
 use uuid::Uuid;
@@ -10,14 +10,15 @@ use uuid::Uuid;
 use crate::global_state::GlobalState;
 
 const LEVELS_FOLDER: &str = "levels";
-const PACK_FILE: &str = "pack.json";
+const PACK_FILE: &str = "pack.toml";
 
 /// Stores all details about the levels
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LevelPack {
+  #[serde(rename = "packName")]
   name: String,
-  #[serde(rename = "levels")]
+  #[serde(rename = "levelGroups")]
   groups: Vec<LevelGroup>,
 
   #[serde(skip)]
@@ -27,7 +28,9 @@ pub struct LevelPack {
 /// Stores a group of levels that all unlock at once
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LevelGroup(Vec<MainLevel>);
+pub struct LevelGroup {
+  levels: Vec<MainLevel>,
+}
 
 /// Top-level object for a level, may have optional "challenge" levels
 #[derive(Debug, Clone, Deserialize)]
@@ -90,7 +93,7 @@ impl LevelPack {
       .map(|group_index| self.groups[group_index].len())
       .sum::<usize>()
       + (0..level_index.level_in_group)
-        .map(|level_in_group| self.groups[level_index.group].0[level_in_group].len())
+        .map(|level_in_group| self.groups[level_index.group].levels[level_in_group].len())
         .sum::<usize>()
       + level_index.challenge.map(|x| x + 1).unwrap_or(0)
   }
@@ -99,8 +102,8 @@ impl LevelPack {
   /// Load a level pack from a folder
   ///   Returns an error if there are no levels inside the pack file
   ///
-  fn from_file<P: AsRef<Path>>(json_pack_file: P) -> io::Result<Self> {
-    let parent_folder = json_pack_file
+  fn from_file<P: AsRef<Path>>(toml_pack_file: P) -> io::Result<Self> {
+    let parent_folder = toml_pack_file
       .as_ref()
       .parent()
       .and_then(Path::to_str)
@@ -108,15 +111,14 @@ impl LevelPack {
       .to_string();
 
     // Parse the level as a JSON file
-    let file = File::open(json_pack_file)?;
-    let reader = BufReader::new(file);
-    let mut me: Self = serde_json::from_reader(reader)?;
+    let file_data = fs::read_to_string(toml_pack_file)?;
+    let mut me: Self = toml::from_str(&file_data).map_err(io::Error::other)?;
 
     // Set the parent folder from the path
     me.folder = parent_folder;
 
     // Remove any groups that have no levels
-    me.groups.retain(|g| !g.0.is_empty());
+    me.groups.retain(|g| !g.levels.is_empty());
 
     // Make sure there is at least one level in one group
     if me.groups.is_empty() {
@@ -132,19 +134,19 @@ impl LevelPack {
 
 impl LevelGroup {
   pub fn main_levels(&self) -> &Vec<MainLevel> {
-    &self.0
+    &self.levels
   }
 
   pub fn main_level(&self, index: usize) -> &MainLevel {
-    &self.0[index]
+    &self.levels[index]
   }
 
   pub fn is_complete(&self, global_state: &GlobalState) -> bool {
-    self.0.iter().all(|l| global_state.is_level_complete(l.level.id))
+    self.levels.iter().all(|l| global_state.is_level_complete(l.level.id))
   }
 
   pub fn len(&self) -> usize {
-    self.0.iter().map(MainLevel::len).sum()
+    self.levels.iter().map(MainLevel::len).sum()
   }
 }
 
