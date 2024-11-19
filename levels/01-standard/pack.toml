@@ -14,7 +14,8 @@ Add 7 to every input
 
 
 Constraints:
-∙ -999 ≤ Input ≤ 992"""
+∙ -999 ≤ Input ≤ 992
+"""
 
 [[levelGroups.levels]]
 id = "bccd3d32-821c-4f6e-97f7-12616e25ac7a"
@@ -29,7 +30,8 @@ Output the sign of the input:
 
 
 Constraints:
-∙ -999 ≤ Input ≤ 999"""
+∙ -999 ≤ Input ≤ 999
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -42,7 +44,8 @@ Output the absolute value of the input
 
 
 Constraints:
-∙ -999 ≤ Input ≤ 999"""
+∙ -999 ≤ Input ≤ 999
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -69,7 +72,8 @@ The input may have fewer than 10 items.
 
 Constraints:
 ∙ -999 ≤ Input ≤ 999
-∙ 5 ≤ Number of Inputs ≤ 15"""
+∙ 5 ≤ Number of Inputs ≤ 15
+"""
 
 
 # -----------------
@@ -87,7 +91,8 @@ For example, 23 / 5 = 4.
 
 
 Constraints:
-∙ 5 ≤ Input ≤ 100"""
+∙ 5 ≤ Input ≤ 100
+"""
 
 [[levelGroups.levels]]
 id = "32467c02-63e4-42cc-8bd0-e214fc6dd7b5"
@@ -99,7 +104,8 @@ Remove all 0's from the start and end of the input.
 Leave any 0's in the middle of the input (sandwiched between non-zero numbers).
 
 Constraints:
-∙ -9 ≤ Input ≤ 9"""
+∙ -9 ≤ Input ≤ 9
+"""
 
 [[levelGroups.levels]]
 id = "d6c44eee-46f6-416b-8756-a2970d72659e"
@@ -111,7 +117,8 @@ Output only the even numbers
 
 
 Constraints:
-∙ -10 ≤ Input ≤ 10"""
+∙ -10 ≤ Input ≤ 10
+"""
 
 [[levelGroups.levels]]
 id = "70beb32f-056c-4730-87a5-0d851d81d6d3"
@@ -125,7 +132,8 @@ The maximum is guaranteed to be unique.
 
 Constraints:
 ∙ -99 ≤ Input ≤ 99
-∙ Unique maximum"""
+∙ Unique maximum
+"""
 
 [[levelGroups.levels]]
 id = "8339054a-ed5f-4686-bff5-eec510f03bae"
@@ -141,7 +149,8 @@ Every sequence should be wrapped in a pair of parentheses. For example:
 ∙ Invalid: ()(())()
 
 Constraints:
-∙ Input = 1 or Input = -1"""
+∙ Input = 1 or Input = -1
+"""
 
 
 # -----------------
@@ -168,7 +177,8 @@ Example:
 Constraints:
 ∙ -25 ≤ Encryption Key ≤ -1  (Shift backward)
 ∙ 1 ≤ Encryption Key ≤ 25    (Shift forward)
-∙ 1 ≤ Test Input ≤ 26"""
+∙ 1 ≤ Test Input ≤ 26
+"""
 
 [[levelGroups.levels]]
 id = "e22d4ee3-0932-4686-be8b-086656accadc"
@@ -181,7 +191,8 @@ Be careful to avoid arithmetic overflow when comparing x and y.
 
 
 Constraints:
-∙ -999 ≤ x,y ≤ 999"""
+∙ -999 ≤ x,y ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "67ac551c-3c7a-4f5f-b893-9d265aa89a43"
@@ -197,7 +208,8 @@ Example:
 
 Constraints:
 ∙ 1 ≤ Input ≤ 99
-∙ 2 ≤ Number of Input Values ≤ 10"""
+∙ 2 ≤ Number of Input Values ≤ 10
+"""
 
 [[levelGroups.levels]]
 id = "d3b36c5d-cefd-4eeb-91fa-ab59d041019c"
@@ -210,7 +222,8 @@ Read x and y from the input, then compute x*y.
 
 Constraints:
 ∙ -99 ≤ x ≤ 99
-∙ -10 ≤ y ≤ 10"""
+∙ -10 ≤ y ≤ 10
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -229,7 +242,8 @@ Example: (4 + 3i) * (-7 + 9i) * (3 - 6i) = (-75 + 375i)
 
 Constraints:
 ∙ -9 ≤ a,b ≤ 9
-∙ Result can be computed without overflow"""
+∙ Result can be computed without overflow
+"""
 # }}}
 
 
@@ -249,7 +263,8 @@ The input will never be 0.
 
 Constraints:
 ∙ -999 ≤ Input ≤ 999
-∙ Input ≠ 0"""
+∙ Input ≠ 0
+"""
 
 [[levelGroups.levels]]
 id = "cb69dbfe-b25c-40e2-9636-01136f30f1cb"
@@ -265,7 +280,8 @@ Example:
 ∙ Output: 9    (1 + 9 + 8 = 18 → 1 + 8 = 9)
 
 Constraints:
-∙ 0 ≤ Input ≤ 999"""
+∙ 0 ≤ Input ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "d3093ed1-25c0-4a55-9bd0-62fbf07f2c0b"
@@ -279,7 +295,8 @@ The bits are specified in big-endian order. There may be leading zeros.
 Constraints:
 ∙ 0 ≤ Num Input Bits ≤ 10
 ∙ Input may have leading zeros
-∙ 0 ≤ Output ≤ 999"""
+∙ 0 ≤ Output ≤ 999
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -293,7 +310,8 @@ The output should NOT have any leading zeros.
 
 Constraints:
 ∙ 0 ≤ Input ≤ 999
-∙ Output should not have any leading zeros"""
+∙ Output should not have any leading zeros
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -311,7 +329,8 @@ Read a series of (x,y) coordinates from the input and output the total distance.
 Constraints:
 ∙ 0 ≤ x,y ≤ 99
 ∙ The taxi visits 1 to 7 (x,y) coordinates
-∙ Total distance traveled ≤ 999"""
+∙ Total distance traveled ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "f26f174b-86eb-4c4f-9d06-af635b4f62e9"
@@ -353,7 +372,8 @@ Recall that the triangle number function is defined by:
   t(n) = 0 + 1 + 2 + ... + n
 
 Constraints:
-∙ 0 ≤ Input ≤ 44"""
+∙ 0 ≤ Input ≤ 44
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -366,7 +386,8 @@ Read x from the input and compute the factorial x! = x*(x-1)*...*2*1.
 Recall that 0! = 1
 
 Constraints:
-∙ 0 ≤ Input ≤ 6"""
+∙ 0 ≤ Input ≤ 6
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -384,7 +405,8 @@ Recall that the Fibonacci function is defined by:
 
 
 Constraints:
-∙ 0 ≤ Input ≤ 16"""
+∙ 0 ≤ Input ≤ 16
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -403,7 +425,8 @@ Recall that the Tribonacci function is defined by:
 
 
 Constraints:
-∙ 0 ≤ Input ≤ 12"""
+∙ 0 ≤ Input ≤ 12
+"""
 
   [[levelGroups.levels.challengeLevels]]
   id = "0fcc54db-8e05-4808-95da-0b2acc7a6480"
@@ -421,7 +444,8 @@ Recall that the generic k-Fibonacci function is defined by:
 
 Constraints:
 ∙ 2 ≤ k ≤ 9
-∙ 0 ≤ f_k(n) ≤ 999"""
+∙ 0 ≤ f_k(n) ≤ 999
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -438,7 +462,8 @@ Examples:
 ∙ Non-Palindromes: 321, 56, 234, 98, 23
 
 Constraints:
-∙ 0 ≤ Input ≤ 999"""
+∙ 0 ≤ Input ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "1b6cc3d5-4e94-4b3f-82e1-82d4a96f8e6d"
@@ -450,7 +475,8 @@ Read numbers from input and remove any sub-sequence of numbers 1 2 3.
 Write the remaining numbers to the output in the same order.
 
 Constraints:
-∙ 0 ≤ Input ≤ 9"""
+∙ 0 ≤ Input ≤ 9
+"""
 
 
 # -----------------
@@ -468,7 +494,8 @@ Read a number and output it's prime factorization. For example:
 ∙ Output: 2 2 2 3 5 7     (840 = 2^3 * 3 * 5 * 7)
 
 Constraints:
-∙ 2 ≤ Input ≤ 999"""
+∙ 2 ≤ Input ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "69e11ea2-ebcf-455f-aa0b-4b54481024b0"
@@ -491,7 +518,8 @@ Example:
 Constraints:
 ∙ All instructions are valid
 ∙ -99 ≤ Input ≤ 99
-∙ Program will not cause a stack or arithmetic error"""
+∙ Program will not cause a stack or arithmetic error
+"""
 
 [[levelGroups.levels]]
 id = "bcae893b-dcc2-4a50-83c1-20836ee190ed"
@@ -508,7 +536,8 @@ Count the number of steps it takes before the value reaches 1.
 
 Example:
 ∙ Input: 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1
-∙ Output: 9 Steps"""
+∙ Output: 9 Steps
+"""
 
 [[levelGroups.levels]]
 id = "76521aeb-bfd7-4502-962b-e9bbd18d9072"
@@ -519,7 +548,8 @@ description = """
 Read x from the input, then compute √x rounded down.
 
 Constraints:
-∙ 0 ≤ x ≤ 999"""
+∙ 0 ≤ x ≤ 999
+"""
 
 
 # -----------------
@@ -545,7 +575,8 @@ Example:
 Constraints:
 ∙ Command = 1 (READ) or -1 (WRITE)
 ∙ -999 ≤ Initial, <Value> ≤ 999
-∙ 0 ≤ <Addr> ≤ 4"""
+∙ 0 ≤ <Addr> ≤ 4
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -565,7 +596,8 @@ Output the path you took through the list.
 Constraints:
 ∙ Linked list always contains 10 memory cells
 ∙ 0 ≤ Random Start, Memory Cell ≤ 9
-∙ Loop is guaranteed to terminate"""
+∙ Loop is guaranteed to terminate
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -584,7 +616,8 @@ Read a, b, and r(0) (the seed) from the input, and output r(1) to r(15).
 Constraints:
 ∙ 2 ≤ a ≤ 999
 ∙ 0 ≤ b ≤ 999
-∙ 0 ≤ Seed ≤ 999"""
+∙ 0 ≤ Seed ≤ 999
+"""
 
 [[levelGroups.levels]]
 id = "3da6926e-9450-4a36-986e-6a8b2c90f644"
@@ -605,7 +638,8 @@ Example: 987,654 + 98,774 = 1,086,428
 
 Constraints:
 ∙ 0 ≤ Digit ≤ 999
-∙ Each big integer will have 1 to 5 digits"""
+∙ Each big integer will have 1 to 5 digits
+"""
 
 
 # -----------------
@@ -624,7 +658,8 @@ Values should be sorted from smallest to largest.
 
 Constraints:
 ∙ -99 ≤ Input ≤ 99
-∙ 6 ≤ Number of Values ≤ 10"""
+∙ 6 ≤ Number of Values ≤ 10
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -639,7 +674,8 @@ Output values should be sorted from smallest to largest.
 
 Constraints:
 ∙ -99 ≤ Input ≤ 99
-∙ 6 ≤ Number of Values ≤ 10"""
+∙ 6 ≤ Number of Values ≤ 10
+"""
 # }}}
 
 [[levelGroups.levels]]
@@ -655,7 +691,8 @@ Recall that x^0 = 1 for any x (except 0^0, which is undefined).
 Constraints:
 ∙ 0 ≤ x,y ≤ 9
 ∙ x^y will not overflow
-∙ Will not ask for 0^0"""
+∙ Will not ask for 0^0
+"""
 
 [[levelGroups.levels]]
 id = "56b6be1a-1063-4ae5-90dc-fe3e5d12f6e5"
@@ -675,7 +712,8 @@ Example:
 Constraints:
 ∙ 1 ≤ Input ≤ 99
 ∙ -99 ≤ Input ≤ 99
-∙ Subsequence will be unique"""
+∙ Subsequence will be unique
+"""
 
 [[levelGroups.levels]]
 id = "11f50659-b719-409a-990b-4704d6edc3a1"
@@ -698,7 +736,8 @@ Reference the following truth table for the opcodes and expected outputs:
 │ 1 │ 0 ║ 0  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │
 │ 0 │ 1 ║ 1  │ 0  │ 1  │ 1  │ 0  │ 1  │ 0  │
 │ 0 │ 0 ║ -  │ 0  │ 0  │ 0  │ 1  │ 1  │ 1  │
-└───┴───╨────┴────┴────┴────┴────┴────┴────┘"""
+└───┴───╨────┴────┴────┴────┴────┴────┴────┘
+"""
 
 [[levelGroups.levels]]
 id = "0d398ad2-7a36-4e27-9e0d-df08bc7b9d98"
@@ -721,7 +760,8 @@ Constraints:
 ∙ -99 ≤ Input ≤ 99
 ∙ -9 ≤ Output Solution ≤ 9
 ∙ Duplicate solutions should only be output once
-∙ Quadratic can be computed without overflow"""
+∙ Quadratic can be computed without overflow
+"""
 
 # Challenge Levels {{{
   [[levelGroups.levels.challengeLevels]]
@@ -743,7 +783,8 @@ Constraints:
 ∙ -999 ≤ Input ≤ 999
 ∙ -9 ≤ Output Solution ≤ 9
 ∙ Duplicate solutions should only be output once
-∙ Cubic can be computed without overflow"""
+∙ Cubic can be computed without overflow
+"""
 
   [[levelGroups.levels.challengeLevels]]
   id = "6185615f-185a-46a6-848f-df7a682d8f1e"
@@ -766,5 +807,6 @@ Constraints:
   │Output Range║[-9,9]│[-7,7]│[-5,5]│[-3,3]│
   └────────────╨──────┴──────┴──────┴──────┘
 ∙ Duplicate solutions should only be output once
-∙ Polynomial can be computed without overflow"""
+∙ Polynomial can be computed without overflow
+"""
 # }}}
