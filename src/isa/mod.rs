@@ -2,10 +2,12 @@ use crate::{level::LevelIndex, state::State};
 use std::error::Error;
 use uuid::Uuid;
 
+pub mod binary;
 pub mod parallel;
 pub mod standard;
 
 // Re-export the puzzle types
+pub use binary::Binary;
 pub use parallel::Parallel;
 pub use standard::Standard;
 

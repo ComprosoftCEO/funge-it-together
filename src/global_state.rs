@@ -20,6 +20,8 @@ pub struct GlobalState {
   #[serde(default)]
   parallel_solutions: HashMap<Uuid, Vec<isa::parallel::Solution>>,
   #[serde(default)]
+  binary_solutions: HashMap<Uuid, Vec<isa::binary::Solution>>,
+  #[serde(default)]
   unlocked: HashMap<Uuid, Statistics>,
 
   #[serde(skip)]
@@ -112,6 +114,17 @@ impl SolutionManager<isa::Parallel> for GlobalState {
 
   fn get_all_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<isa::parallel::Solution> {
     self.parallel_solutions.entry(level_id).or_default()
+  }
+}
+
+impl SolutionManager<isa::Binary> for GlobalState {
+  fn get_all_solutions(&self, level_id: Uuid) -> &Vec<isa::binary::Solution> {
+    static EMPTY_LIST: Vec<isa::binary::Solution> = Vec::new();
+    self.binary_solutions.get(&level_id).unwrap_or(&EMPTY_LIST)
+  }
+
+  fn get_all_solutions_mut(&mut self, level_id: Uuid) -> &mut Vec<isa::binary::Solution> {
+    self.binary_solutions.entry(level_id).or_default()
   }
 }
 
