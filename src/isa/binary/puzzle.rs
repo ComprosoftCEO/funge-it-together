@@ -1,13 +1,12 @@
 use crossterm::style::Stylize;
 use crossterm::{cursor, QueueableCommand};
-use rand::Rng;
 use std::collections::VecDeque;
 use std::io::{self, Write};
 
-use super::vm::{VAL_CHAR_WIDTH, VAL_MAX, VAL_MIN};
+use super::vm::VAL_CHAR_WIDTH;
 use crate::printable::Printable;
 
-pub const MAX_PUZZLE_VALUES: usize = 15;
+pub const MAX_PUZZLE_VALUES: usize = 16;
 
 pub type TestCaseSet = Vec<Puzzle>;
 
@@ -19,7 +18,7 @@ pub struct Puzzle {
 
 impl Puzzle {
   // Performs validation and returns a printable error string
-  pub fn new(inputs: Vec<i16>, outputs: Vec<i16>) -> Result<Self, String> {
+  pub fn new(inputs: Vec<u8>, outputs: Vec<u8>) -> Result<Self, String> {
     if inputs.len() > MAX_PUZZLE_VALUES {
       return Err(format!(
         "Too many input values, maximum of {MAX_PUZZLE_VALUES} allowed, {} given",
@@ -31,17 +30,6 @@ impl Puzzle {
         "Too many output values, maximum of {MAX_PUZZLE_VALUES} allowed, {} given",
         outputs.len()
       ));
-    }
-
-    for val in inputs.iter() {
-      if !(VAL_MIN..=VAL_MAX).contains(val) {
-        return Err(format!("Input {val} outside range [-999,999]"));
-      }
-    }
-    for val in outputs.iter() {
-      if !(VAL_MIN..=VAL_MAX).contains(val) {
-        return Err(format!("Output {val} outside range [-999,999]"));
-      }
     }
 
     Ok(Self {
@@ -79,17 +67,12 @@ impl Printable for Puzzle {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PuzzleIO(VecDeque<i16>);
+pub struct PuzzleIO(VecDeque<u8>);
 
 #[allow(unused)]
 impl PuzzleIO {
   pub fn new() -> Self {
     Self(VecDeque::new())
-  }
-
-  pub fn new_random() -> Self {
-    let mut rng = rand::thread_rng();
-    Self((0..rng.gen_range(0..=10)).map(|_| rng.gen_range(-999..=999)).collect())
   }
 
   pub fn len(&self) -> usize {
@@ -100,18 +83,12 @@ impl PuzzleIO {
     !self.0.is_empty()
   }
 
-  pub fn read(&mut self) -> Option<i16> {
+  pub fn read(&mut self) -> Option<u8> {
     self.0.pop_front()
   }
 
-  // Returns false if the stack overflows
-  pub fn write(&mut self, val: i16) -> bool {
-    if self.0.len() < MAX_PUZZLE_VALUES {
-      self.0.push_back(val);
-      true
-    } else {
-      false
-    }
+  pub fn write(&mut self, val: u8) {
+    self.0.push_back(val);
   }
 
   pub(crate) fn print_with_expected_outputs(&self, expected_outputs: &PuzzleIO) -> io::Result<()> {

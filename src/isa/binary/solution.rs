@@ -9,7 +9,8 @@ use crate::isa;
 use crate::printable::Printable;
 
 // Binary levels use a 16x16 grid
-const GRID_SIZE: usize = 10;
+const GRID_SIZE: usize = 16;
+pub type Memory = [u8; 256];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,7 +20,7 @@ pub struct Solution {
   grid: Grid<Command>,
   start_row: usize,
   start_col: usize,
-  memory: Grid<u8>,
+  memory: Memory,
 }
 
 fn default_name() -> String {
@@ -49,8 +50,8 @@ impl isa::Solution for Solution {
 
 #[allow(unused)]
 impl Solution {
-  pub fn into_grid(self) -> Grid<Command> {
-    self.grid
+  pub fn into_parts(self) -> (Grid<Command>, Memory) {
+    (self.grid, self.memory)
   }
 
   pub fn rows(&self) -> usize {
@@ -91,7 +92,7 @@ impl Default for Solution {
     Self {
       name: "New Solution".into(),
       grid: Grid::new(GRID_SIZE, GRID_SIZE),
-      memory: Grid::new(GRID_SIZE, GRID_SIZE),
+      memory: [0; 256],
       start_row: 0,
       start_col: 0,
     }

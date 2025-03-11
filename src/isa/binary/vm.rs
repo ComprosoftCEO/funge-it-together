@@ -5,18 +5,17 @@ use std::collections::VecDeque;
 use std::io::{self, Write};
 
 use super::puzzle::{Puzzle, PuzzleIO};
-use super::solution::Solution;
+use super::solution::{Memory, Solution};
 use crate::grid::Grid;
 use crate::printable::Printable;
 
-pub const VAL_MIN: i16 = -999;
-pub const VAL_MAX: i16 = 999;
 pub const VAL_CHAR_WIDTH: usize = 4; // 3 numbers and negative sign
 const MAX_STACK_ENTRIES: usize = 16;
 
 #[derive(Debug, Clone)]
 pub struct VirtualMachine {
   grid: Grid<Command>,
+  memory: Memory,
 
   cycle: u32,
   row: i16,
@@ -24,6 +23,8 @@ pub struct VirtualMachine {
   direction: Direction,
   skip_next_instruction: bool,
   last_was_number: bool,
+  is_carry: bool,
+  is_overflow: bool,
   stack: Stack,
 
   inputs: PuzzleIO,
@@ -213,267 +214,359 @@ impl Default for Command {
   }
 }
 
-// pub enum VMError {
-//   NumericOverflow,
-//   StackOverflow,
-//   StackUnderflow,
-//   NoInputs,
-//   TooManyOutputs,
-// }
+pub enum VMError {
+  StackOverflow,
+  StackUnderflow,
+  NoInputs,
+}
 
-// #[allow(unused)]
-// impl VirtualMachine {
-//   pub fn new(solution: Solution, test_case: usize, puzzle: &Puzzle) -> Self {
-//     let row = solution.start_row() as i16;
-//     let col = solution.start_col() as i16;
+#[allow(unused)]
+impl VirtualMachine {
+  pub fn new(solution: Solution, test_case: usize, puzzle: &Puzzle) -> Self {
+    let row = solution.start_row() as i16;
+    let col = solution.start_col() as i16;
+    let (grid, memory) = solution.into_parts();
 
-//     Self {
-//       grid: solution.into_grid(),
-//       cycle: 0,
-//       row,
-//       col,
-//       direction: Direction::Right, // Always starts facing right
-//       skip_next_instruction: false,
-//       last_was_number: false,
-//       stack: Stack::new(),
-//       inputs: puzzle.get_inputs().clone(),
-//       outputs: PuzzleIO::new(),
-//       test_case,
-//       expected_outputs: puzzle.get_outputs().clone(),
-//     }
-//   }
+    // TODO: puzzle can write to memory too
 
-//   pub fn rows(&self) -> usize {
-//     self.grid.rows()
-//   }
+    Self {
+      grid,
+      memory,
+      cycle: 0,
+      row,
+      col,
+      direction: Direction::Right, // Always starts facing right
+      skip_next_instruction: false,
+      last_was_number: false,
+      is_carry: false,
+      is_overflow: false,
+      stack: Stack::new(),
+      inputs: puzzle.get_inputs().clone(),
+      outputs: PuzzleIO::new(),
+      test_case,
+      expected_outputs: puzzle.get_outputs().clone(),
+    }
+  }
 
-//   pub fn cols(&self) -> usize {
-//     self.grid.cols()
-//   }
+  pub fn rows(&self) -> usize {
+    self.grid.rows()
+  }
 
-//   pub fn count_symbols(&self) -> usize {
-//     self.grid.count_symbols()
-//   }
+  pub fn cols(&self) -> usize {
+    self.grid.cols()
+  }
 
-//   pub fn get_cycle(&self) -> u32 {
-//     self.cycle
-//   }
+  pub fn count_symbols(&self) -> usize {
+    self.grid.count_symbols()
+  }
 
-//   // Returns Ok(true) when the puzzle is solved
-//   pub fn step(&mut self) -> Result<bool, VMError> {
-//     if self.inputs.len() == 0 && self.outputs == self.expected_outputs {
-//       return Ok(true);
-//     }
+  pub fn get_cycle(&self) -> u32 {
+    self.cycle
+  }
 
-//     self.cycle = self.cycle.wrapping_add(1);
+  // Returns Ok(true) when the puzzle is solved
+  pub fn step(&mut self) -> Result<bool, VMError> {
+    if self.inputs.len() == 0 && self.outputs == self.expected_outputs {
+      return Ok(true);
+    }
 
-//     let mut is_number = false;
-//     if !self.skip_next_instruction {
-//       match self.grid.get_value(self.row as usize, self.col as usize) {
-//         Command::Empty => {},
-//         Command::Up => {
-//           self.direction = Direction::Up;
-//         },
-//         Command::Down => self.direction = Direction::Down,
-//         Command::Left => self.direction = Direction::Left,
-//         Command::Right => self.direction = Direction::Right,
-//         Command::ForwardSlash => {
-//           self.direction = match self.direction {
-//             Direction::Up => Direction::Right,
-//             Direction::Right => Direction::Up,
-//             Direction::Down => Direction::Left,
-//             Direction::Left => Direction::Down,
-//           };
-//         },
-//         Command::BackSlash => {
-//           self.direction = match self.direction {
-//             Direction::Up => Direction::Left,
-//             Direction::Left => Direction::Up,
-//             Direction::Down => Direction::Right,
-//             Direction::Right => Direction::Down,
-//           };
-//         },
-//         Command::Zero => {
-//           is_number = true;
-//           self.handle_number(0)?;
-//         },
-//         Command::One => {
-//           is_number = true;
-//           self.handle_number(1)?;
-//         },
-//         Command::Two => {
-//           is_number = true;
-//           self.handle_number(2)?;
-//         },
-//         Command::Three => {
-//           is_number = true;
-//           self.handle_number(3)?;
-//         },
-//         Command::Four => {
-//           is_number = true;
-//           self.handle_number(4)?;
-//         },
-//         Command::Five => {
-//           is_number = true;
-//           self.handle_number(5)?;
-//         },
-//         Command::Six => {
-//           is_number = true;
-//           self.handle_number(6)?;
-//         },
-//         Command::Seven => {
-//           is_number = true;
-//           self.handle_number(7)?;
-//         },
-//         Command::Eight => {
-//           is_number = true;
-//           self.handle_number(8)?;
-//         },
-//         Command::Nine => {
-//           is_number = true;
-//           self.handle_number(9)?;
-//         },
-//         Command::Pop => {
-//           self.pop()?;
-//         },
-//         Command::Copy => {
-//           let val = self.peek()?;
-//           self.push(val)?;
-//         },
-//         Command::SwapTop2 => {
-//           let v1 = self.pop()?;
-//           let v2 = self.pop()?;
-//           self.push(v1)?;
-//           self.push(v2)?;
-//         },
-//         Command::RotateDown => {
-//           self.stack.rotate_down();
-//         },
-//         Command::RotateUp => {
-//           self.stack.rotate_up();
-//         },
-//         Command::Add => {
-//           let v2 = self.pop()?;
-//           let v1 = self.pop()?;
-//           self.push(v1 + v2)?;
-//         },
-//         Command::Subtract => {
-//           let v2 = self.pop()?;
-//           let v1 = self.pop()?;
-//           self.push(v1 - v2)?;
-//         },
-//         Command::IfLess => {
-//           let val = self.peek()?;
-//           self.skip_next_instruction = !(val < 0);
-//         },
-//         Command::IfEqual => {
-//           let val = self.peek()?;
-//           self.skip_next_instruction = !(val == 0);
-//         },
-//         Command::IfGreater => {
-//           let val = self.peek()?;
-//           self.skip_next_instruction = !(val > 0);
-//         },
-//         Command::Skip => {
-//           self.skip_next_instruction = true;
-//         },
-//         Command::In => {
-//           let val = self.inputs.read().ok_or(VMError::NoInputs)?;
-//           self.push(val)?;
-//         },
-//         Command::HasInput => {
-//           self.skip_next_instruction = !self.inputs.can_read();
-//         },
-//         Command::Out => {
-//           let val = self.pop()?;
-//           if !self.outputs.write(val) {
-//             return Err(VMError::TooManyOutputs);
-//           }
-//         },
-//       }
-//     } else {
-//       self.skip_next_instruction = false;
-//     }
+    self.cycle = self.cycle.wrapping_add(1);
 
-//     // Now perform movement
-//     match self.direction {
-//       Direction::Up => {
-//         self.row = (self.row - 1).rem_euclid(self.grid.rows() as i16);
-//       },
-//       Direction::Down => {
-//         self.row = (self.row + 1).rem_euclid(self.grid.rows() as i16);
-//       },
-//       Direction::Left => {
-//         self.col = (self.col - 1).rem_euclid(self.grid.cols() as i16);
-//       },
-//       Direction::Right => {
-//         self.col = (self.col + 1).rem_euclid(self.grid.cols() as i16);
-//       },
-//     }
+    let mut is_number = false;
+    if !self.skip_next_instruction {
+      match self.grid.get_value(self.row as usize, self.col as usize) {
+        Command::Empty => {},
+        Command::Up => {
+          self.direction = Direction::Up;
+        },
+        Command::Down => self.direction = Direction::Down,
+        Command::Left => self.direction = Direction::Left,
+        Command::Right => self.direction = Direction::Right,
+        Command::ForwardSlash => {
+          self.direction = match self.direction {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Up,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Down,
+          };
+        },
+        Command::BackSlash => {
+          self.direction = match self.direction {
+            Direction::Up => Direction::Left,
+            Direction::Left => Direction::Up,
+            Direction::Down => Direction::Right,
+            Direction::Right => Direction::Down,
+          };
+        },
+        Command::Skip => {
+          self.skip_next_instruction = true;
+        },
 
-//     self.last_was_number = is_number;
+        Command::Zero => {
+          is_number = true;
+          self.handle_number(0)?;
+        },
+        Command::One => {
+          is_number = true;
+          self.handle_number(1)?;
+        },
+        Command::Two => {
+          is_number = true;
+          self.handle_number(2)?;
+        },
+        Command::Three => {
+          is_number = true;
+          self.handle_number(3)?;
+        },
+        Command::Four => {
+          is_number = true;
+          self.handle_number(4)?;
+        },
+        Command::Five => {
+          is_number = true;
+          self.handle_number(5)?;
+        },
+        Command::Six => {
+          is_number = true;
+          self.handle_number(6)?;
+        },
+        Command::Seven => {
+          is_number = true;
+          self.handle_number(7)?;
+        },
+        Command::Eight => {
+          is_number = true;
+          self.handle_number(8)?;
+        },
+        Command::Nine => {
+          is_number = true;
+          self.handle_number(9)?;
+        },
+        Command::A => {
+          is_number = true;
+          self.handle_number(10)?;
+        },
+        Command::B => {
+          is_number = true;
+          self.handle_number(11)?;
+        },
+        Command::C => {
+          is_number = true;
+          self.handle_number(12)?;
+        },
+        Command::D => {
+          is_number = true;
+          self.handle_number(13)?;
+        },
+        Command::E => {
+          is_number = true;
+          self.handle_number(14)?;
+        },
+        Command::F => {
+          is_number = true;
+          self.handle_number(15)?;
+        },
 
-//     Ok(false)
-//   }
+        Command::Pop => {
+          self.pop()?;
+        },
+        Command::Copy => {
+          let val = self.peek()?;
+          self.push(val)?;
+        },
+        Command::SwapTop2 => {
+          let v1 = self.pop()?;
+          let v2 = self.pop()?;
+          self.push(v1)?;
+          self.push(v2)?;
+        },
+        Command::RotateDown => {
+          self.stack.rotate_down();
+        },
+        Command::RotateUp => {
+          self.stack.rotate_up();
+        },
 
-//   fn push(&mut self, val: i16) -> Result<(), VMError> {
-//     if val != val.clamp(VAL_MIN, VAL_MAX) {
-//       return Err(VMError::NumericOverflow);
-//     }
+        Command::Add => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          let result = self.handle_add(v1, v2);
+          self.push(result)?;
+        },
+        Command::Subtract => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          let result = self.handle_sub(v1, v2);
+          self.push(result)?;
+        },
 
-//     self.stack.push(val).then_some(()).ok_or(VMError::StackOverflow)
-//   }
+        Command::BitwiseAnd => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          self.push(v1 & v2)?;
+        },
+        Command::BitwiseOr => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          self.push(v1 | v2)?;
+        },
+        Command::BitwiseXor => {
+          let v2 = self.pop()?;
+          let v1 = self.pop()?;
+          self.push(v1 ^ v2)?;
+        },
+        Command::BitwiseNot => {
+          let v1 = self.pop()?;
+          self.push(!v1)?;
+        },
+        Command::LogicalShiftRight => {
+          let v1 = self.pop()?;
+          self.push(v1 >> 1)?;
+        },
 
-//   fn pop(&mut self) -> Result<i16, VMError> {
-//     self.stack.pop().ok_or(VMError::StackUnderflow)
-//   }
+        Command::IfLess => {
+          let val = self.peek()?;
+          self.skip_next_instruction = !((val as i8) < 0);
+        },
+        Command::IfEqual => {
+          let val = self.peek()?;
+          self.skip_next_instruction = !(val == 0);
+        },
+        Command::IfGreater => {
+          let val = self.peek()?;
+          self.skip_next_instruction = !((val as i8) > 0);
+        },
+        Command::IfCarry => {
+          self.skip_next_instruction = self.is_carry;
+        },
+        Command::IfOverflow => {
+          self.skip_next_instruction = self.is_overflow;
+        },
 
-//   fn peek(&self) -> Result<i16, VMError> {
-//     self.stack.peek().ok_or(VMError::StackUnderflow)
-//   }
+        Command::In => {
+          let val = self.inputs.read().ok_or(VMError::NoInputs)?;
+          self.push(val)?;
+        },
+        Command::HasInput => {
+          self.skip_next_instruction = !self.inputs.can_read();
+        },
+        Command::Out => {
+          let val = self.pop()?;
+          self.outputs.write(val);
+        },
 
-//   fn handle_number(&mut self, number: i16) -> Result<(), VMError> {
-//     if self.last_was_number {
-//       let val = self.pop()?;
-//       self.push(val * 10 + number)
-//     } else {
-//       self.push(number)
-//     }
-//   }
+        Command::Load => {
+          let addr = self.pop()?;
+          self.push(self.memory[addr as usize])?;
+        },
+        Command::Store => {
+          let addr = self.pop()?;
+          let val = self.pop()?;
+          self.memory[addr as usize] = val;
+        },
+      }
+    } else {
+      self.skip_next_instruction = false;
+    }
 
-//   pub fn print_error_symbol_at(&self, row: u16, col: u16) -> io::Result<()> {
-//     let mut stdout = io::stdout();
-//     stdout.queue(cursor::MoveTo(col + self.col as u16 + 1, row + self.row as u16 + 1))?;
-//     write!(
-//       stdout,
-//       "{}",
-//       self
-//         .grid
-//         .get_value(self.row as usize, self.col as usize)
-//         .get_char()
-//         .red()
-//         .reverse()
-//     )?;
+    // Now perform movement
+    match self.direction {
+      Direction::Up => {
+        self.row = (self.row - 1).rem_euclid(self.grid.rows() as i16);
+      },
+      Direction::Down => {
+        self.row = (self.row + 1).rem_euclid(self.grid.rows() as i16);
+      },
+      Direction::Left => {
+        self.col = (self.col - 1).rem_euclid(self.grid.cols() as i16);
+      },
+      Direction::Right => {
+        self.col = (self.col + 1).rem_euclid(self.grid.cols() as i16);
+      },
+    }
 
-//     Ok(())
-//   }
+    self.last_was_number = is_number;
 
-//   pub fn row(&self) -> usize {
-//     self.row as usize
-//   }
+    Ok(false)
+  }
 
-//   pub fn col(&self) -> usize {
-//     self.col as usize
-//   }
+  fn push(&mut self, val: u8) -> Result<(), VMError> {
+    self.stack.push(val).then_some(()).ok_or(VMError::StackOverflow)
+  }
 
-//   pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
-//     self.grid.toggle_breakpoint(row, col)
-//   }
+  fn pop(&mut self) -> Result<u8, VMError> {
+    self.stack.pop().ok_or(VMError::StackUnderflow)
+  }
 
-//   pub fn is_at_breakpoint(&self) -> bool {
-//     self.grid.has_breakpoint(self.row as usize, self.col as usize) && !self.skip_next_instruction
-//   }
-// }
+  fn peek(&self) -> Result<u8, VMError> {
+    self.stack.peek().ok_or(VMError::StackUnderflow)
+  }
+
+  fn handle_number(&mut self, number: u8) -> Result<(), VMError> {
+    if self.last_was_number {
+      let val = self.pop()?;
+      self.last_was_number = false; // To have consecutive numbers
+      self.push(val * 16 + number)
+    } else {
+      self.push(number)
+    }
+  }
+
+  // Updates the carry and overflow flags accordingly
+  fn handle_add(&mut self, left: u8, right: u8) -> u8 {
+    let (result, is_carry) = left.overflowing_add(right);
+    let (_, is_overflow) = (left as i8).overflowing_add(right as i8);
+
+    self.is_carry = is_carry;
+    self.is_overflow = is_overflow;
+
+    result
+  }
+
+  // Updates the carry and overflow flags accordingly
+  fn handle_sub(&mut self, left: u8, right: u8) -> u8 {
+    let (result, is_carry) = left.overflowing_sub(right);
+    let (_, is_overflow) = (left as i8).overflowing_sub(right as i8);
+
+    self.is_carry = is_carry;
+    self.is_overflow = is_overflow;
+
+    result
+  }
+
+  pub fn print_error_symbol_at(&self, row: u16, col: u16) -> io::Result<()> {
+    let mut stdout = io::stdout();
+    stdout.queue(cursor::MoveTo(col + self.col as u16 + 1, row + self.row as u16 + 1))?;
+    write!(
+      stdout,
+      "{}",
+      self
+        .grid
+        .get_value(self.row as usize, self.col as usize)
+        .get_char()
+        .red()
+        .reverse()
+    )?;
+
+    Ok(())
+  }
+
+  pub fn row(&self) -> usize {
+    self.row as usize
+  }
+
+  pub fn col(&self) -> usize {
+    self.col as usize
+  }
+
+  pub fn toggle_breakpoint(&mut self, row: usize, col: usize) {
+    self.grid.toggle_breakpoint(row, col)
+  }
+
+  pub fn is_at_breakpoint(&self) -> bool {
+    self.grid.has_breakpoint(self.row as usize, self.col as usize) && !self.skip_next_instruction
+  }
+}
 
 // impl Printable for VirtualMachine {
 //   fn print(&self) -> io::Result<()> {
@@ -537,7 +630,7 @@ impl Printable for Command {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Stack {
-  values: VecDeque<i16>,
+  values: VecDeque<u8>,
 }
 
 #[allow(unused)]
@@ -557,9 +650,9 @@ impl Stack {
   }
 
   // Returns false if the stack overflows
-  pub fn push(&mut self, val: i16) -> bool {
+  pub fn push(&mut self, val: u8) -> bool {
     if self.values.len() < MAX_STACK_ENTRIES {
-      self.values.push_back(val.clamp(VAL_MIN, VAL_MAX));
+      self.values.push_back(val);
       true
     } else {
       false
@@ -567,11 +660,11 @@ impl Stack {
   }
 
   // Returns None if the stack underflows
-  pub fn pop(&mut self) -> Option<i16> {
+  pub fn pop(&mut self) -> Option<u8> {
     self.values.pop_back()
   }
 
-  pub fn peek(&self) -> Option<i16> {
+  pub fn peek(&self) -> Option<u8> {
     self.values.back().cloned()
   }
 
@@ -624,20 +717,18 @@ impl Printable for Stack {
   }
 }
 
-// impl VMError {
-//   pub fn get_msg(&self) -> &'static str {
-//     match self {
-//       Self::NumericOverflow => "Numeric overflow",
-//       Self::StackOverflow => "Stack overflow",
-//       Self::StackUnderflow => "Stack underflow",
-//       Self::NoInputs => "No inputs left",
-//       Self::TooManyOutputs => "Too many outputs",
-//     }
-//   }
-// }
+impl VMError {
+  pub fn get_msg(&self) -> &'static str {
+    match self {
+      Self::StackOverflow => "Stack overflow",
+      Self::StackUnderflow => "Stack underflow",
+      Self::NoInputs => "No inputs left",
+    }
+  }
+}
 
-// impl Printable for VMError {
-//   fn print(&self) -> io::Result<()> {
-//     write!(io::stdout(), "{}", self.get_msg().red())
-//   }
-// }
+impl Printable for VMError {
+  fn print(&self) -> io::Result<()> {
+    write!(io::stdout(), "{}", self.get_msg().red())
+  }
+}
