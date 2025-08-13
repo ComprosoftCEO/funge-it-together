@@ -153,7 +153,7 @@ impl State for ExecuteState {
     stdout.queue(cursor::Hide)?;
     write!(stdout, "     {} - {}", self.level_index, level.name().yellow())?;
 
-    self.vms[self.test_case].print_at(2, 0)?;
+    self.vms[self.test_case].print_at((), 2, 0)?;
 
     if let Some((ref last_error, error_index)) = self.last_error {
       match error_index {
@@ -167,7 +167,7 @@ impl State for ExecuteState {
         _ => Ok(()),
       }?;
 
-      last_error.print_at(self.vms[0].height() + 4, 0)?;
+      last_error.print_at((), self.vms[0].height() + 4, 0)?;
     }
 
     stdout

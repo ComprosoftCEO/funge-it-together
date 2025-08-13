@@ -104,7 +104,7 @@ impl State for EditorState {
     let level = global_state.level(self.level_index);
     write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
-    self.solution.print_at(2, 0)?;
+    self.solution.print_at((), 2, 0)?;
 
     stdout
       .queue(cursor::MoveTo(self.solution.cols() as u16 + 2 + 8, 2))?
@@ -117,7 +117,7 @@ impl State for EditorState {
     )?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveDown(2))?;
 
-    self.test_cases[self.test_case_index as usize].print()?;
+    self.test_cases[self.test_case_index as usize].print(())?;
 
     stdout
       .queue(cursor::MoveTo(55, 0))?

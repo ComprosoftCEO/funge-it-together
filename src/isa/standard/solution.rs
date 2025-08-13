@@ -97,10 +97,12 @@ impl Default for Solution {
 }
 
 impl Printable for Solution {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     stdout.queue(cursor::SavePosition)?;
-    self.grid.print()?;
+    self.grid.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?

@@ -78,7 +78,9 @@ impl ProcessorIO {
 }
 
 impl Printable for Puzzle {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
 
     const HEADER: &str = "Input  Output";
@@ -88,24 +90,24 @@ impl Printable for Puzzle {
       .queue(cursor::MoveDown(1))?
       .queue(cursor::SavePosition)?;
 
-    self.processor_io[0].inputs.print()?;
+    self.processor_io[0].inputs.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(MAX_PUZZLE_VALUES as u16 + 1))?;
-    self.processor_io[1].inputs.print()?;
+    self.processor_io[1].inputs.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveRight(7))?
       .queue(cursor::SavePosition)?;
 
-    self.processor_io[0].outputs.print()?;
+    self.processor_io[0].outputs.print(())?;
     stdout
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(MAX_PUZZLE_VALUES as u16 + 1))?;
 
-    self.processor_io[1].outputs.print()?;
+    self.processor_io[1].outputs.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?
@@ -191,7 +193,9 @@ impl PuzzleIO {
 }
 
 impl Printable for PuzzleIO {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     self.print_with_expected_outputs(self)
   }
 }

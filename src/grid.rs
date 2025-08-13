@@ -81,11 +81,14 @@ where
   }
 }
 
-impl<C> Printable for Grid<C>
+impl<Cell, Ctx> Printable for Grid<Cell>
 where
-  C: Printable,
+  Cell: Printable<Context = Ctx>,
+  Ctx: Clone,
 {
-  fn print(&self) -> io::Result<()> {
+  type Context = Ctx;
+
+  fn print(&self, ctx: Self::Context) -> io::Result<()> {
     let cols = self.values[0].len();
     let mut stdout = io::stdout();
 
@@ -113,7 +116,7 @@ where
           in_breakpoint = false;
         }
 
-        command.print()?;
+        command.print(ctx.clone())?;
       }
 
       if in_breakpoint {

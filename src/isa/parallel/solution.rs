@@ -69,12 +69,14 @@ impl Solution {
 }
 
 impl Printable for Solution {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
 
-    self.programs[0].print()?;
+    self.programs[0].print(())?;
     stdout.queue(cursor::MoveDown(self.programs[0].rows() as u16 + 1))?;
-    self.programs[1].print()?;
+    self.programs[1].print(())?;
     write!(stdout, "├{}┤", "─".repeat(self.programs[1].cols()))?;
 
     Ok(())
@@ -143,10 +145,12 @@ impl Default for Program {
 }
 
 impl Printable for Program {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     stdout.queue(cursor::SavePosition)?;
-    self.grid.print()?;
+    self.grid.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?

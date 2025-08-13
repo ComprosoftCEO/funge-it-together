@@ -424,10 +424,12 @@ impl VirtualMachine {
 }
 
 impl Printable for VirtualMachine {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     stdout.queue(cursor::SavePosition)?;
-    self.grid.print()?;
+    self.grid.print(())?;
 
     stdout
       .queue(cursor::RestorePosition)?
@@ -464,20 +466,22 @@ impl Printable for VirtualMachine {
       .queue(cursor::RestorePosition)?
       .queue(cursor::MoveDown(1))?
       .queue(cursor::SavePosition)?;
-    self.stack.print()?;
+    self.stack.print(())?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(9))?;
-    self.inputs.print()?;
+    self.inputs.print(())?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(16))?;
     self.outputs.print_with_expected_outputs(&self.expected_outputs)?;
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(23))?;
-    self.expected_outputs.print()?;
+    self.expected_outputs.print(())?;
 
     Ok(())
   }
 }
 
 impl Printable for Command {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     write!(stdout, "{}", self.get_char())
   }
@@ -541,7 +545,9 @@ impl Stack {
 }
 
 impl Printable for Stack {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     // ┌─┐
     // │ │
@@ -585,7 +591,9 @@ impl VMError {
 }
 
 impl Printable for VMError {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     write!(io::stdout(), "{}", self.get_msg().red())
   }
 }

@@ -132,11 +132,11 @@ impl State for ExecuteState {
     stdout.queue(cursor::Hide)?;
     write!(stdout, "     {}", level.get_title(self.level_index).yellow())?;
 
-    self.vms[self.test_case].print_at(2, 0)?;
+    self.vms[self.test_case].print_at((), 2, 0)?;
 
     if let Some(ref last_error) = self.last_error {
       self.vms[self.test_case].print_error_symbol_at(2, 0)?;
-      last_error.print_at(self.vms[0].rows() as u16 + 2 + 2 + 4, 0)?;
+      last_error.print_at((), self.vms[0].rows() as u16 + 2 + 2 + 4, 0)?;
     }
 
     stdout

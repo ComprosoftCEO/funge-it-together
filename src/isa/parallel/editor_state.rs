@@ -120,7 +120,7 @@ impl State for EditorState {
     let level = global_state.level(self.level_index);
     write!(stdout, "     {} - {}", self.level_index, level.name().yellow())?;
 
-    self.solution.print_at(GRID_ROW, GRID_COL)?;
+    self.solution.print_at((), GRID_ROW, GRID_COL)?;
 
     stdout.queue(cursor::MoveTo(GRID_COL, 2))?.queue(cursor::SavePosition)?;
 
@@ -134,7 +134,7 @@ impl State for EditorState {
       2,
     ))?;
 
-    self.test_cases[self.test_case_index as usize].print()?;
+    self.test_cases[self.test_case_index as usize].print(())?;
 
     stdout
       .queue(cursor::MoveTo(55, 0))?

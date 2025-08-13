@@ -48,7 +48,9 @@ impl Puzzle {
 }
 
 impl Printable for Puzzle {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
 
     const HEADER: &str = "Input  Output";
@@ -57,10 +59,10 @@ impl Printable for Puzzle {
       .queue(cursor::MoveLeft(HEADER.len() as u16))?
       .queue(cursor::MoveDown(1))?
       .queue(cursor::SavePosition)?;
-    self.inputs.print()?;
+    self.inputs.print(())?;
 
     stdout.queue(cursor::RestorePosition)?.queue(cursor::MoveRight(7))?;
-    self.outputs.print()?;
+    self.outputs.print(())?;
 
     Ok(())
   }
@@ -128,7 +130,9 @@ impl PuzzleIO {
 }
 
 impl Printable for PuzzleIO {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     self.print_with_expected_outputs(self)
   }
 }

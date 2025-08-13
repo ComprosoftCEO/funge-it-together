@@ -622,7 +622,9 @@ impl VirtualMachine {
 // }
 
 impl Printable for Command {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     write!(stdout, "{}", self.get_char())
   }
@@ -686,7 +688,9 @@ impl Stack {
 }
 
 impl Printable for Stack {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     let mut stdout = io::stdout();
     // ┌─┐
     // │ │
@@ -728,7 +732,9 @@ impl VMError {
 }
 
 impl Printable for VMError {
-  fn print(&self) -> io::Result<()> {
+  type Context = ();
+
+  fn print(&self, _: Self::Context) -> io::Result<()> {
     write!(io::stdout(), "{}", self.get_msg().red())
   }
 }
